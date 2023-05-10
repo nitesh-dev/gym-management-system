@@ -10,7 +10,6 @@ let email = ref<string>("")
 let password = ref<string>("")
 let accountType = ref<string>("customer")
 let gender = ref("Male")
-let age = ref<number>()
 let dob = ref<string>("")
 let address = ref<string>("")
 
@@ -18,22 +17,24 @@ let message = ref(new Message())
 let isProgressHidden = ref(true)
 
 
-function saveCookies(accountType: string, accountId: number) {
+function saveCookies(accountType: string, accountId: string) {
   localStorage.setItem("accountType", accountType)
-  localStorage.setItem("accountId", accountId.toString())
+  localStorage.setItem("accountId", accountId)
 }
 
+
+// TODO incomplete
 async function onSubmitForm() {
 
-  isProgressHidden.value = false
-  const res = await Api.signUp(name.value, (contact.value as number).toString(), email.value, password.value, gender.value, age.value as number, accountType.value)
-  isProgressHidden.value = true
-  if (res.isSuccess) {
-    saveCookies(res.accountType, res.accountId)
-    window.location.href = '/'
-  } else {
-    message.value.show(res.error as string)
-  }
+  // isProgressHidden.value = false
+  // const res = await Api.signUp(name.value, (contact.value as number).toString(), email.value, password.value, gender.value, 0, accountType.value)
+  // isProgressHidden.value = true
+  // if (res.isSuccess) {
+  //   saveCookies(res.accountType, res.accountId)
+  //   window.location.href = '/'
+  // } else {
+  //   message.value.show(res.error as string)
+  // }
 
 }
 
@@ -50,7 +51,6 @@ async function onSubmitForm() {
       <input type="password" v-model="password" class="form-control" placeholder="Password" required="true">
       <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
       <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
-      <input type="number" v-model="age" class="form-control" placeholder="Age" required="true">
 
       <select class="form-select" v-model="gender" aria-label="Default select example" style="margin-bottom: 20px;"
         required>

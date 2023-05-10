@@ -22,8 +22,8 @@ async function onSubmitForm() {
 
   isProgressHidden.value = false
   const res = await Api.signIn(email.value, password.value)
-
   isProgressHidden.value = true
+
   if (res.isSuccess) {
     saveCookies(res.accountType, res.accountId)
     window.location.href = '/'
@@ -56,7 +56,7 @@ async function onSubmitForm() {
   width: 100%;
 }
 
-.form-signin h1{
+.form-signin h1 {
   color: white
 }
 
