@@ -22,8 +22,8 @@ router.post("/signin", async (req, res) => {
 })
 /**--------------Admin-------------------- */
 
-router.get("/admin", async (req, res) => {
-    const { account_id } = req.body
+router.get("/admin/id", async (req, res) => {
+    const { account_id } = req.query as any
     if (isAnyInvalid([account_id])) {
         return res.status(400).send("required account_id")
     } else {
@@ -54,8 +54,8 @@ router.post("/branch", async (req, res) => {
         }
     }
 })
-router.get("/branch/:id", async (req, res) => {
-    const branch_id = req.params.id
+router.get("/branch/id", async (req, res) => {
+    const { branch_id } = req.query as any
     console.log(branch_id)
     if (isAnyInvalid([branch_id])) {
         return res.status(400).send("required branch_id")
@@ -83,7 +83,7 @@ router.get("/branch", async (req, res) => {
 /*-------------manager--------------*/
 
 router.post("/manager", async (req, res) => {
-    const { name, email, address, contact, account_id, dob, password, branch_id } = req.body
+    const { name, email, address, contact, dob, password, branch_id } = req.body
     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id])) {
         return res.status(400).send("required all manager info")
     } else {
@@ -100,8 +100,8 @@ router.post("/manager", async (req, res) => {
         }
     }
 })
-router.get("/manager/:id", async (req, res) => {
-    const account_id = req.params.id
+router.get("/manager/id", async (req, res) => {
+    const account_id = req.query as any
     console.log(account_id)
     if (isAnyInvalid([account_id])) {
         return res.status(400).send("required branch_id")

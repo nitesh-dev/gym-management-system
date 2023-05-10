@@ -164,6 +164,43 @@ namespace SqlUtils {
         }
     }
 
+     /**--------------------trainer-----------------------*/
+     export async function createTrainer(
+        info: Trainer
+    ) {
+        if (await isEmailExist(info.email)) {
+            return createSqlResult(true, "email already exist")
+        }
+        const sql = 'INSERT INTO trainer(account_id, name, email, password, address, contact, dob,branch_id,specialization) VALUES(?,?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
+    export async function getTrainer(id: string) {
+        const sql = `SELECT * FROM trainer WHERE account_id='${id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "trainer not found")
+        } else {
+            return createSqlResult(false, arr[0])
+        }
+    }
+    export async function getAllTrainer() {
+        const sql = `SELECT * FROM trainer';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "trainer not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+
 }
 export default SqlUtils
 
@@ -174,13 +211,7 @@ export default SqlUtils
    
 
 
-    export async function createManager(
-        value: Manager
-    ) {
-        const sql = 'INSERT INTO manager(account_id, name, email, password, address, contact, dob,branch_id) VALUES(?,?,?,?,?,?,?,?)'
-        const values = [value.account_id, value.name, value.email, value.password, value.address, value.contact, value.dob, value.branch_id]
-        return _query(sql, values)
-    }
+
     export async function createTrainer(
         value: Trainer
     ) {
