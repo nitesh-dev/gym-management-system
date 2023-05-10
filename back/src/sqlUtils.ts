@@ -17,7 +17,7 @@ async function _query<T>(sql: string, values: any[] = []) {
     return result
 }
 namespace SqlUtils {
-    export async function signin(
+    export async function signIn(
         email: string,
         password: string
     ) {
@@ -36,7 +36,7 @@ namespace SqlUtils {
             SELECT account_id , 'trainer' AS type FROM trainer WHERE email = '${email}' AND password='${password}'
             LIMIT 1;
         `
-        const result = await _query<{ accound_id: string, type: string }>(sql)
+        const result = await _query<{ account_id: string, type: string }>(sql)
         if (result.isError) {
             return createSqlResult(true, "sql server error")
         } else {
@@ -56,6 +56,8 @@ namespace SqlUtils {
             UNION ALL
             SELECT account_id , 'manager' AS type FROM manager WHERE email = '${email}'       
             UNION ALL
+            SELECT branch_id , 'branch' AS type FROM branch WHERE email = '${email}'       
+            UNION ALL
             SELECT account_id , 'staff' AS type FROM staff WHERE email = '${email}'                
             UNION ALL
             SELECT account_id , 'member' AS type FROM member WHERE email = '${email}' 
@@ -72,9 +74,9 @@ namespace SqlUtils {
     export async function createAdmin(
         admin: Admin
     ) {
-        // if (await isEmailExist(admin.email)) {
-        //     return createErrorResult("email already exist")
-        // }
+        if (await isEmailExist(admin.email)) {
+            return createSqlResult(true, "email already exist")
+        }
         const sql = 'INSERT INTO admin(account_id, name, email, password, address, contact, dob) VALUES(?,?,?,?,?,?,?)'
         const values = [admin.account_id, admin.name, admin.email, admin.password, admin.address, admin.contact, admin.dob]
         return _query(sql, values)
@@ -82,14 +84,85 @@ namespace SqlUtils {
     export async function getAdmin(id: string) {
         const sql = `SELECT * FROM admin WHERE account_id='${id}';`
         const result = await _query<Admin>(sql)
-        const values = result.result
-        if (values.length == 0) {
+        const arr = result.result
+        if (arr.length == 0) {
             return createSqlResult(true, "admin not found")
         } else {
-            return createSqlResult(false, values[0])
+            return createSqlResult(false, arr[0])
         }
     }
-
+    /*-----------------------Branch-----------------------*/
+    export async function createBranch(
+        branch: Branch
+    ) {
+        if (await isEmailExist(branch.email)) {
+            return createSqlResult(true, "email already exist")
+        }
+        const sql = 'INSERT INTO branch(branch_id, name, email, address, contact) VALUES(?,?,?,?,?)'
+        const values = [branch.branch_id, branch.name, branch.email, branch.address, branch.contact]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
+    export async function getBranch(id: string) {
+        const sql = `SELECT * FROM branch WHERE branch_id='${id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "branch not found")
+        } else {
+            return createSqlResult(false, arr[0])
+        }
+    }
+    export async function getAllBranch() {
+        const sql = `SELECT * FROM branch ;`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "branch not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+    /**--------------------manager-----------------------*/
+    export async function createManager(
+        info: Manager
+    ) {
+        if (await isEmailExist(info.email)) {
+            return createSqlResult(true, "email already exist")
+        }
+        const sql = 'INSERT INTO manager(account_id, name, email, password, address, contact, dob,branch_id) VALUES(?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
+    export async function getManager(id: string) {
+        const sql = `SELECT * FROM manager WHERE account_id='${id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "manager not found")
+        } else {
+            return createSqlResult(false, arr[0])
+        }
+    }
+    export async function getAllManager() {
+        const sql = `SELECT * FROM manager';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "manager not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
 
 }
 export default SqlUtils
@@ -100,26 +173,7 @@ export default SqlUtils
  * 
    
 
-    export async function createAdmin(
-        admin: Admin
-    ) {
-        if (await isEmailExist(admin.email)) {
-            return createErrorResult("email already exist")
-        }
-        const sql = 'INSERT INTO admin(account_id, name, email, password, address, contact, dob) VALUES(?,?,?,?,?,?,?)'
-        const values = [admin.account_id, admin.name, admin.email, admin.password, admin.address, admin.contact, admin.dob]
-        return _query(sql, values)
-    }
-    export async function createBranch(
-        branch: Branch
-    ) {
-        if (await isEmailExist(branch.email)) {
-            return createErrorResult("email already exist")
-        }
-        const sql = 'INSERT INTO branch(branch_id, name, email, address, contact) VALUES(?,?,?,?,?)'
-        const values = [branch.branch_id, branch.name, branch.email, branch.address, branch.contact]
-        return _query(sql, values)
-    }
+
     export async function createManager(
         value: Manager
     ) {
