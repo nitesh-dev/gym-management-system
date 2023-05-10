@@ -62,3 +62,13 @@ export interface TrainingSession {
     start_time: number,
     end_time: number,
 }
+
+export function isAnyInvalid(values: any[]) {
+    for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        if (value == undefined || value == null)
+            return true
+
+    }
+    return false
+}

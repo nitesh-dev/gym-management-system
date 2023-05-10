@@ -28,13 +28,15 @@ router.get("/info", async (req, res) => {
 })
 /**-------------create--------------------- */
 router.post("/branch", async (req, res) => {
-    const branch = req.body as Branch
-    if (false) {
-        return res.status(400).send("required all branch info")
-    } else {
-        const result = await SqlUtils.createBranch(branch)
-        res.send(result)
-    }
+    // const {name,email,address,contact} = req.body 
+    // if (false) {
+    //     return res.status(400).send("required all branch info")
+    // } else {
+    //     const result = await SqlUtils.createBranch({
+
+    //     })
+    //     res.send(result)
+    // }
 })
 router.post("/manager", async (req, res) => {
     const branch = req.body as Branch
