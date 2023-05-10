@@ -50,10 +50,12 @@ export interface Staff {
 export interface Result<T> {
     result: T,
     isError: boolean,
-    reason: any
 }
-export function createErrorResult(reason: string): Result<string> {
-    return { result: "", isError: true, reason: reason }
+// export function createErrorResult(reason: string): Result<string> {
+//     return { result: "", isError: true, reason: reason }
+// }
+export function createSqlResult<T>(isError: boolean, result: T): Result<T> {
+    return { result: result, isError: isError, }
 }
 export interface TrainingSession {
     session_id: string,
