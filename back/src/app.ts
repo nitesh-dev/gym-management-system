@@ -5,12 +5,13 @@ import { Branch, isAnyInvalid } from "./utils.js";
 import { randomUUID } from "crypto";
 
 const router = express.Router()
+
 router.post("/signin", async (req, res) => {
     const { email, password } = req.body
     if (isAnyInvalid([email, password])) {
         return res.status(400).send("required password and email")
     } else {
-        const result = await SqlUtils.signin(email, password)
+        const result = await SqlUtils.signIn(email, password)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -20,10 +21,11 @@ router.post("/signin", async (req, res) => {
     }
 })
 /**--------------Admin-------------------- */
+
 router.get("/admin", async (req, res) => {
-    const { account_id} = req.body
+    const { account_id } = req.body
     if (isAnyInvalid([account_id])) {
-        return res.status(400).send("requried account_id")
+        return res.status(400).send("required account_id")
     } else {
         const result = await SqlUtils.getAdmin(account_id)
         if (result.isError) {
@@ -34,6 +36,97 @@ router.get("/admin", async (req, res) => {
         }
     }
 })
+/*-----------------branch---------------*/
+
+router.post("/branch", async (req, res) => {
+    const { name, email, address, contact } = req.body
+    if (isAnyInvalid([name, email, address, contact])) {
+        return res.status(400).send("required all branch info")
+    } else {
+        const result = await SqlUtils.createBranch({
+            branch_id: randomUUID(), address: address, contact: contact, email: email, name: name
+        })
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/branch/:id", async (req, res) => {
+    const branch_id = req.params.id
+    console.log(branch_id)
+    if (isAnyInvalid([branch_id])) {
+        return res.status(400).send("required branch_id")
+    } else {
+        const result = await SqlUtils.getBranch(branch_id)
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/branch", async (req, res) => {
+
+    const result = await SqlUtils.getAllBranch()
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
+/*-------------manager--------------*/
+
+router.post("/manager", async (req, res) => {
+    const { name, email, address, contact, account_id, dob, password, branch_id } = req.body
+    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id])) {
+        return res.status(400).send("required all manager info")
+    } else {
+        const result = await SqlUtils.createManager({
+            account_id: randomUUID(), dob: dob, password: password,
+            branch_id: branch_id, address: address, contact: contact,
+            email: email, name: name
+        })
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/manager/:id", async (req, res) => {
+    const account_id = req.params.id
+    console.log(account_id)
+    if (isAnyInvalid([account_id])) {
+        return res.status(400).send("required branch_id")
+    } else {
+        const result = await SqlUtils.getManager(account_id)
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/manager", async (req, res) => {
+
+    const result = await SqlUtils.getAllManager()
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
+
 
 export default router
 
