@@ -56,11 +56,19 @@ async function onSubmitForm() {
   width: 100%;
 }
 
+.form-signin h1{
+  color: white
+}
+
 .cus-container {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
+  /* background-image:url("../assets/gym-1.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; */
 }
 
 button {
