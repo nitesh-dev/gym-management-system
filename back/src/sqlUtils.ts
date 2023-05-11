@@ -127,6 +127,21 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
+    export async function getUnusedBranch() {
+        const sql = `
+        SELECT branch.branch_id, branch.name, branch.address, branch.email, branch.contact
+        FROM branch
+        LEFT JOIN manager ON branch.branch_id = manager.branch_id
+        WHERE manager.account_id IS NULL;
+        `
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "branch not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
     /**--------------------manager-----------------------*/
     export async function createManager(
         info: Manager
@@ -154,7 +169,7 @@ namespace SqlUtils {
         }
     }
     export async function getAllManager() {
-        const sql = `SELECT * FROM manager';`
+        const sql = `SELECT * FROM manager;`
         const result = await _query(sql)
         const arr = result.result
         if (arr.length == 0) {
@@ -164,8 +179,8 @@ namespace SqlUtils {
         }
     }
 
-     /**--------------------trainer-----------------------*/
-     export async function createTrainer(
+    /**--------------------trainer-----------------------*/
+    export async function createTrainer(
         info: Trainer
     ) {
         if (await isEmailExist(info.email)) {
@@ -191,7 +206,17 @@ namespace SqlUtils {
         }
     }
     export async function getAllTrainer() {
-        const sql = `SELECT * FROM trainer';`
+        const sql = `SELECT * FROM trainer;`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "trainer not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+    export async function getAllTrainerWithBranchId(branch_id: string) {
+        const sql = `SELECT * FROM trainer WHERE branch_id=${branch_id}';`
         const result = await _query(sql)
         const arr = result.result
         if (arr.length == 0) {
@@ -201,6 +226,100 @@ namespace SqlUtils {
         }
     }
 
+    /**--------------------staff-----------------------*/
+    export async function createStaff(
+        info: Staff
+    ) {
+        if (await isEmailExist(info.email)) {
+            return createSqlResult(true, "email already exist")
+        }
+        const sql = 'INSERT INTO staff(account_id, name, email, password, address, contact, dob,branch_id,work) VALUES(?,?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
+    export async function getStaff(id: string) {
+        const sql = `SELECT * FROM staff WHERE account_id='${id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "staff not found")
+        } else {
+            return createSqlResult(false, arr[0])
+        }
+    }
+    export async function getAllStaff() {
+        const sql = `SELECT * FROM staff;`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "staff not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+    export async function getAllStaffWithBranchId(branch_id: string) {
+        const sql = `SELECT * FROM staff WHERE branch_id=${branch_id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "staff not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+    /**--------------------member-----------------------*/
+    export async function createMember(
+        info: Member
+    ) {
+        if (await isEmailExist(info.email)) {
+            return createSqlResult(true, "email already exist")
+        }
+        const sql = 'INSERT INTO member(account_id, name, email, password, address, contact, dob,branch_id,membership) VALUES(?,?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
+    export async function getMember(id: string) {
+        const sql = `SELECT * FROM member WHERE account_id='${id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "member not found")
+        } else {
+            return createSqlResult(false, arr[0])
+        }
+    }
+    export async function getAllMember() {
+        const sql = `SELECT * FROM member;`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "member not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+    export async function getAllMemberWithBranchId(branch_id: string) {
+        const sql = `SELECT * FROM member WHERE branch_id=${branch_id}';`
+        const result = await _query(sql)
+        const arr = result.result
+        if (arr.length == 0) {
+            return createSqlResult(true, "member not found")
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+
+
 }
 export default SqlUtils
 
@@ -208,36 +327,19 @@ export default SqlUtils
 /**
  * 
  * 
-   
 
-
-
-    export async function createTrainer(
-        value: Trainer
-    ) {
-        const sql = 'INSERT INTO trainer(account_id, name, email, password, address, contact, dob,branch_id,specialization) VALUES(?,?,?,?,?,?,?,?,?)'
-        const values = [value.account_id, value.name, value.email, value.password, value.address, value.contact, value.dob, value.branch_id, value.specialization]
-        return _query(sql, values)
-    }
-    export async function createStaff(
-        value: Staff
-    ) {
-        const sql = 'INSERT INTO staff(account_id, name, email, password, address, contact, dob,branch_id,work) VALUES(?,?,?,?,?,?,?,?,?)'
-        const values = [value.account_id, value.name, value.email, value.password, value.address, value.contact, value.dob, value.branch_id, value.work]
-        return _query(sql, values)
-    }
     export async function createMember(
-        value: Member
+        info: Member
     ) {
         const sql = 'INSERT INTO member(account_id, name, email, password, address, contact, dob,branch_id,membership) VALUES(?,?,?,?,?,?,?,?,?)'
-        const values = [value.account_id, value.name, value.email, value.password, value.address, value.contact, value.dob, value.branch_id, value.membership]
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership]
         return _query(sql, values)
     }
     export async function createTrainingSession(
-        value: TrainingSession
+        info: TrainingSession
     ) {
         const sql = 'INSERT INTO training_session(session_id,trainer_id,member_id,start_time,end_time) VALUES(?,?,?,?,?)'
-        const values = [value.session_id, value.trainer_id, value.member_id, value.start_time, value.end_time]
+        const values = [info.session_id, info.trainer_id, info.member_id, info.start_time, info.end_time]
         return _query(sql, values)
     }
 

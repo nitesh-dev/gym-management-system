@@ -79,6 +79,17 @@ router.get("/branch", async (req, res) => {
         res.send(result.result)
     }
 })
+router.get("/branch/unused", async (req, res) => {
+
+    const result = await SqlUtils.getUnusedBranch()
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
 
 /*-------------manager--------------*/
 
@@ -101,10 +112,10 @@ router.post("/manager", async (req, res) => {
     }
 })
 router.get("/manager/id", async (req, res) => {
-    const account_id = req.query as any
+    const { account_id } = req.query as any
     console.log(account_id)
     if (isAnyInvalid([account_id])) {
-        return res.status(400).send("required branch_id")
+        return res.status(400).send("required account_id")
     } else {
         const result = await SqlUtils.getManager(account_id)
         if (result.isError) {
@@ -125,6 +136,163 @@ router.get("/manager", async (req, res) => {
         res.send(result.result)
     }
 })
+
+/*-------------trainer--------------*/
+
+router.post("/trainer", async (req, res) => {
+    const { name, email, address, contact, dob, password, branch_id, specialization } = req.body
+    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, specialization])) {
+        return res.status(400).send("required all trainer info")
+    } else {
+        const result = await SqlUtils.createTrainer({
+            account_id: randomUUID(), dob: dob, password: password,
+            branch_id: branch_id, address: address, contact: contact,
+            email: email, name: name, specialization: specialization
+        })
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/trainer/id", async (req, res) => {
+    const { account_id } = req.query as any
+    console.log(account_id)
+    if (isAnyInvalid([account_id])) {
+        return res.status(400).send("required account_id")
+    } else {
+        const result = await SqlUtils.getTrainer(account_id)
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/trainer", async (req, res) => {
+
+    const { branch_id } = req.query as any
+    let result
+    if (branch_id) {
+        result = await SqlUtils.getAllTrainerWithBranchId(branch_id)
+    } else {
+        result = await SqlUtils.getAllTrainer()
+    }
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
+/*-------------staff--------------*/
+
+router.post("/staff", async (req, res) => {
+    const { name, email, address, contact, dob, password, branch_id, specialization: work } = req.body
+    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, work])) {
+        return res.status(400).send("required all staff info")
+    } else {
+        const result = await SqlUtils.createStaff({
+            account_id: randomUUID(), dob: dob, password: password,
+            branch_id: branch_id, address: address, contact: contact,
+            email: email, name: name, work: work
+        })
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/staff/id", async (req, res) => {
+    const { account_id } = req.query as any
+    console.log(account_id)
+    if (isAnyInvalid([account_id])) {
+        return res.status(400).send("required account_id")
+    } else {
+        const result = await SqlUtils.getStaff(account_id)
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/staff", async (req, res) => {
+
+    const { branch_id } = req.query as any
+    let result
+    if (branch_id) {
+        result = await SqlUtils.getAllStaffWithBranchId(branch_id)
+    } else {
+        result = await SqlUtils.getAllStaff()
+    }
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
+
+/*-------------member--------------*/
+
+router.post("/member", async (req, res) => {
+    const { name, email, address, contact, dob, password, branch_id, specialization: membership } = req.body
+    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, membership])) {
+        return res.status(400).send("required all member info")
+    } else {
+        const result = await SqlUtils.createMember({
+            account_id: randomUUID(), dob: dob, password: password,
+            branch_id: branch_id, address: address, contact: contact,
+            email: email, name: name, membership: membership
+        })
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/member/id", async (req, res) => {
+    const { account_id } = req.query as any
+    console.log(account_id)
+    if (isAnyInvalid([account_id])) {
+        return res.status(400).send("required account_id")
+    } else {
+        const result = await SqlUtils.getMember(account_id)
+        if (result.isError) {
+            return res.status(400).send(result.result)
+
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/member", async (req, res) => {
+    const { branch_id } = req.query as any
+    let result
+    if (branch_id) {
+        result = await SqlUtils.getAllMemberWithBranchId(branch_id)
+    } else {
+        result = await SqlUtils.getAllMember()
+    }
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
 
 
 
