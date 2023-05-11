@@ -200,6 +200,8 @@ async function deleteData() {
 
     isProgressHidden.value = false
     let result = await Api.deleteOperation(tableName, idToDelete)
+    console.log(idToDelete)
+    console.log(tableName)
     isProgressHidden.value = true
     if (result.isSuccess == true) {
         fetchData()
@@ -276,8 +278,8 @@ function deleteOperation(message: string, id: string){
                                 <td>{{ manager.contact }}</td>
                                 <td>{{ manager.dob }}</td>
 
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
-                                            class="material-icons">delete</i>Delete</Button></td>
+                                <td><button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete? ' + manager.email, manager.account_id)"><i
+                                            class="material-icons">delete</i>Delete</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -318,8 +320,8 @@ function deleteOperation(message: string, id: string){
                                 <td>{{ branch.address }}</td>
                                 <td>{{ branch.contact }}</td>
 
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
-                                            class="material-icons">delete</i>Delete</Button></td>
+                                <td><button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
+                                            class="material-icons">delete</i>Delete</button></td>
                             </tr>
                         </tbody>
                     </table>
