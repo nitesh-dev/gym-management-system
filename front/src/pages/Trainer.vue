@@ -5,6 +5,7 @@ import ProgressDialog from '../components/ProgressDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
+import { TrainingSession } from '../RestApiDataType';
 
 
 let message = ref(new Message())
@@ -76,17 +77,17 @@ let detailGender = ref("loading...")
 let detailDOB = ref(0)
 let detailSpecialization = ref("loading...")
 
-async function loadAccountDetail() {
-    const res = await Api.getAccountDetail(accountId.value, accountType.value)
-    if (res.isSuccess) {
-        // detailAccountId.value = res.data.account_id
-        // detailFullName.value = res.data.name
-        // detailEmail.value = res.data.email
-        // detailContact.value = res.data.number
-        // detailGender.value = res.data.gender
-        // detailAge.value = res.data.age
-    }
-}
+// async function loadAccountDetail() {
+//     const res = await Api.getAccountDetail(accountId.value, accountType.value)
+//     if (res.isSuccess) {
+//         // detailAccountId.value = res.data.account_id
+//         // detailFullName.value = res.data.name
+//         // detailEmail.value = res.data.email
+//         // detailContact.value = res.data.number
+//         // detailGender.value = res.data.gender
+//         // detailAge.value = res.data.age
+//     }
+// }
 
 
 
@@ -103,11 +104,27 @@ async function loadAccountDetail() {
 //     }
 // }
 
-function fetchData() {
+const info = ref<TrainingSession[]>([])
+async function fetchTrainingSession() {
+    const random = () => {
+        return {
+            session_id: "asldjfklj",
+            trainer_id: "545444sdf",
+            member_id: "saldfjlkasjd",
+            start_time: new Date().getMilliseconds(),
+            end_time: new Date().getMilliseconds()
+        } as TrainingSession
+    }
     // fetch data
     console.log("fetching...")
-}
+    info.value = [
+        random(), random(), random(), random(),
+        random(), random(), random(), random(),
+    ]
 
+
+}
+fetchTrainingSession()
 </script>
 
 <template>
@@ -167,7 +184,7 @@ function fetchData() {
                     <p class="mb-0">Contact</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailContact}}</p>
+                    <p class="text-muted mb-0">{{ detailContact }}</p>
                 </div>
             </div>
 
@@ -219,22 +236,22 @@ function fetchData() {
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Branch ID</th>
-                        <th scope="col">Trainer ID</th>
-                        <th scope="col">Member ID</th>
-                        <th scope="col">Delete</th>
+                        <th scope="col">session id</th>
+                        <th scope="col">trainer id</th>
+                        <th scope="col">member id</th>
+                        <th scope="col">start time</th>
+                        <th scope="col">end_time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- <tr v-for="plan, index in vehiclePlan">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ plan.vehicle_id }}</td>
-                                <td>{{ plan.name }}</td>
-                                <td>{{ plan.rate }}</td>
-                                <td>{{ plan.seats }}</td>
-                                <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
-                            </tr> -->
+                    <tr v-for="value in info">
+                        <th scope="row">{{ }}</th>
+                        <td>{{ value.session_id }}</td>
+                        <td>{{ value.trainer_id }}</td>
+                        <td>{{ value.session_id }}</td>
+                        <td>{{ value.start_time }}</td>
+                        <td>{{ value.end_time }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
