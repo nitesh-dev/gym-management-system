@@ -2,6 +2,8 @@
 import ProfileDialogVue, { ProfileData } from '../components/ProfileDialog.vue';
 import MessageDialog, { Message } from '../components/MessageDialog.vue';
 import ProgressDialog from '../components/ProgressDialog.vue';
+import CreateManagerDialog, { DialogManagerData } from '../components/CreateManagerDialog.vue';
+import CreateBranchDialog, { DialogBranchData } from '../components/CreateBranchDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
@@ -14,6 +16,9 @@ let isProgressHidden = ref(true)
 let accountId = ref(0)
 // let accountType = ref("")
 
+
+
+// profile dialog
 const profileData = new (class extends ProfileData {
     show() {
         isProgressHidden.value = false
@@ -39,6 +44,9 @@ const profileData = new (class extends ProfileData {
 
 let profile = ref(profileData)
 
+
+
+// waring dialog
 const warningData = new (class extends WarningData {
     onOk(): void {
 
@@ -52,6 +60,40 @@ const warningData = new (class extends WarningData {
 })
 
 let warning = ref(warningData)
+
+
+
+// create manager dialog
+const managerDialogData = new (class extends DialogManagerData{
+    onSuccessFul(): void {
+        
+    }
+
+    onFailed(message: string): void {
+        
+    }
+})
+
+let managerDialog = ref(managerDialogData)
+
+
+
+// create branch dialog
+const branchDialogData = new (class extends DialogBranchData{
+    onSuccessFul(): void {
+        
+    }
+
+    onFailed(message: string): void {
+        
+    }
+})
+
+let branchDialog = ref(branchDialogData)
+
+
+
+
 
 
 function logout() {
@@ -124,7 +166,7 @@ function fetchData() {
             <div class="table-container">
                 <div class="container">
                     <h3>Managers</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="">Add Manager</button>
+                    <button id="add-button" class="btn btn-success btn-block" @click="managerDialog.show()">Add Manager</button>
                 </div>
 
                 <div class="table-responsive">
@@ -165,7 +207,7 @@ function fetchData() {
             <div class="table-container">
                 <div class="container">
                     <h3>Branch</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="">Add Branch</button>
+                    <button id="add-button" class="btn btn-success btn-block" @click="branchDialog.show()">Add Branch</button>
                 </div>
 
                 <div class="table-responsive">
@@ -200,6 +242,8 @@ function fetchData() {
     </div>
 
 
+    <CreateBranchDialog :dialog="branchDialog"/>
+    <CreateManagerDialog :dialog="managerDialog"/>
     <ProfileDialogVue :profile="profile" />
     <MessageDialog :message="message" />
     <WarningDialogVue :warning="warning" />
