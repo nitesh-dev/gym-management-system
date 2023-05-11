@@ -19,6 +19,7 @@ let accountType = ref("")
 
 getCookies()
 function getCookies() {
+    localStorage.removeItem("tempId")
     let type = localStorage.getItem("accountType")
     let id = localStorage.getItem("accountId")
     if (type == null || id == null) {
@@ -194,12 +195,14 @@ async function deleteData() {
         tableName = 'manager'
     } else if (activeTabIndex.value == 1) {
         tableName = 'branch'
-    } 
+    }
 
-    if(tableName == null) return
+    if (tableName == null) return
 
     isProgressHidden.value = false
     let result = await Api.deleteOperation(tableName, idToDelete)
+    console.log(idToDelete)
+    console.log(tableName)
     isProgressHidden.value = true
     if (result.isSuccess == true) {
         fetchData()
@@ -210,9 +213,14 @@ async function deleteData() {
 
 
 let idToDelete = ""
-function deleteOperation(message: string, id: string){
+function deleteOperation(message: string, id: string) {
     idToDelete = id
     warning.value.show(message)
+}
+
+function openManager(id: string) {
+    localStorage.setItem("tempId", id)
+    window.location.href = '/admin/manager'
 }
 
 
@@ -266,7 +274,7 @@ function deleteOperation(message: string, id: string){
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="manager, index in managerAccounts">
+                            <tr @click="openManager(manager.account_id)" v-for="manager, index in managerAccounts">
                                 <th scope="row">{{ index }}</th>
                                 <td>{{ manager.account_id }}</td>
                                 <td>{{ manager.branch_id }}</td>
@@ -276,8 +284,9 @@ function deleteOperation(message: string, id: string){
                                 <td>{{ manager.contact }}</td>
                                 <td>{{ manager.dob }}</td>
 
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
-                                            class="material-icons">delete</i>Delete</Button></td>
+                                <td><button class="btn btn-danger"
+                                        @click="deleteOperation('Do you really wants to delete? ' + manager.email, manager.account_id)"><i
+                                            class="material-icons">delete</i>Delete</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -318,15 +327,15 @@ function deleteOperation(message: string, id: string){
                                 <td>{{ branch.address }}</td>
                                 <td>{{ branch.contact }}</td>
 
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
-                                            class="material-icons">delete</i>Delete</Button></td>
+                                <td><button class="btn btn-danger"
+                                        @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
+                                            class="material-icons">delete</i>Delete</button></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
     </div>
 
 

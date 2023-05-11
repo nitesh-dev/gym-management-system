@@ -65,10 +65,10 @@ async function onSubmitForm() {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  /* background-image:url("../assets/gym-1.jpg");
+  background-image:url("../assets/gym-1.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-position: center; */
+  background-position: center;
 }
 
 button {

@@ -3,7 +3,7 @@
 function checkCookies() {
     let accountType = localStorage.getItem("accountType")
     let accountId = localStorage.getItem("accountId")
-
+    
     if (accountId == null || accountType == null) {
         window.location.href = './sign-in'
     } else {
@@ -13,6 +13,8 @@ function checkCookies() {
             window.location.href = './trainer'
         } else if (accountType == "admin") {
             window.location.href = './admin'
+        } else if(accountType == 'manager'){
+            window.location.href = './manager'
         }
     }
 }
