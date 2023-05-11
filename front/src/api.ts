@@ -1,4 +1,4 @@
-import { Branch, Manager, Trainer } from "./RestApiDataType"
+import { Admin, Branch, Manager, Trainer } from "./RestApiDataType"
 interface Result<T> {
     isError: boolean,
     result: T
@@ -10,8 +10,56 @@ function createResult<T>(result: T, isError: boolean = true) {
 namespace Api {
     const apiURL = 'http://localhost:3000'
 
-    async function get<T>(path: string, query: string) {
+    export async function signIn(email: string, password: string) {
+        return post<{ account_id: string, type: string }>("signin", "", { email: email, password: password })
+    }
+    export async function getAdmin(id: string) {
+        return get<Admin>("signin", `id=${id}`)
+    }
+    /*-----------------------admin-----------------------*/
 
+
+    async function get<T>(path: string, query: string) {
+        const requestOptions: RequestInit = {
+            method: "GET",
+            redirect: "follow",
+        };
+
+        // console.log(`${apiURL}/${path}?${query}`)
+
+        try {
+            const res = await fetch(`${apiURL}/${path}?${query}`, requestOptions);
+            if (res.ok) {
+                return createResult<T>(await res.json(), false)
+            } else {
+                return createResult<string>(await res.text(), true)
+            }
+        } catch (error) {
+            return createResult("fetch error", true)
+        }
+    }
+    async function post<T>(path: string, query: string, body: any) {
+        const requestOptions: RequestInit = {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            redirect: "follow",
+            body: JSON.stringify(body),
+        };
+
+        // console.log(`${apiURL}/${path}?${query}`)
+
+        try {
+            const res = await fetch(`${apiURL}/${path}?${query}`, requestOptions);
+            if (res.ok) {
+                return createResult<T>(await res.json(), false)
+            } else {
+                return createResult<string>(await res.text(), true)
+            }
+        } catch (error) {
+            return createResult("fetch error", true)
+        }
     }
 }
 // namespace Api {
