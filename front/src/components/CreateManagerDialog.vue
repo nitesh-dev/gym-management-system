@@ -3,19 +3,25 @@ export class DialogManagerData {
 
     isHidden = true
     branchData = Array<Branch>()
+    selectedBranchIndex = 0
 
     show() {
         this.isHidden = false
+        this.branchData = Array<Branch>()
         this.loadBranchData()
+        this.selectedBranchIndex = 0
     }
 
     hide() {
         this.isHidden = true
     }
 
-    onSuccessFul() { }
+    onSuccessFul(text: string) { 
+        this.hide()
 
-    onFailed(message: string) {
+    }
+
+    onFailed(text: string) {
 
     }
 
@@ -23,11 +29,14 @@ export class DialogManagerData {
         this.show()
     }
 
-    async loadBranchData(){
+    async loadBranchData() {
         let res = await Api.loadUnallocatedBranches()
 
-        if(res.isSuccess){
+        if (res.isSuccess) {
             this.branchData = res.result as Array<Branch>
+        } else {
+            this.hide()
+            this.onFailed(res.error)
         }
     }
 }
@@ -38,7 +47,7 @@ export class DialogManagerData {
 <script setup lang='ts'>
 import { ref } from 'vue'
 import Api from '../api'
-import { Branch } from '../RestApiDataType'
+import { Branch, Manager } from '../RestApiDataType'
 
 let prop = defineProps<{
     dialog: DialogManagerData
@@ -46,29 +55,46 @@ let prop = defineProps<{
 
 
 
-async function onSubmitForm() {
-
-    prop.dialog.onCreateManager()
-
-
-    // let result = await Api.createManager()
-
-    // if (result.isSuccess == true) {
-    //     prop.dialog.onFailed("TODO")
-    //     prop.dialog.onSuccessFul()
-
-    // } else {
-    //     prop.dialog.onFailed(result.error)
-    // }
-}
 
 
 let name = ref("")
 let email = ref("")
 let password = ref("")
 let address = ref("")
-let contact = ref<number>()
+let contact = ref<number>(0)
 let dob = ref("")
+
+
+
+async function onSubmitForm() {
+
+    prop.dialog.onCreateManager()
+    let dateMill = new Date(dob.value).getTime()
+    const data: Manager = {
+        account_id: "",
+        branch_id: prop.dialog.branchData[prop.dialog.selectedBranchIndex].branch_id,
+        name: name.value, email: email.value,
+        password: password.value, address: address.value,
+        contact: contact.value.toString(), dob: dateMill
+    }
+
+
+    let result = await Api.createManager(data)
+
+    if (result.isSuccess == true) {
+        prop.dialog.onSuccessFul("Manager created successfully")
+
+    } else {
+        prop.dialog.onFailed(result.error)
+    }
+}
+
+
+function setSelectedBranch(index: number){
+    alert(index)
+    prop.dialog.selectedBranchIndex = index
+}
+
 
 
 
@@ -88,7 +114,7 @@ let dob = ref("")
 
                         <input type="email" v-model="email" class="form-control" placeholder="Email" required="true">
 
-                        <input type="text" v-model="password" class="form-control" placeholder="Password" required="true">
+                        <input type="password" v-model="password" class="form-control" placeholder="Password" required="true">
 
                         <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
 
@@ -96,8 +122,9 @@ let dob = ref("")
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
-                        <select class="form-select">
-                            <option v-for="branch in dialog.branchData" :value="branch.branch_id">{{ branch.address }}</option>
+                        <select class="form-select" required="true">
+                            <option @click="setSelectedBranch(index)" v-for="branch, index in dialog.branchData" :value="branch.branch_id">{{ branch.address }}
+                            </option>
                         </select>
 
 
@@ -106,7 +133,7 @@ let dob = ref("")
                                 <button class="btn btn-lg btn-secondary btn-block" @click="dialog.hide()">Close</button>
                             </div>
                             <div class="col">
-                                <button class="btn btn-lg btn-primary btn-block" @click="onSubmitForm">Create</button>
+                                <button class="btn btn-lg btn-primary btn-block" type="submit">Create</button>
                             </div>
                         </div>
                     </form>
@@ -143,7 +170,8 @@ input[type=checkbox] {
     margin-top: 30px;
 }
 
-form>input, form>select {
+form>input,
+form>select {
     margin-top: 10px;
     padding: 12px;
 }

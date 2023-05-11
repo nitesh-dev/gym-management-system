@@ -72,8 +72,8 @@ namespace Api {
                 let json = await res.json()
                 return { isSuccess: true, data: json }
             } else {
-                let message = await res.json()
-                return { isSuccess: false, error: message.error }
+                let message = await res.text()
+                return { isSuccess: false, error: message }
             }
         } catch (error: any) {
             return { isSuccess: false, error: error.message };
@@ -103,6 +103,34 @@ namespace Api {
     }
 
 
+    export async function deleteOperation(tableName: string, idToDelete: string){
+        let query = `id=${idToDelete}`
+
+        let path = ""
+        if (tableName == "manager") {
+            path = "manager"
+        } else if (tableName == "branch") {
+            path = "branch"
+        }
+
+        if(path == ""){
+            return {isSuccess: false, error: "Unable to delete"}
+        }
+
+        try {
+            let res = await fetchDataDelete(path, query)
+            if (res.status == 200) {
+                return { isSuccess: true, data: "Deleted successfully" }
+            } else {
+                let message = await res.text()
+                return { isSuccess: false, error: message }
+            }
+        } catch (error: any) {
+            return { isSuccess: false, error: error.message };
+        }
+    }
+
+
 
 
 
@@ -114,11 +142,10 @@ namespace Api {
         try {
             let res = await fetchDataPost(path, data)
             if (res.status == 200) {
-                let json = await res.json()
-                return { isSuccess: true, accountId: json.account_id, accountType: json.type }
+                return { isSuccess: true}
             } else {
-                let message = await res.json()
-                return { isSuccess: false, error: message.error }
+                let message = await res.text()
+                return { isSuccess: false, error: message }
             }
         } catch (error: any) {
             return { isSuccess: false, error: error.message };
@@ -135,13 +162,67 @@ namespace Api {
                 let result = await res.json() as Array<Branch>
                 return { isSuccess: true, result: result}
             } else {
-                let message = await res.json()
-                return { isSuccess: false, error: message.error }
+                let message = await res.text()
+                return { isSuccess: false, error: message }
             }
         } catch (error: any) {
             return { isSuccess: false, error: error.message };
         }
     }
+
+    
+    export async function loadAllMangers(){
+        let data = ""
+        let path = `manager`
+        try {
+            let res = await fetchDataGet(path, data)
+            if (res.status == 200) {
+                let result = await res.json() as Array<Manager>
+                return { isSuccess: true, result: result}
+            } else {
+                let message = await res.text()
+                return { isSuccess: false, error: message }
+            }
+        } catch (error: any) {
+            return { isSuccess: false, error: error.message };
+        }
+    }
+
+    export async function loadAllBranches(){
+        let data = ""
+        let path = `branch`
+        try {
+            let res = await fetchDataGet(path, data)
+            if (res.status == 200) {
+                let result = await res.json() as Array<Branch>
+                return { isSuccess: true, result: result}
+            } else {
+                let message = await res.text()
+                return { isSuccess: false, error: message }
+            }
+        } catch (error: any) {
+            return { isSuccess: false, error: error.message };
+        }
+    }
+
+    export async function createBranch(branch: Branch) {
+        let data = branch
+        let path = `branch`
+        try {
+            let res = await fetchDataPost(path, data)
+            if (res.status == 200) {
+                return { isSuccess: true}
+            } else {
+                let message = await res.text()
+                return { isSuccess: false, error: message }
+            }
+        } catch (error: any) {
+            return { isSuccess: false, error: error.message };
+        }
+    }
+
+    
+    
 
 
 
@@ -179,6 +260,28 @@ namespace Api {
 
         const requestOptions: RequestInit = {
             method: "GET",
+            redirect: "follow",
+        };
+
+        console.log(`${apiURL}/${path}?${query}`)
+
+        const fetchPromise = fetch(`${apiURL}/${path}?${query}`, requestOptions);
+
+        // Create a timeout promise that rejects after the specified timeout
+        const timeoutPromise = new Promise<Response>((_, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, timeout);
+        });
+
+        // Use Promise.race to resolve or reject the first promise that completes
+        return Promise.race([fetchPromise, timeoutPromise]);
+    }
+
+    async function fetchDataDelete(path: string, query: string) {
+
+        const requestOptions: RequestInit = {
+            method: "DELETE",
             redirect: "follow",
         };
 

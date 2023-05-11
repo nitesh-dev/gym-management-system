@@ -2,7 +2,7 @@
 export class DialogBranchData {
 
     isHidden = true
-    
+
     show() {
         this.isHidden = false
     }
@@ -11,18 +11,16 @@ export class DialogBranchData {
         this.isHidden = true
     }
 
-    onSuccessFul() { }
+    onSuccessFul(text: string) { 
+        this.hide()
+    }
 
     onFailed(message: string) {
 
     }
 
     onCreateBranch() {
-        
-    }
 
-    loadBranchData(){
-        
     }
 
 }
@@ -44,26 +42,28 @@ let prop = defineProps<{
 async function onSubmitForm() {
 
     prop.dialog.onCreateBranch()
+    let data: Branch = {
+        branch_id: "",
+        name: name.value, email: email.value,
+        address: address.value,
+        contact: contact.value.toString()
+    }
 
+    let res = await Api.createBranch(data)
 
-    // let result = await Api.createManager()
+    if (res.isSuccess == true) {
+        prop.dialog.onSuccessFul("Branch created")
 
-    // if (result.isSuccess == true) {
-    //     prop.dialog.onFailed("TODO")
-    //     prop.dialog.onSuccessFul()
-
-    // } else {
-    //     prop.dialog.onFailed(result.error)
-    // }
+    } else {
+        prop.dialog.onFailed(res.error)
+    }
 }
 
 
 let name = ref("")
 let email = ref("")
 let address = ref("")
-let contact = ref<number>()
-
-
+let contact = ref("")
 
 
 
@@ -92,7 +92,7 @@ let contact = ref<number>()
                                 <button class="btn btn-lg btn-secondary btn-block" @click="dialog.hide()">Close</button>
                             </div>
                             <div class="col">
-                                <button class="btn btn-lg btn-primary btn-block" @click="dialog.hide()">Create</button>
+                                <button class="btn btn-lg btn-primary btn-block" type="submit">Create</button>
                             </div>
                         </div>
                     </form>
@@ -129,7 +129,8 @@ input[type=checkbox] {
     margin-top: 30px;
 }
 
-form>input, form>select {
+form>input,
+form>select {
     margin-top: 10px;
     padding: 12px;
 }

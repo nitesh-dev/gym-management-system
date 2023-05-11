@@ -2,17 +2,17 @@
 import mysql2 from "mysql2/promise";
 import SqlUtils from "./sqlUtils.js";
 import { randomUUID } from "crypto";
- import dotenv from 'dotenv'
+import dotenv from 'dotenv'
 dotenv.config();
 const host = process.env.MYSQL_URL;
 const user = process.env.MYSQL_USER;
 const password = process.env.MYSQL_PASS;
 const database = process.env.MYSQL_DB;
-
+console.log(host, user, password, database)
 
 const db = await mysql2.createConnection({
     host: host,
-    user:user, 
+    user: user,
     password: password,
     database: database
     // host: "sql12.freemysqlhosting.net",
@@ -33,14 +33,17 @@ function createTables() {
     createTableMembership()
 }
 function createTableAdmin() {
-    db.query(`CREATE TABLE IF NOT EXISTS branch (
-        branch_id CHAR(50) NOT NULL,
-        name VARCHAR(50) NOT NULL,
-        address VARCHAR(100) NOT NULL,
-        email VARCHAR(50) NOT NULL,
-        contact VARCHAR(20) NOT NULL,
-        PRIMARY KEY (branch_id)
-      );`)
+    db.query(`
+    CREATE TABLE IF NOT EXISTS admin(
+      account_id CHAR(36) NOT NULL ,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      address VARCHAR(255) NOT NULL,
+      contact VARCHAR(15),
+      dob DOUBLE,
+      PRIMARY KEY (account_id)
+    );`)
 
 }
 function createTableBranch() {
