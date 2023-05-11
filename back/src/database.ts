@@ -156,4 +156,5 @@ function createTableMembership() {
       `)
 }
 createTables()
+
 export default db 

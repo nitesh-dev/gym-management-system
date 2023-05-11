@@ -146,7 +146,7 @@ router.post("/manager", async (req, res) => {
     }
 })
 router.get("/manager/id", async (req, res) => {
-    const { account_id: id } = req.query as any
+    const { id } = req.query as any
     console.log(id)
     if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")

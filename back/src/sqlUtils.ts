@@ -208,8 +208,8 @@ namespace SqlUtils {
         const sql = `SELECT * FROM manager;`
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "manager not found")
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
         } else {
             return createSqlResult(false, arr)
         }
@@ -225,7 +225,7 @@ namespace SqlUtils {
         }
     }
     export async function deleteManager(id: string) {
-        const sql = `DELETE FROM manager WHERE account_id = ?;`
+        const sql = `DELETE FROM manager WHERE account_id = ? LIMIT 1;`
         const values = [id]
         const result = await _query<any>(sql, values)
         if (result.isError) {
