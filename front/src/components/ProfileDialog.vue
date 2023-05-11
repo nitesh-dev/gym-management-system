@@ -8,7 +8,7 @@ export class ProfileData {
     email = ""
     password = ""
     address = ""
-    dob = 0
+    dob = ""
 
     show() {
         this.isHidden = false
@@ -43,11 +43,19 @@ export class ProfileData {
             this.email = res.data.email
             this.password = res.data.password
             this.address = res.data.address
-            this.dob = res.data.dob
+            this.dob = this.getDateString(res.data.dob)
         } else {
             this.hide()
             this.showMessage(res.error)
         }
+    }
+
+
+    getDateString(millisecond: number) {
+        const date = new Date(millisecond)
+        // Format the date as a string in the format expected by the input element
+        const dateString = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+        return dateString
     }
 }
 
@@ -105,12 +113,14 @@ function goUpdateMode() {
                         <input type="email" v-model="profile.email" class="form-control" placeholder="Email address"
                             required="true" readonly>
 
-                        <input type="text" v-model="profile.password" class="form-control"
-                            placeholder="Password" required="true" :readonly="!profile.isEditable">
+                        <input type="text" v-model="profile.password" class="form-control" placeholder="Password"
+                            required="true" :readonly="!profile.isEditable">
 
-                        <input type="text" v-model="profile.address" class="form-control" placeholder="Address" required="true" :readonly="!profile.isEditable">
-                        
-                        <input type="date" id="dob" v-model="profile.dob" class="form-control" placeholder="DOB" required="true" :readonly="!profile.isEditable">
+                        <input type="text" v-model="profile.address" class="form-control" placeholder="Address"
+                            required="true" :readonly="!profile.isEditable">
+
+                        <input type="date" id="dob" v-model="profile.dob" class="form-control" placeholder="DOB"
+                            required="true" :readonly="!profile.isEditable">
 
                         <div class="row">
                             <div class="col">
