@@ -2,23 +2,23 @@
 import mysql2 from "mysql2/promise";
 import SqlUtils from "./sqlUtils.js";
 import { randomUUID } from "crypto";
-// import dotenv from 'dotenv'
-// dotenv.config();
-// const host = process.env.MYSQL_URL;
-// const user = process.env.MYSQL_USER;
-// const password = process.env.MYSQL_PASS;
-// const database = process.env.MYSQL_DB;
-// console.log(host, user, password, database)
+ import dotenv from 'dotenv'
+dotenv.config();
+const host = process.env.MYSQL_URL;
+const user = process.env.MYSQL_USER;
+const password = process.env.MYSQL_PASS;
+const database = process.env.MYSQL_DB;
+
 
 const db = await mysql2.createConnection({
-    // host: host,
-    // user:user,
-    // password: password,
-    // database: database
-    host: "sql12.freemysqlhosting.net",
-    user: "sql12615940",
-    password: "aNN8PDcfX9",
-    database: "sql12615940"
+    host: host,
+    user:user, 
+    password: password,
+    database: database
+    // host: "sql12.freemysqlhosting.net",
+    // user: "sql12615940",
+    // password: "aNN8PDcfX9",
+    // database: "sql12615940"
 });
 console.log("database connected")
 
@@ -30,9 +30,10 @@ function createTables() {
     createTableStaff()
     createTableMember()
     createTableSession()
+    createTableMembership()
 }
 function createTableAdmin() {
-    db.query( `CREATE TABLE IF NOT EXISTS branch (
+    db.query(`CREATE TABLE IF NOT EXISTS branch (
         branch_id CHAR(50) NOT NULL,
         name VARCHAR(50) NOT NULL,
         address VARCHAR(100) NOT NULL,
@@ -40,7 +41,7 @@ function createTableAdmin() {
         contact VARCHAR(20) NOT NULL,
         PRIMARY KEY (branch_id)
       );`)
-    
+
 }
 function createTableBranch() {
     db.query(`CREATE TABLE IF NOT EXISTS branch(
@@ -53,7 +54,7 @@ function createTableBranch() {
         dob DOUBLE,
         PRIMARY KEY (account_id)
       );`)
-    
+
 }
 function createTableManager() {
     db.query(
@@ -69,7 +70,7 @@ function createTableManager() {
             PRIMARY KEY (account_id),
             FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
           );`)
-    
+
 }
 function createTableTrainer() {
     db.query(
@@ -86,11 +87,11 @@ function createTableTrainer() {
             PRIMARY KEY (account_id),
             FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
           );`)
-    
+
 }
 function createTableStaff() {
     db.query(
-    `CREATE TABLE IF NOT EXISTS staff (
+        `CREATE TABLE IF NOT EXISTS staff (
         account_id CHAR(36) NOT NULL,
         branch_id CHAR(36) NOT NULL,
         name VARCHAR(50) NOT NULL,
@@ -103,7 +104,7 @@ function createTableStaff() {
         PRIMARY KEY (account_id),
         FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
       );`)
-    
+
 }
 function createTableMember() {
     db.query(
@@ -121,7 +122,7 @@ function createTableMember() {
             FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
           );
           `)
-    
+
 }
 function createTableSession() {
     db.query(`CREATE TABLE IF NOT EXISTS training_session (
@@ -134,6 +135,21 @@ function createTableSession() {
         FOREIGN KEY (trainer_id) REFERENCES trainer (account_id),
         FOREIGN KEY (member_id) REFERENCES member (account_id)
       );
+      `)
+}
+function createTableMembership() {
+    db.query(`
+    CREATE TABLE IF NOT EXISTS membership (
+        membership_id CHAR(36) NOT NULL,
+        member_id CHAR(36) NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        start_time DOUBLE NOT NULL,
+        end_time DOUBLE NOT NULL,
+        PRIMARY KEY (membership_id),
+        FOREIGN KEY (member_id) REFERENCES member (account_id)
+      );
+      
       `)
 }
 createTables()

@@ -19,8 +19,8 @@ namespace Api {
                 let json = await res.json()
                 return { isSuccess: true, accountId: json.account_id, accountType: json.type }
             } else {
-                let message = await res.json()
-                return { isSuccess: false, error: message.error }
+                let message = await res.text()
+                return { isSuccess: false, error: message }
             }
         } catch (error: any) {
             return { isSuccess: false, error: error.message };

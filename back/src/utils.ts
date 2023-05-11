@@ -64,7 +64,14 @@ export interface TrainingSession {
     start_time: number,
     end_time: number,
 }
-
+export interface Membership {
+    membership_id: string,
+    member_id: string,
+    name: string,
+    start_time: number,
+    end_time: number,
+    price: number,
+}
 export function isAnyInvalid(values: any[]) {
     for (let i = 0; i < values.length; i++) {
         const value = values[i]
@@ -73,4 +80,12 @@ export function isAnyInvalid(values: any[]) {
 
     }
     return false
+}
+export function isValidAdmin(admin: Admin) {
+    if (
+        admin.account_id && admin.address && admin.contact &&
+        admin.dob && admin.email && admin.name && admin.password
+    )
+        return false
+    return true
 }

@@ -1,7 +1,7 @@
 import db from "./database.js";
 import express from "express";
 import SqlUtils from "./sqlUtils.js";
-import { Branch, isAnyInvalid } from "./utils.js";
+import { Admin, Branch, Manager, Member, Staff, Trainer, isAnyInvalid, isValidAdmin } from "./utils.js";
 import { randomUUID } from "crypto";
 
 const router = express.Router()
@@ -23,11 +23,11 @@ router.post("/signin", async (req, res) => {
 /**--------------Admin-------------------- */
 
 router.get("/admin/id", async (req, res) => {
-    const { account_id } = req.query as any
-    if (isAnyInvalid([account_id])) {
+    const {  id } = req.query as any
+    if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
     } else {
-        const result = await SqlUtils.getAdmin(account_id)
+        const result = await SqlUtils.getAdmin(id)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -36,6 +36,22 @@ router.get("/admin/id", async (req, res) => {
         }
     }
 })
+router.put("/admin", async (req, res) => {
+    const admin = req.body as Admin
+    // if (isValidAdmin(admin)) {
+    //     return res.status(400).send("required all admin info")
+    // } else {
+
+    // }
+    const result = await SqlUtils.updateAdmin(admin)
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
 /*-----------------branch---------------*/
 
 router.post("/branch", async (req, res) => {
@@ -55,12 +71,12 @@ router.post("/branch", async (req, res) => {
     }
 })
 router.get("/branch/id", async (req, res) => {
-    const { branch_id } = req.query as any
-    console.log(branch_id)
-    if (isAnyInvalid([branch_id])) {
+    const {  id } = req.query as any
+    console.log(id)
+    if (isAnyInvalid([id])) {
         return res.status(400).send("required branch_id")
     } else {
-        const result = await SqlUtils.getBranch(branch_id)
+        const result = await SqlUtils.getBranch(id)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -89,8 +105,26 @@ router.get("/branch/unused", async (req, res) => {
         res.send(result.result)
     }
 })
+router.put("/branch", async (req, res) => {
+    const info = req.body as Branch
+    const result = await SqlUtils.updateBranch(info)
+    if (result.isError) {
+        return res.status(400).send(result.result)
 
+    } else {
+        res.send(result.result)
+    }
+})
+router.delete("/branch", async (req, res) => {
+    const { id} = req.query as any
+    const result = await SqlUtils.deleteBranch(id)
+    if (result.isError) {
+        return res.status(400).send(result.result)
 
+    } else {
+        res.send(result.result)
+    }
+})
 /*-------------manager--------------*/
 
 router.post("/manager", async (req, res) => {
@@ -112,12 +146,12 @@ router.post("/manager", async (req, res) => {
     }
 })
 router.get("/manager/id", async (req, res) => {
-    const { account_id } = req.query as any
-    console.log(account_id)
-    if (isAnyInvalid([account_id])) {
+    const { account_id: id } = req.query as any
+    console.log(id)
+    if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
     } else {
-        const result = await SqlUtils.getManager(account_id)
+        const result = await SqlUtils.getManager(id)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -136,7 +170,26 @@ router.get("/manager", async (req, res) => {
         res.send(result.result)
     }
 })
+router.put("/manager", async (req, res) => {
+    const info = req.body as Manager
+    const result = await SqlUtils.updateManager(info)
+    if (result.isError) {
+        return res.status(400).send(result.result)
 
+    } else {
+        res.send(result.result)
+    }
+})
+router.delete("/manager", async (req, res) => {
+    const {id} = req.query as any
+    const result = await SqlUtils.deleteManager(id)
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
 /*-------------trainer--------------*/
 
 router.post("/trainer", async (req, res) => {
@@ -158,12 +211,12 @@ router.post("/trainer", async (req, res) => {
     }
 })
 router.get("/trainer/id", async (req, res) => {
-    const { account_id } = req.query as any
-    console.log(account_id)
-    if (isAnyInvalid([account_id])) {
+    const { account_id: id } = req.query as any
+    console.log(id)
+    if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
     } else {
-        const result = await SqlUtils.getTrainer(account_id)
+        const result = await SqlUtils.getTrainer(id)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -188,7 +241,16 @@ router.get("/trainer", async (req, res) => {
         res.send(result.result)
     }
 })
+router.put("/trainer", async (req, res) => {
+    const info = req.body as Trainer
+    const result = await SqlUtils.updateTrainer(info)
+    if (result.isError) {
+        return res.status(400).send(result.result)
 
+    } else {
+        res.send(result.result)
+    }
+})
 /*-------------staff--------------*/
 
 router.post("/staff", async (req, res) => {
@@ -210,12 +272,12 @@ router.post("/staff", async (req, res) => {
     }
 })
 router.get("/staff/id", async (req, res) => {
-    const { account_id } = req.query as any
-    console.log(account_id)
-    if (isAnyInvalid([account_id])) {
+    const { account_id: id } = req.query as any
+    console.log(id)
+    if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
     } else {
-        const result = await SqlUtils.getStaff(account_id)
+        const result = await SqlUtils.getStaff(id)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -241,7 +303,16 @@ router.get("/staff", async (req, res) => {
     }
 })
 
+router.put("/staff", async (req, res) => {
+    const info = req.body as Staff
+    const result = await SqlUtils.updateStaff(info)
+    if (result.isError) {
+        return res.status(400).send(result.result)
 
+    } else {
+        res.send(result.result)
+    }
+})
 /*-------------member--------------*/
 
 router.post("/member", async (req, res) => {
@@ -263,12 +334,12 @@ router.post("/member", async (req, res) => {
     }
 })
 router.get("/member/id", async (req, res) => {
-    const { account_id } = req.query as any
-    console.log(account_id)
-    if (isAnyInvalid([account_id])) {
+    const { account_id: id } = req.query as any
+    console.log(id)
+    if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
     } else {
-        const result = await SqlUtils.getMember(account_id)
+        const result = await SqlUtils.getMember(id)
         if (result.isError) {
             return res.status(400).send(result.result)
 
@@ -292,7 +363,37 @@ router.get("/member", async (req, res) => {
         res.send(result.result)
     }
 })
+router.put("/member", async (req, res) => {
+    const info = req.body as Member
+    const result = await SqlUtils.updateMember(info)
+    if (result.isError) {
+        return res.status(400).send(result.result)
 
+    } else {
+        res.send(result.result)
+    }
+})
+
+/*-------------membership--------------*/
+
+// router.post("/membership", async (req, res) => {
+//     const { name, email, address, contact, dob, password, branch_id, specialization: membership } = req.body
+//     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, membership])) {
+//         return res.status(400).send("required all member info")
+//     } else {
+//         const result = await SqlUtils.createMember({
+//             account_id: randomUUID(), dob: dob, password: password,
+//             branch_id: branch_id, address: address, contact: contact,
+//             email: email, name: name, membership: membership
+//         })
+//         if (result.isError) {
+//             return res.status(400).send(result.result)
+
+//         } else {
+//             res.send(result.result)
+//         }
+//     }
+// })
 
 
 
