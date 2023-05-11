@@ -297,11 +297,7 @@ namespace SqlUtils {
         if (result.isError) {
             return result
         }
-        if (arr.length == 0) {
-            return createSqlResult(true, "trainer not found")
-        } else {
-            return createSqlResult(false, arr)
-        }
+        return createSqlResult(false, arr)
     }
     export async function updateTrainer(info: Trainer) {
         const sql = 'UPDATE trainer SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ? WHERE account_id = ?';
@@ -353,7 +349,7 @@ namespace SqlUtils {
         }
     }
     export async function getAllStaffWithBranchId(branch_id: string) {
-        const sql = `SELECT * FROM staff WHERE branch_id=${branch_id}';`
+        const sql = `SELECT * FROM staff WHERE branch_id='${branch_id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
         if (result.isError) {
@@ -415,7 +411,7 @@ namespace SqlUtils {
         }
     }
     export async function getAllMemberWithBranchId(branch_id: string) {
-        const sql = `SELECT * FROM member WHERE branch_id=${branch_id}';`
+        const sql = `SELECT * FROM member WHERE branch_id='${branch_id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
         if (result.isError) {
@@ -437,7 +433,7 @@ namespace SqlUtils {
     /**----------------------session--------------------- */
     async function isSessionExist(session: TrainingSession) {
         //check if trainer and member id exist or not
-        const sql = `SELECT * FROM training_session WHERE trainer_id = ${session.trainer_id} AND member_id = ${session.member_id} LIMIT 1;`
+        const sql = `SELECT * FROM training_session WHERE trainer_id = '${session.trainer_id}' AND member_id = '${session.member_id}' LIMIT 1;`
         const result = await _query<any[]>(sql)
         if (result.result.length > 0) return true
         return false
