@@ -291,7 +291,7 @@ namespace SqlUtils {
         }
     }
     export async function getAllTrainerWithBranchId(branch_id: string) {
-        const sql = `SELECT * FROM trainer WHERE branch_id=${branch_id}';`
+        const sql = `SELECT * FROM trainer WHERE branch_id='${branch_id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
         if (result.isError) {
