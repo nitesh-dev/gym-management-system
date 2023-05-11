@@ -44,6 +44,7 @@ async function onSubmitForm() {
 
     let millisecond = new Date(dob.value).getTime()
     trainer.value.dob = millisecond
+    trainer.value.contact = contact.value.toString()
 
     console.log(trainer.value)
 
@@ -69,6 +70,7 @@ const trainer = ref<Trainer>({
 })
 
 let dob = ref("")
+let contact = ref("")
 
 // | 'Strength Training' | 'Yoga' | 'Pilates' | 'Crossfit'
 
@@ -92,7 +94,7 @@ let allSpecialization = ref(['Cardio', 'Strength Training' , 'Yoga' , 'Pilates' 
 
                         <input type="text" v-model="trainer.address" class="form-control" placeholder="Address" required="true">
 
-                        <input type="number" v-model="trainer.contact" class="form-control" placeholder="Contact" required="true">
+                        <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 

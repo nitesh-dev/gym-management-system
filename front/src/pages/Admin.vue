@@ -336,7 +336,6 @@ function openManager(id: string) {
                 </div>
             </div>
         </div>
-
     </div>
 
 

@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
 import CreateTrainerDialog, { DialogTrainerData } from '../components/CreateTrainerDialog.vue';
-import { Trainer } from '../RestApiDataType';
+import { Trainer, Manager } from '../RestApiDataType';
 
 
 let activeTabIndex = ref(0)
@@ -145,6 +145,34 @@ function showProfile() {
 }
 
 
+
+let managerDetail = ref<Manager>({
+    account_id: "loading...",
+    branch_id: "loading...",
+    name: "loading...", email: "loading...",
+    password: "loading...", address: "loading...",
+    contact: "loading...", dob: 0
+})
+
+async function loadManagerDetail(){
+
+    alert(accountType.value)
+   
+    let account= await Api.getAccountDetail(accountId.value, accountType.value)
+    if (account.isSuccess == true) {
+        managerDetail.value = account.data as Manager
+    } else {
+        message.value.show(account.error)
+    }
+}
+
+
+
+
+
+
+
+
 let trainerAccounts = ref(Array<Trainer>())
 
 async function loadTrainerAccounts(accountId: string) {
@@ -162,6 +190,7 @@ function fetchData() {
     // fetch data
     console.log("fetching...")
     if (activeTabIndex.value == 0) {
+        loadManagerDetail()
         loadTrainerAccounts(accountId.value)
 
     } else if (activeTabIndex.value == 1) {
@@ -195,6 +224,85 @@ function fetchData() {
         </ul>
     </div>
     <div class="tab-content" id="pills-tabContent">
+
+        <!-- account detail -->
+        <div class="card mb-4 card-parent">
+            <div class="card-body">
+                <h5>Manager Detail</h5>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Account ID</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.account_id }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Branch ID</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.branch_id }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Full Name</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.name }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Email</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.email }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Contact</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.contact }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Gender</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">TODO</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">DOB</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.dob }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Address</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ managerDetail.address }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
         <!-- Trainers -->
         <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
@@ -344,6 +452,21 @@ function fetchData() {
     margin-bottom: 20px;
 
 }
+
+.card-parent {
+    margin: 24px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.card-parent .row {
+    margin-bottom: 16px;
+}
+
+.card-body h5 {
+    margin-bottom: 20px;
+}
+
 
 .table-container {
     margin-top: 50px;
