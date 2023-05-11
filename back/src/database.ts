@@ -30,6 +30,7 @@ function createTables() {
     createTableStaff()
     createTableMember()
     createTableSession()
+    createTableMembership()
 }
 function createTableAdmin() {
     db.query(`
@@ -137,6 +138,21 @@ function createTableSession() {
         FOREIGN KEY (trainer_id) REFERENCES trainer (account_id),
         FOREIGN KEY (member_id) REFERENCES member (account_id)
       );
+      `)
+}
+function createTableMembership() {
+    db.query(`
+    CREATE TABLE IF NOT EXISTS membership (
+        membership_id CHAR(36) NOT NULL,
+        member_id CHAR(36) NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        start_time DOUBLE NOT NULL,
+        end_time DOUBLE NOT NULL,
+        PRIMARY KEY (membership_id),
+        FOREIGN KEY (member_id) REFERENCES member (account_id)
+      );
+      
       `)
 }
 createTables()

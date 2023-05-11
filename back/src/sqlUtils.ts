@@ -1,20 +1,21 @@
 import { randomUUID } from "crypto";
 import db from "./database.js";
-import { Admin, Branch, Manager, Member, Result, Staff, Trainer, TrainingSession, createSqlResult } from "./utils.js";
+import { Admin, Branch, Manager, Member, Membership, Result, Staff, Trainer, TrainingSession, createSqlResult } from "./utils.js";
 
 async function _query<T>(sql: string, values: any[] = []) {
-    let result: Result<T[]> = {
-        isError: false,
-        result: []
-    }
+
     try {
         const [res] = await db.query(sql, values)
-        result.result = res as T[]
-    } catch (error) {
-        console.log("sql error", error)
-        result.isError = true
+        return createSqlResult<T>(false, res as T)
+    } catch (error: any) {
+        //console.log("sql error", error)
+        if (error.errno == 1451) {
+            return createSqlResult(true, "first delete manager")
+        } else {
+            return createSqlResult(true, "sql error")
+        }
+
     }
-    return result
 }
 namespace SqlUtils {
     export async function signIn(
@@ -36,7 +37,7 @@ namespace SqlUtils {
             SELECT account_id , 'trainer' AS type FROM trainer WHERE email = '${email}' AND password='${password}'
             LIMIT 1;
         `
-        const result = await _query<{ account_id: string, type: string }>(sql)
+        const result = await _query<{ account_id: string, type: string }[]>(sql)
         if (result.isError) {
             return createSqlResult(true, "sql server error")
         } else {
@@ -51,7 +52,7 @@ namespace SqlUtils {
     export async function isEmailExist(
         email: string,
     ) {
-        const sql = `
+        const sql = ` 
             SELECT account_id , 'admin' AS type FROM admin WHERE email = '${email}'  
             UNION ALL
             SELECT account_id , 'manager' AS type FROM manager WHERE email = '${email}'       
@@ -65,7 +66,7 @@ namespace SqlUtils {
             SELECT account_id , 'trainer' AS type FROM trainer WHERE email = '${email}' 
             LIMIT 1;
         `
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         if (result.result.length > 0) return true
         return false
     }
@@ -81,9 +82,19 @@ namespace SqlUtils {
         const values = [admin.account_id, admin.name, admin.email, admin.password, admin.address, admin.contact, admin.dob]
         return _query(sql, values)
     }
+    export async function updateAdmin(info: Admin) {
+        const sql = 'UPDATE admin SET email=? name = ?, password = ?, address = ?, contact = ?, dob = ? WHERE account_id = ?';
+        const values = [info.email, info.name, info.password, info.address, info.contact, info.dob, info.account_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "updated")
+        }
+    }
     export async function getAdmin(id: string) {
         const sql = `SELECT * FROM admin WHERE account_id='${id}';`
-        const result = await _query<Admin>(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "admin not found")
@@ -107,9 +118,19 @@ namespace SqlUtils {
             return createSqlResult(false, "created")
         }
     }
+    export async function updateBranch(info: Branch) {
+        const sql = 'UPDATE branch SET name = ?, email = ?, address = ?, contact = ?, WHERE branch_id = ?';
+        const values = [info.name, info.email, info.address, info.contact, info.branch_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "updated")
+        }
+    }
     export async function getBranch(id: string) {
         const sql = `SELECT * FROM branch WHERE branch_id='${id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "branch not found")
@@ -119,7 +140,7 @@ namespace SqlUtils {
     }
     export async function getAllBranch() {
         const sql = `SELECT * FROM branch ;`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "branch not found")
@@ -134,12 +155,27 @@ namespace SqlUtils {
         LEFT JOIN manager ON branch.branch_id = manager.branch_id
         WHERE manager.account_id IS NULL;
         `
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "branch not found")
         } else {
             return createSqlResult(false, arr)
+        }
+    }
+
+    export async function deleteBranch(id: string) {
+        const sql = `DELETE FROM branch WHERE branch_id = ?;`
+        const values = [id]
+        const result = await _query<any>(sql, values)
+        if (result.isError) {
+            return result
+        } else if (result.result.affectedRows > 0) {
+            return createSqlResult(false, "deleted")
+        }
+        else {
+
+            return createSqlResult(true, "unable to delete")
         }
     }
     /**--------------------manager-----------------------*/
@@ -160,7 +196,7 @@ namespace SqlUtils {
     }
     export async function getManager(id: string) {
         const sql = `SELECT * FROM manager WHERE account_id='${id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "manager not found")
@@ -170,7 +206,7 @@ namespace SqlUtils {
     }
     export async function getAllManager() {
         const sql = `SELECT * FROM manager;`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "manager not found")
@@ -178,7 +214,30 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
+    export async function updateManager(info: Manager) {
+        const sql = 'UPDATE manager SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.account_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "updated")
+        }
+    }
+    export async function deleteManager(id: string) {
+        const sql = `DELETE FROM manager WHERE account_id = ?;`
+        const values = [id]
+        const result = await _query<any>(sql, values)
+        if (result.isError) {
+            return result
+        } else if (result.result.affectedRows > 0) {
+            return createSqlResult(false, "deleted")
+        }
+        else {
 
+            return createSqlResult(true, "unable to delete")
+        }
+    }
     /**--------------------trainer-----------------------*/
     export async function createTrainer(
         info: Trainer
@@ -197,7 +256,7 @@ namespace SqlUtils {
     }
     export async function getTrainer(id: string) {
         const sql = `SELECT * FROM trainer WHERE account_id='${id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "trainer not found")
@@ -207,7 +266,7 @@ namespace SqlUtils {
     }
     export async function getAllTrainer() {
         const sql = `SELECT * FROM trainer;`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "trainer not found")
@@ -217,7 +276,7 @@ namespace SqlUtils {
     }
     export async function getAllTrainerWithBranchId(branch_id: string) {
         const sql = `SELECT * FROM trainer WHERE branch_id=${branch_id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "trainer not found")
@@ -225,7 +284,16 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
-
+    export async function updateTrainer(info: Trainer) {
+        const sql = 'UPDATE trainer SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.account_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "updated")
+        }
+    }
     /**--------------------staff-----------------------*/
     export async function createStaff(
         info: Staff
@@ -244,7 +312,7 @@ namespace SqlUtils {
     }
     export async function getStaff(id: string) {
         const sql = `SELECT * FROM staff WHERE account_id='${id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "staff not found")
@@ -254,7 +322,7 @@ namespace SqlUtils {
     }
     export async function getAllStaff() {
         const sql = `SELECT * FROM staff;`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "staff not found")
@@ -264,12 +332,22 @@ namespace SqlUtils {
     }
     export async function getAllStaffWithBranchId(branch_id: string) {
         const sql = `SELECT * FROM staff WHERE branch_id=${branch_id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "staff not found")
         } else {
             return createSqlResult(false, arr)
+        }
+    }
+    export async function updateStaff(info: Staff) {
+        const sql = 'UPDATE staff SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,work = ? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.account_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "updated")
         }
     }
     /**--------------------member-----------------------*/
@@ -290,7 +368,7 @@ namespace SqlUtils {
     }
     export async function getMember(id: string) {
         const sql = `SELECT * FROM member WHERE account_id='${id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "member not found")
@@ -300,7 +378,7 @@ namespace SqlUtils {
     }
     export async function getAllMember() {
         const sql = `SELECT * FROM member;`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "member not found")
@@ -310,7 +388,7 @@ namespace SqlUtils {
     }
     export async function getAllMemberWithBranchId(branch_id: string) {
         const sql = `SELECT * FROM member WHERE branch_id=${branch_id}';`
-        const result = await _query(sql)
+        const result = await _query<any[]>(sql)
         const arr = result.result
         if (arr.length == 0) {
             return createSqlResult(true, "member not found")
@@ -318,8 +396,29 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
-
-
+    export async function updateMember(info: Member) {
+        const sql = 'UPDATE member SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,membership = ? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership, info.account_id]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "updated")
+        }
+    }
+    /**--------------------member-----------------------*/
+    export async function createMembership(
+        info: Membership
+    ) {
+        const sql = 'INSERT INTO membership (membership_id,member_id,name,price,start_time,end_time) VALUES()'
+        const values = [info.membership_id, info.member_id, info.name, info.price, info.start_time, info.end_time]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return createSqlResult(true, "sql error")
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
 }
 export default SqlUtils
 
@@ -328,13 +427,6 @@ export default SqlUtils
  * 
  * 
 
-    export async function createMember(
-        info: Member
-    ) {
-        const sql = 'INSERT INTO member(account_id, name, email, password, address, contact, dob,branch_id,membership) VALUES(?,?,?,?,?,?,?,?,?)'
-        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership]
-        return _query(sql, values)
-    }
     export async function createTrainingSession(
         info: TrainingSession
     ) {
@@ -343,58 +435,7 @@ export default SqlUtils
         return _query(sql, values)
     }
 
-    function getIdNameFromTableName(tableName: string) {
-        if (tableName == "session") return "session_id"
-        if (tableName == "branch") return "branch_id"
-        return "account_id"
-    }
-        export async function getWithId<T>(tableName: string, id: string) {
-        let idName = getIdNameFromTableName(tableName)
-        const sql = `SELECT * FROM ${tableName} WHERE ${idName}='${id}';`
-        return _query<T>(sql)
-    }
-    export async function getAll<T>(tableName: string) {
-        const sql = `SELECT * FROM ${tableName};`
-        return _query<T>(sql)
-    }
-    export async function getWithId<T>(tableName: string, id: string) {
-        let idName = getIdNameFromTableName(tableName)
-        const sql = `SELECT * FROM ${tableName} WHERE ${idName}='${id}';`
-        return _query<T>(sql)
-    }
 
-
-
-    export async function updateAdmin(info: Admin) {
-        const sql = 'UPDATE admin SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.account_id]
-        return _query(sql, values)
-    }
-    export async function updateBranch(info: Branch) {
-        const sql = 'UPDATE branch SET name = ?, email = ?, address = ?, contact = ?, WHERE branch_id = ?';
-        const values = [info.name, info.email, info.address, info.contact, info.branch_id]
-        return _query(sql, values)
-    }
-    export async function updateManager(info: Manager) {
-        const sql = 'UPDATE manager SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.account_id]
-        return _query(sql, values)
-    }
-    export async function updateTrainer(info: Trainer) {
-        const sql = 'UPDATE trainer SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.account_id]
-        return _query(sql, values)
-    }
-    export async function updateStaff(info: Staff) {
-        const sql = 'UPDATE staff SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,work = ? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.account_id]
-        return _query(sql, values)
-    }
-    export async function updateMember(info: Member) {
-        const sql = 'UPDATE member SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,membership = ? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership, info.account_id]
-        return _query(sql, values)
-    }
 
     // export async function deleteRow<T>(info: T, table_name: string) {
     //     const value = info as any
