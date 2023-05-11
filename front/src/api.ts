@@ -1,4 +1,4 @@
-import { Branch, Manager } from "./RestApiDataType"
+import { Branch, Manager, Trainer } from "./RestApiDataType"
 
 namespace Api {
     const apiURL = 'http://localhost:3000'
@@ -208,6 +208,45 @@ namespace Api {
     export async function createBranch(branch: Branch) {
         let data = branch
         let path = `branch`
+        try {
+            let res = await fetchDataPost(path, data)
+            if (res.status == 200) {
+                return { isSuccess: true}
+            } else {
+                let message = await res.text()
+                return { isSuccess: false, error: message }
+            }
+        } catch (error: any) {
+            return { isSuccess: false, error: error.message };
+        }
+    }
+
+
+
+
+    // -------------------------------- Manager -----------------------------------
+
+    export async function loadBranchAllTrainer(branchId: string){
+        let data = `branch_id=${branchId}`
+        let path = `trainer`
+        try {
+            let res = await fetchDataGet(path, data)
+            if (res.status == 200) {
+                let result = await res.json() as Array<Trainer>
+                return { isSuccess: true, result: result}
+            } else {
+                let message = await res.text()
+                return { isSuccess: false, error: message }
+            }
+        } catch (error: any) {
+            return { isSuccess: false, error: error.message };
+        }
+    }
+
+
+    export async function createTrainer(trainer: Trainer) {
+        let data = trainer
+        let path = `trainer`
         try {
             let res = await fetchDataPost(path, data)
             if (res.status == 200) {

@@ -5,15 +5,47 @@ import ProgressDialog from '../components/ProgressDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
+import CreateTrainerDialog, { DialogTrainerData } from '../components/CreateTrainerDialog.vue';
+import { Trainer } from '../RestApiDataType';
 
 
 let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
+let isAdmin = ref(true)
 
-let accountId = ref(0)
-// let accountType = ref("")
 
+let accountId = ref("")
+let accountType = ref("")
+
+getCookies()
+function getCookies() {
+
+    let type = localStorage.getItem("accountType")
+    let id = localStorage.getItem("accountId")
+
+    if (window.location.pathname == "/admin/manager") {
+        isAdmin.value = true
+        id = localStorage.getItem("tempId")
+        type = "manager"
+    } else {
+        isAdmin.value = false
+    }
+
+
+    if (type == null || id == null) {
+        window.location.href = '/'
+    } else {
+        accountId.value = id
+        accountType.value = type
+        fetchData()
+    }
+
+}
+
+
+
+// profile dialog
 const profileData = new (class extends ProfileData {
     show() {
         isProgressHidden.value = false
@@ -39,6 +71,9 @@ const profileData = new (class extends ProfileData {
 
 let profile = ref(profileData)
 
+
+
+// warning dialog
 const warningData = new (class extends WarningData {
     onOk(): void {
 
@@ -52,6 +87,44 @@ const warningData = new (class extends WarningData {
 })
 
 let warning = ref(warningData)
+
+
+
+
+// create trainer dialog
+const trainerDialogData = new (class extends DialogTrainerData {
+
+    onCreateTrainer(): void {
+        isProgressHidden.value = false
+    }
+    onSuccessFul(text: string): void {
+        isProgressHidden.value = true
+        super.onSuccessFul(text)
+        message.value.show(text)
+        fetchData()
+    }
+
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+    }
+})
+
+let trainerDialog = ref(trainerDialogData)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function logout() {
@@ -72,23 +145,25 @@ function showProfile() {
 }
 
 
-// let customerAccounts = ref(Array())
-// async function loadCustomerAccounts(accountId: number) {
-//     isProgressHidden.value = false
-//     let accounts = await Api.getAllCustomerAccounts(accountId)
-//     isProgressHidden.value = true
-//     if (accounts.isSuccess == true) {
-//         customerAccounts.value = accounts.data
-//     } else {
-//         message.value.show(accounts.error)
-//     }
-// }
+let trainerAccounts = ref(Array<Trainer>())
+
+async function loadTrainerAccounts(accountId: string) {
+    isProgressHidden.value = false
+    let accounts = await Api.loadBranchAllTrainer(accountId)
+    isProgressHidden.value = true
+    if (accounts.isSuccess == true) {
+        trainerAccounts.value = accounts.result as Array<Trainer>
+    } else {
+        message.value.show(accounts.error)
+    }
+}
 
 function fetchData() {
     // fetch data
     console.log("fetching...")
     if (activeTabIndex.value == 0) {
-        // loadVehiclePlans()
+        loadTrainerAccounts(accountId.value)
+
     } else if (activeTabIndex.value == 1) {
         // loadCustomerAccounts(accountId.value)
     }
@@ -127,7 +202,8 @@ function fetchData() {
             <div class="table-container">
                 <div class="container">
                     <h3>Trainers</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="">Add Trainers</button>
+                    <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
+                        @click="trainerDialog.show()">Add Trainers</button>
                 </div>
 
                 <div class="table-responsive">
@@ -147,15 +223,19 @@ function fetchData() {
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- <tr v-for="plan, index in vehiclePlan">
+                            <tr v-for="trainer, index in trainerAccounts">
                                 <th scope="row">{{ index }}</th>
-                                <td>{{ plan.vehicle_id }}</td>
-                                <td>{{ plan.name }}</td>
-                                <td>{{ plan.rate }}</td>
-                                <td>{{ plan.seats }}</td>
-                                <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
-                            </tr> -->
+                                <td>{{ trainer.account_id }}</td>
+                                <td>{{ trainer.branch_id }}</td>
+                                <td>{{ trainer.name }}</td>
+                                <td>{{ trainer.email }}</td>
+                                <td>{{ trainer.address }}</td>
+                                <td>{{ trainer.dob }}</td>
+                                <td>{{ trainer.specialization }}</td>
+
+                                <td><button class="btn btn-danger" @click=""><i
+                                            class="material-icons">delete</i>Delete</button></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -169,7 +249,7 @@ function fetchData() {
             <div class="table-container">
                 <div class="container">
                     <h3>Staffs</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="">Add Staff</button>
+                    <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block" @click="">Add Staff</button>
                 </div>
 
                 <div class="table-responsive">
@@ -196,7 +276,7 @@ function fetchData() {
                     <td>{{ plan.rate }}</td>
                     <td>{{ plan.seats }}</td>
                     <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-                    <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
+                    <td><button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</button></td>
                 </tr> -->
                         </tbody>
                     </table>
@@ -237,7 +317,7 @@ function fetchData() {
         <td>{{ plan.rate }}</td>
         <td>{{ plan.seats }}</td>
         <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-        <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
+        <td><button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</button></td>
     </tr> -->
                         </tbody>
                     </table>
@@ -248,6 +328,7 @@ function fetchData() {
     </div>
 
 
+    <CreateTrainerDialog :dialog="trainerDialog" :branch-id="accountId" />
     <ProfileDialogVue :profile="profile" />
     <MessageDialog :message="message" />
     <WarningDialogVue :warning="warning" />
