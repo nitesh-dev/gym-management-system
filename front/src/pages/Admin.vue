@@ -7,14 +7,31 @@ import CreateBranchDialog, { DialogBranchData } from '../components/CreateBranch
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
+import { Branch, Manager } from '../RestApiDataType';
 
 
 let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 
-let accountId = ref(0)
-// let accountType = ref("")
+let accountId = ref("")
+let accountType = ref("")
+
+getCookies()
+function getCookies() {
+    let type = localStorage.getItem("accountType")
+    let id = localStorage.getItem("accountId")
+    if (type == null || id == null) {
+        window.location.href = '/'
+    } else {
+        accountId.value = id
+        accountType.value = type
+        fetchData()
+    }
+}
+
+
+
 
 
 
@@ -49,8 +66,8 @@ let profile = ref(profileData)
 // waring dialog
 const warningData = new (class extends WarningData {
     onOk(): void {
-
         this.hide()
+        deleteData()
     }
 
     show(message: string): void {
@@ -64,13 +81,22 @@ let warning = ref(warningData)
 
 
 // create manager dialog
-const managerDialogData = new (class extends DialogManagerData{
-    onSuccessFul(): void {
-        
+const managerDialogData = new (class extends DialogManagerData {
+    onCreateManager(): void {
+        isProgressHidden.value = false
+    }
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+        fetchData()
     }
 
-    onFailed(message: string): void {
-        
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+
     }
 })
 
@@ -79,13 +105,22 @@ let managerDialog = ref(managerDialogData)
 
 
 // create branch dialog
-const branchDialogData = new (class extends DialogBranchData{
-    onSuccessFul(): void {
-        
+const branchDialogData = new (class extends DialogBranchData {
+
+    onCreateBranch(): void {
+        isProgressHidden.value = false
+    }
+    onSuccessFul(text: string): void {
+        isProgressHidden.value = true
+        super.onSuccessFul(text)
+        message.value.show(text)
+        fetchData()
     }
 
-    onFailed(message: string): void {
-        
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
     }
 })
 
@@ -114,27 +149,72 @@ function showProfile() {
 }
 
 
-// let customerAccounts = ref(Array())
-// async function loadCustomerAccounts(accountId: number) {
-//     isProgressHidden.value = false
-//     let accounts = await Api.getAllCustomerAccounts(accountId)
-//     isProgressHidden.value = true
-//     if (accounts.isSuccess == true) {
-//         customerAccounts.value = accounts.data
-//     } else {
-//         message.value.show(accounts.error)
-//     }
-// }
+let managerAccounts = ref(Array<Manager>())
+async function loadManagerAccounts() {
+    isProgressHidden.value = false
+    let accounts = await Api.loadAllMangers()
+    isProgressHidden.value = true
+    if (accounts.isSuccess == true) {
+        managerAccounts.value = accounts.result as Array<Manager>
+    } else {
+        message.value.show(accounts.error)
+    }
+}
+
+
+let branchDetails = ref(Array<Branch>())
+async function loadAllBranches() {
+    isProgressHidden.value = false
+    let res = await Api.loadAllBranches()
+    isProgressHidden.value = true
+    if (res.isSuccess == true) {
+        branchDetails.value = res.result as Array<Branch>
+    } else {
+        message.value.show(res.error)
+    }
+}
 
 function fetchData() {
     // fetch data
     console.log("fetching...")
     if (activeTabIndex.value == 0) {
-        // loadVehiclePlans()
+        loadManagerAccounts()
     } else if (activeTabIndex.value == 1) {
-        // loadCustomerAccounts(accountId.value)
+        loadAllBranches()
     }
 }
+
+
+async function deleteData() {
+    // fetch data
+    console.log("deleting...")
+    let tableName = null
+
+    if (activeTabIndex.value == 0) {
+        tableName = 'manager'
+    } else if (activeTabIndex.value == 1) {
+        tableName = 'branch'
+    } 
+
+    if(tableName == null) return
+
+    isProgressHidden.value = false
+    let result = await Api.deleteOperation(tableName, idToDelete)
+    isProgressHidden.value = true
+    if (result.isSuccess == true) {
+        fetchData()
+    } else {
+        message.value.show(result.error)
+    }
+}
+
+
+let idToDelete = ""
+function deleteOperation(message: string, id: string){
+    idToDelete = id
+    warning.value.show(message)
+}
+
 
 </script>
 <template>
@@ -166,7 +246,8 @@ function fetchData() {
             <div class="table-container">
                 <div class="container">
                     <h3>Managers</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="managerDialog.show()">Add Manager</button>
+                    <button id="add-button" class="btn btn-success btn-block" @click="managerDialog.show()">Add
+                        Manager</button>
                 </div>
 
                 <div class="table-responsive">
@@ -185,15 +266,19 @@ function fetchData() {
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- <tr v-for="plan, index in vehiclePlan">
+                            <tr v-for="manager, index in managerAccounts">
                                 <th scope="row">{{ index }}</th>
-                                <td>{{ plan.vehicle_id }}</td>
-                                <td>{{ plan.name }}</td>
-                                <td>{{ plan.rate }}</td>
-                                <td>{{ plan.seats }}</td>
-                                <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
-                            </tr> -->
+                                <td>{{ manager.account_id }}</td>
+                                <td>{{ manager.branch_id }}</td>
+                                <td>{{ manager.name }}</td>
+                                <td>{{ manager.email }}</td>
+                                <td>{{ manager.address }}</td>
+                                <td>{{ manager.contact }}</td>
+                                <td>{{ manager.dob }}</td>
+
+                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
+                                            class="material-icons">delete</i>Delete</Button></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -207,7 +292,8 @@ function fetchData() {
             <div class="table-container">
                 <div class="container">
                     <h3>Branch</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="branchDialog.show()">Add Branch</button>
+                    <button id="add-button" class="btn btn-success btn-block" @click="branchDialog.show()">Add
+                        Branch</button>
                 </div>
 
                 <div class="table-responsive">
@@ -224,15 +310,17 @@ function fetchData() {
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- <tr v-for="plan, index in vehiclePlan">
-                    <th scope="row">{{ index }}</th>
-                    <td>{{ plan.vehicle_id }}</td>
-                    <td>{{ plan.name }}</td>
-                    <td>{{ plan.rate }}</td>
-                    <td>{{ plan.seats }}</td>
-                    <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-                    <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
-                </tr> -->
+                            <tr v-for="branch, index in branchDetails">
+                                <th scope="row">{{ index }}</th>
+                                <td>{{ branch.branch_id }}</td>
+                                <td>{{ branch.name }}</td>
+                                <td>{{ branch.email }}</td>
+                                <td>{{ branch.address }}</td>
+                                <td>{{ branch.contact }}</td>
+
+                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
+                                            class="material-icons">delete</i>Delete</Button></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -242,8 +330,8 @@ function fetchData() {
     </div>
 
 
-    <CreateBranchDialog :dialog="branchDialog"/>
-    <CreateManagerDialog :dialog="managerDialog"/>
+    <CreateBranchDialog :dialog="branchDialog" />
+    <CreateManagerDialog :dialog="managerDialog" />
     <ProfileDialogVue :profile="profile" />
     <MessageDialog :message="message" />
     <WarningDialogVue :warning="warning" />
