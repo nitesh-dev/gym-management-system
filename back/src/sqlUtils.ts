@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import db from "./database.js";
 import { Admin, Branch, Manager, Member, Membership, Result, Staff, Trainer, TrainingSession, createSqlResult } from "./utils.js";
+import { Session } from "inspector";
 
 async function _query<T>(sql: string, values: any[] = []) {
 
@@ -8,6 +9,7 @@ async function _query<T>(sql: string, values: any[] = []) {
         const [res] = await db.query(sql, values)
         return createSqlResult<T>(false, res as T)
     } catch (error: any) {
+        console.error(error)
         //console.log("sql error", error)
         if (error.errno == 1451) {
             return createSqlResult(true, "first delete manager")
@@ -87,7 +89,7 @@ namespace SqlUtils {
         const values = [info.email, info.name, info.password, info.address, info.contact, info.dob, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "updated")
         }
@@ -96,6 +98,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM admin WHERE account_id='${id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "admin not found")
         } else {
@@ -113,7 +118,7 @@ namespace SqlUtils {
         const values = [branch.branch_id, branch.name, branch.email, branch.address, branch.contact]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "created")
         }
@@ -123,7 +128,7 @@ namespace SqlUtils {
         const values = [info.name, info.email, info.address, info.contact, info.branch_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "updated")
         }
@@ -132,6 +137,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM branch WHERE branch_id='${id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "branch not found")
         } else {
@@ -142,9 +150,10 @@ namespace SqlUtils {
         const sql = `SELECT * FROM branch ;`
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "branch not found")
-        } else {
+        if (result.isError) {
+            return result
+        }
+        else {
             return createSqlResult(false, arr)
         }
     }
@@ -157,9 +166,10 @@ namespace SqlUtils {
         `
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "branch not found")
-        } else {
+        if (result.isError) {
+            return result
+        }
+        else {
             return createSqlResult(false, arr)
         }
     }
@@ -189,7 +199,7 @@ namespace SqlUtils {
         const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "created")
         }
@@ -198,6 +208,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM manager WHERE account_id='${id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "manager not found")
         } else {
@@ -209,7 +222,7 @@ namespace SqlUtils {
         const result = await _query<any[]>(sql)
         const arr = result.result
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, arr)
         }
@@ -219,7 +232,7 @@ namespace SqlUtils {
         const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "updated")
         }
@@ -249,7 +262,7 @@ namespace SqlUtils {
         const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "created")
         }
@@ -258,6 +271,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM trainer WHERE account_id='${id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "trainer not found")
         } else {
@@ -268,8 +284,8 @@ namespace SqlUtils {
         const sql = `SELECT * FROM trainer;`
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "trainer not found")
+        if (result.isError) {
+            return result
         } else {
             return createSqlResult(false, arr)
         }
@@ -278,6 +294,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM trainer WHERE branch_id=${branch_id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "trainer not found")
         } else {
@@ -289,7 +308,7 @@ namespace SqlUtils {
         const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "updated")
         }
@@ -305,7 +324,7 @@ namespace SqlUtils {
         const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "created")
         }
@@ -314,6 +333,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM staff WHERE account_id='${id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "staff not found")
         } else {
@@ -324,8 +346,8 @@ namespace SqlUtils {
         const sql = `SELECT * FROM staff;`
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "staff not found")
+        if (result.isError) {
+            return result
         } else {
             return createSqlResult(false, arr)
         }
@@ -334,6 +356,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM staff WHERE branch_id=${branch_id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "staff not found")
         } else {
@@ -345,7 +370,7 @@ namespace SqlUtils {
         const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "updated")
         }
@@ -361,7 +386,7 @@ namespace SqlUtils {
         const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "created")
         }
@@ -370,6 +395,9 @@ namespace SqlUtils {
         const sql = `SELECT * FROM member WHERE account_id='${id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
+        if (result.isError) {
+            return result
+        }
         if (arr.length == 0) {
             return createSqlResult(true, "member not found")
         } else {
@@ -380,8 +408,8 @@ namespace SqlUtils {
         const sql = `SELECT * FROM member;`
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "member not found")
+        if (result.isError) {
+            return result
         } else {
             return createSqlResult(false, arr)
         }
@@ -390,8 +418,8 @@ namespace SqlUtils {
         const sql = `SELECT * FROM member WHERE branch_id=${branch_id}';`
         const result = await _query<any[]>(sql)
         const arr = result.result
-        if (arr.length == 0) {
-            return createSqlResult(true, "member not found")
+        if (result.isError) {
+            return result
         } else {
             return createSqlResult(false, arr)
         }
@@ -401,12 +429,33 @@ namespace SqlUtils {
         const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "updated")
         }
     }
-    /**--------------------member-----------------------*/
+    /**----------------------session--------------------- */
+    async function isSessionExist(session: TrainingSession) {
+        //check if trainer and member id exist or not
+        const sql = `SELECT * FROM training_session WHERE trainer_id = ${session.trainer_id} AND member_id = ${session.member_id} LIMIT 1;`
+        const result = await _query<any[]>(sql)
+        if (result.result.length > 0) return true
+        return false
+    }
+    async function createSession(info: TrainingSession) {
+        if ((await isSessionExist(info))) {
+            return createSqlResult(true, "session already exist")
+        }
+        const sql = `INSERT INTO training_session(session_id,trainer_id,member_id,start_time,end_time) VALUES(?,?,?,?,?)`
+        const values = [info.session_id, info.trainer_id, info.member_id, info.start_time, info.end_time]
+        const result = await _query(sql, values)
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, "created")
+        }
+    }
+    /**--------------------membership-----------------------*/
     export async function createMembership(
         info: Membership
     ) {
@@ -414,7 +463,7 @@ namespace SqlUtils {
         const values = [info.membership_id, info.member_id, info.name, info.price, info.start_time, info.end_time]
         const result = await _query(sql, values)
         if (result.isError) {
-            return createSqlResult(true, "sql error")
+            return result
         } else {
             return createSqlResult(false, "created")
         }
