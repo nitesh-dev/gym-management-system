@@ -14,8 +14,10 @@ import Member from "./pages/Member.vue"
 import Staff from "./pages/Staff.vue"
 
 import { createRouter, createWebHistory } from 'vue-router'
+import Api from './api';
 
-
+const res = await Api.signIn("admin@gmail.com", "admidn12345")
+console.log(await Api.getAllBranch())
 const router = createRouter({
   history: createWebHistory(),
   routes: []

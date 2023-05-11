@@ -1,23 +1,27 @@
 import { Admin, Branch, Manager, Trainer } from "./RestApiDataType"
 interface Result<T> {
     isError: boolean,
-    result: T
+    result: T | null,
+    error: string
 }
-function createResult<T>(result: T, isError: boolean = true) {
-    return { isError: isError, result: result } as Result<T>
+function createResult<T>(result: T | null, isError: boolean = true, error: string = "") {
+    return { isError: isError, result: result, error: error } as Result<T>
 }
-
 namespace Api {
     const apiURL = 'http://localhost:3000'
 
     export async function signIn(email: string, password: string) {
         return post<{ account_id: string, type: string }>("signin", "", { email: email, password: password })
     }
-    export async function getAdmin(id: string) {
-        return get<Admin>("signin", `id=${id}`)
-    }
-    /*-----------------------admin-----------------------*/
 
+    /*-----------------------admin-----------------------*/
+    export async function getAdmin(id: string) {
+        return get<Admin>("admin/id", `id=${id}`)
+    }
+    /*-----------------branch-----------*/
+    export async function getAllBranch() {
+        return get<Branch[]>("branch", ``)
+    }
 
     async function get<T>(path: string, query: string) {
         const requestOptions: RequestInit = {
@@ -32,10 +36,10 @@ namespace Api {
             if (res.ok) {
                 return createResult<T>(await res.json(), false)
             } else {
-                return createResult<string>(await res.text(), true)
+                return createResult<T>(null, true, await res.text())
             }
         } catch (error) {
-            return createResult("fetch error", true)
+            return createResult<T>(null, true, "fetch error")
         }
     }
     async function post<T>(path: string, query: string, body: any) {
@@ -55,10 +59,10 @@ namespace Api {
             if (res.ok) {
                 return createResult<T>(await res.json(), false)
             } else {
-                return createResult<string>(await res.text(), true)
+                return createResult<T>(null, true, await res.text())
             }
         } catch (error) {
-            return createResult("fetch error", true)
+            return createResult<T>(null, true, "fetch error")
         }
     }
 }
