@@ -203,8 +203,8 @@ async function deleteData() {
 
     isProgressHidden.value = true
 
-    if(res == null) return
-    
+    if (res == null) return
+
     if (res.isError) {
         message.value.show(res.error)
     } else {
@@ -228,25 +228,26 @@ function openManager(id: string) {
 </script>
 <template>
     <nav class="navbar sticky-top navbar-light bg-light">
-        <div class="container-fluid">
+        <div class="container-fluid" style="justify-content: left;">
             <div class="navbar-header">
                 <a class="navbar-brand">GYM Manager</a>
             </div>
-            <button class="btn btn-primary" @click="showProfile">Profile</button>
-            <button class="btn btn-danger" @click="logout">Log out</button>
+            <ul class="nav nav-pills mb-3" id="pills-tab">
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }"
+                        @click="changeTab(0)">Managers</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
+                        @click="changeTab(1)">Branches</button>
+                </li>
+            </ul>
+
+            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
     </nav>
 
-    <div class="container">
-        <ul class="nav nav-pills mb-3" id="pills-tab">
-            <li class="nav-item">
-                <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Managers</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" :class="{ active: activeTabIndex == 1 }" @click="changeTab(1)">Branches</button>
-            </li>
-        </ul>
-    </div>
+
     <div class="tab-content" id="pills-tabContent">
 
         <!-- Managers -->
@@ -348,8 +349,9 @@ function openManager(id: string) {
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-#pills-tab {
-    margin-top: 30px;
+
+.nav{
+    margin-bottom: 0 !important;
 }
 
 #add-button {

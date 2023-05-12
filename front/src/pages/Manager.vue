@@ -40,7 +40,6 @@ function getCookies() {
         accountId.value = id
         accountType.value = type
         fetchData()
-        loadManagerDetail()
     }
 
 
@@ -293,13 +292,21 @@ function fetchData() {
     // fetch data
     console.log("fetching...")
     if (activeTabIndex.value == 0) {
+        loadManagerDetail()
+
+    } else if (activeTabIndex.value == 1) {
         if (managerDetail.value.branch_id == "") return
         loadTrainerAccounts(managerDetail.value.branch_id)
 
-    } else if (activeTabIndex.value == 1) {
+    } else if (activeTabIndex.value == 2) {
         loadStaffAccounts(managerDetail.value.branch_id)
 
-    } else if (activeTabIndex.value == 2) {
+    } else if (activeTabIndex.value == 3) {
+        loadMemberAccounts(managerDetail.value.branch_id)
+
+    } else if (activeTabIndex.value == 4) {
+
+        // TODO load pending members
         loadMemberAccounts(managerDetail.value.branch_id)
     }
 }
@@ -310,7 +317,7 @@ getCookies()
 </script>
 <template>
     <nav class="navbar sticky-top navbar-light bg-light">
-        <div class="container-fluid">
+        <div class="container-fluid" style="justify-content: left;">
             <div class="navbar-header">
                 <a class="navbar-brand">GYM Manager</a>
             </div>
@@ -344,7 +351,7 @@ getCookies()
                 <button class="btn btn-primary" @click="showProfile">Profile</button>
             </div> -->
 
-            <button class="btn btn-danger" @click="logout">Log out</button>
+            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
     </nav>
 
@@ -352,142 +359,142 @@ getCookies()
 
         <!-- account detail -->
         <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
-        </div>
-        <div class="container">
-            <div class="row justify-content-start">
+            <div class="container">
+                <div class="row justify-content-start">
 
-                <!-- branch detail -->
-                <div class="col-sm">
-                    <div class="card mb-4 card-parent">
-                        <div class="card-body">
-                            <h5>Branch Detail</h5>
+                    <!-- branch detail -->
+                    <div class="col-sm">
+                        <div class="card mb-4 card-parent">
+                            <div class="card-body">
+                                <h5>Branch Detail</h5>
 
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Branch ID</p>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.branch_id }}</p>
+                                    </div>
                                 </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ branchDetail.branch_id }}</p>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.name }}</p>
+                                    </div>
                                 </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.contact }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.address }}</p>
+                                    </div>
+                                </div>
+
                             </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Branch Name</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ branchDetail.name }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Email</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ branchDetail.email }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Contact</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ branchDetail.contact }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Address</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ branchDetail.address }}</p>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
-                </div>
 
-                <!-- manager detail -->
-                <div class="col-sm">
-                    <div class="card mb-4 card-parent">
-                        <div class="card-body">
-                            <h5>Manager Detail</h5>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Account ID</p>
+                    <!-- manager detail -->
+                    <div class="col-sm">
+                        <div class="card mb-4 card-parent">
+                            <div class="card-body">
+                                <h5>Manager Detail</h5>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Account ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.account_id }}</p>
+                                    </div>
                                 </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.account_id }}</p>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.branch_id }}</p>
+                                    </div>
                                 </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Full Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.name }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.contact }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Gender</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">TODO</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">DOB</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.dob }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ managerDetail.address }}</p>
+                                    </div>
+                                </div>
+
                             </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Branch ID</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.branch_id }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Full Name</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.name }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Email</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.email }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Contact</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.contact }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Gender</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">TODO</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">DOB</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.dob }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <p class="mb-0">Address</p>
-                                </div>
-                                <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ managerDetail.address }}</p>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -495,11 +502,8 @@ getCookies()
         </div>
 
 
-
-
-
         <!-- Trainers -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
 
             <div class="table-container">
                 <div class="container">
@@ -548,7 +552,7 @@ getCookies()
 
 
         <!-- Staffs -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
 
             <div class="table-container">
                 <div class="container">
@@ -596,7 +600,7 @@ getCookies()
 
 
         <!-- Members -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 3, active: activeTabIndex == 3 }">
 
             <div class="table-container">
                 <div class="container">
@@ -641,6 +645,56 @@ getCookies()
             </div>
         </div>
 
+
+        <!-- Pending Members -->
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 4, active: activeTabIndex == 4 }">
+
+            <div class="table-container">
+                <div class="container">
+                    <h3>Members</h3>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Contact</th>
+                                <th scope="col">DOB</th>
+                                <th scope="col">Membership</th>
+                                <th scope="col">Account ID</th>
+                                <th scope="col">Branch ID</th>
+                                <th scope="col">Approve</th>
+                                <th scope="col">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="member, index in memberAccounts">
+                                <th scope="row">{{ index }}</th>
+                                <td>{{ member.name }}</td>
+                                <td>{{ member.email }}</td>
+                                <td>{{ member.address }}</td>
+                                <td>{{ member.contact }}</td>
+                                <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
+                                <td>{{ member.membership }}</td>
+                                <td>{{ member.account_id }}</td>
+                                <td>{{ member.branch_id }}</td>
+
+                                <td><button class="btn btn-success" @click="">Approve</button></td>
+
+                                <td><button class="btn btn-danger"
+                                        @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
+                                            class="material-icons">delete</i>Delete</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 
@@ -652,10 +706,10 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-#pills-tab {
-    margin-top: 30px;
-}
 
+.nav{
+    margin-bottom: 0 !important;
+}
 #add-button {
     width: 100%;
     margin-bottom: 20px;

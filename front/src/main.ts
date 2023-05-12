@@ -12,6 +12,7 @@ import Manager from "./pages/Manager.vue"
 import Trainer from "./pages/Trainer.vue"
 import Member from "./pages/Member.vue"
 import Staff from "./pages/Staff.vue"
+import Membership from "./pages/Membership.vue"
 
 import { createRouter, createWebHistory } from 'vue-router'
 import Api from './api';
@@ -88,6 +89,12 @@ router.addRoute({
 router.addRoute({
   path: "/member", component: Member, meta: {
     title: "Member"
+  }
+})
+
+router.addRoute({
+  path: "/membership", component: Membership, meta: {
+    title: "Membership"
   }
 })
 
