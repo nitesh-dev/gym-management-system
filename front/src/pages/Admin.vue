@@ -38,25 +38,40 @@ function getCookies() {
 
 // profile dialog
 const profileData = new (class extends ProfileData {
-    show() {
-        isProgressHidden.value = false
+    // show() {
+
+    //     isProgressHidden.value = false
+    //     super.show()
+    // }
+
+    show(): void {
+        this.profile.name = 
+        this.profile.contact
+        this.profile.email
+        this.profile.gender
+        this.profile.password
+        this.profile.address
+        this.profile.account_id
+        this.profile.dob
         super.show()
     }
-    hide(): void {
-        super.hide()
-        isProgressHidden.value = true
-    }
-
-    hideProgress(): void {
-        isProgressHidden.value = true
-    }
-
-    showProgress(): void {
+    
+    onUpdateProfile(): void {
         isProgressHidden.value = false
     }
 
-    showMessage(text: string): void {
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
         message.value.show(text)
+        fetchData()
+    }
+
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+
     }
 })
 
@@ -385,6 +400,7 @@ table td,
 table th {
     white-space: nowrap;
     padding: 16px 12px;
+    cursor: pointer;
 }
 
 table button {

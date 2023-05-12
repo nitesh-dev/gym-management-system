@@ -65,6 +65,7 @@ let email = ref("")
 let password = ref("")
 let address = ref("")
 let contact = ref<number>(0)
+let gender = ref('male')
 let dob = ref("")
 
 
@@ -75,6 +76,7 @@ async function onSubmitForm() {
     let dateMill = new Date(dob.value).getTime()
     const data: Manager = {
         account_id: "",
+        gender: 'male',
         branch_id: prop.dialog.selectedBranchId,
         name: name.value, email: email.value,
         password: password.value, address: address.value,
@@ -123,6 +125,11 @@ function setSelectedBranch() {
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+
+                        <select v-model="gender" class="form-select" required="true">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
 
                         <select v-model="branchId" class="form-select" @change="setSelectedBranch()" required="true">
                             <option v-for="branch, index in dialog.branchData"

@@ -1,4 +1,4 @@
-import { Admin, Branch, Manager, Member, Staff, Trainer } from "./RestApiDataType"
+import { Admin, Branch, Manager, Member, Profile, Staff, Trainer } from "./RestApiDataType"
 interface Result<T> {
     type(account_id: string, type: any): unknown
     isError: boolean,
@@ -17,6 +17,13 @@ namespace Api {
 
     export async function signUp(member: Member) {
         return post<{ account_id: string, type: string }>("member", "", member)
+    }
+
+
+    export async function updateProfile(type: string, profile: Profile) {
+
+        return post("profile", "", { type: type, profile: profile })
+
     }
 
 

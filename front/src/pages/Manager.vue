@@ -49,25 +49,35 @@ function getCookies() {
 
 // profile dialog
 const profileData = new (class extends ProfileData {
-    show() {
-        isProgressHidden.value = false
+
+    show(): void {
+        this.profile.name = managerDetail.value.name
+        this.profile.contact = managerDetail.value.contact
+        this.profile.email = managerDetail.value.email
+        this.profile.gender = managerDetail.value.gender
+        this.profile.password = managerDetail.value.password
+        this.profile.address = managerDetail.value.address
+        this.profile.account_id = managerDetail.value.account_id
+        this.profile.dob = managerDetail.value.dob
         super.show()
     }
-    hide(): void {
-        super.hide()
-        isProgressHidden.value = true
-    }
-
-    hideProgress(): void {
-        isProgressHidden.value = true
-    }
-
-    showProgress(): void {
+    
+    onUpdateProfile(): void {
         isProgressHidden.value = false
     }
 
-    showMessage(text: string): void {
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
         message.value.show(text)
+        fetchData()
+    }
+
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+
     }
 })
 
@@ -206,7 +216,9 @@ function showProfile() {
 let managerDetail = ref<Manager>({
     account_id: "loading...",
     branch_id: "",
-    name: "loading...", email: "loading...",
+    name: "loading...", 
+    gender: 'male',
+    email: "loading...",
     password: "loading...", address: "loading...",
     contact: "loading...", dob: 0
 })
@@ -493,6 +505,7 @@ getCookies()
                                         <p class="text-muted mb-0">{{ managerDetail.address }}</p>
                                     </div>
                                 </div>
+                                <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
 
                             </div>
                         </div>
