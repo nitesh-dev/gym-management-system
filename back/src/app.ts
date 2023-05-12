@@ -20,6 +20,10 @@ router.post("/signin", async (req, res) => {
         }
     }
 })
+
+
+
+
 /**--------------Admin-------------------- */
 
 router.get("/admin/id", async (req, res) => {
@@ -52,6 +56,10 @@ router.put("/admin", async (req, res) => {
     }
 })
 
+
+
+
+
 /*-----------------branch---------------*/
 
 router.post("/branch", async (req, res) => {
@@ -66,7 +74,7 @@ router.post("/branch", async (req, res) => {
             return res.status(400).send(result.result)
 
         } else {
-            res.send(result.result)
+            res.send({ result: result.result })
         }
     }
 })
@@ -122,9 +130,13 @@ router.delete("/branch", async (req, res) => {
         return res.status(400).send(result.result)
 
     } else {
-        res.send(result.result)
+        res.send({ result: result.result })
     }
 })
+
+
+
+
 /*-------------manager--------------*/
 
 router.post("/manager", async (req, res) => {
@@ -141,7 +153,7 @@ router.post("/manager", async (req, res) => {
             return res.status(400).send(result.result)
 
         } else {
-            res.send(result.result)
+            res.send({ result: result.result })
         }
     }
 })
@@ -187,7 +199,7 @@ router.delete("/manager", async (req, res) => {
         return res.status(400).send(result.result)
 
     } else {
-        res.send(result.result)
+        res.send({ result: result.result })
     }
 })
 /*-------------trainer--------------*/
@@ -206,12 +218,12 @@ router.post("/trainer", async (req, res) => {
             return res.status(400).send(result.result)
 
         } else {
-            res.send(result.result)
+            res.send({ result: result.result })
         }
     }
 })
 router.get("/trainer/id", async (req, res) => {
-    const { account_id: id } = req.query as any
+    const { id } = req.query as any
     console.log(id)
     if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
@@ -251,10 +263,30 @@ router.put("/trainer", async (req, res) => {
         res.send(result.result)
     }
 })
+
+router.delete("/trainer", async (req, res) => {
+    const { id } = req.query as any
+    const result = await SqlUtils.deleteTrainer(id)
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send({ result: result.result })
+    }
+})
+
+
+
+
+
+
+
+
+
 /*-------------staff--------------*/
 
 router.post("/staff", async (req, res) => {
-    const { name, email, address, contact, dob, password, branch_id, specialization: work } = req.body
+    const { name, email, address, contact, dob, password, branch_id, work } = req.body
     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, work])) {
         return res.status(400).send("required all staff info")
     } else {
@@ -267,7 +299,7 @@ router.post("/staff", async (req, res) => {
             return res.status(400).send(result.result)
 
         } else {
-            res.send(result.result)
+            res.send({ result: result.result })
         }
     }
 })
@@ -313,15 +345,42 @@ router.put("/staff", async (req, res) => {
         res.send(result.result)
     }
 })
+
+router.delete("/staff", async (req, res) => {
+    const { id } = req.query as any
+    const result = await SqlUtils.deleteStaff(id)
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send({ result: result.result })
+    }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*-------------member--------------*/
 
 router.post("/member", async (req, res) => {
-    const { name, email, address, contact, dob, password, branch_id, specialization: membership } = req.body
+    const { name, email, address, contact, dob, password, branch_id, membership } = req.body
+    const uuid = randomUUID()
     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, membership])) {
         return res.status(400).send("required all member info")
     } else {
         const result = await SqlUtils.createMember({
-            account_id: randomUUID(), dob: dob, password: password,
+            account_id: uuid, dob: dob, password: password,
             branch_id: branch_id, address: address, contact: contact,
             email: email, name: name, membership: membership
         })
@@ -329,12 +388,12 @@ router.post("/member", async (req, res) => {
             return res.status(400).send(result.result)
 
         } else {
-            res.send(result.result)
+            res.send({ account_id: uuid, type: "member" })
         }
     }
 })
 router.get("/member/id", async (req, res) => {
-    const { account_id: id } = req.query as any
+    const { id } = req.query as any
     console.log(id)
     if (isAnyInvalid([id])) {
         return res.status(400).send("required account_id")
@@ -373,6 +432,22 @@ router.put("/member", async (req, res) => {
         res.send(result.result)
     }
 })
+
+
+router.delete("/member", async (req, res) => {
+    const { id } = req.query as any
+    const result = await SqlUtils.deleteMember(id)
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send({ result: result.result })
+    }
+})
+
+
+
+
 
 /*-------------membership--------------*/
 

@@ -153,12 +153,13 @@ function showProfile() {
 let managerAccounts = ref(Array<Manager>())
 async function loadManagerAccounts() {
     isProgressHidden.value = false
-    let accounts = await Api.loadAllMangers()
+    let res = await Api.getAllManagers()
     isProgressHidden.value = true
-    if (accounts.isSuccess == true) {
-        managerAccounts.value = accounts.result as Array<Manager>
+
+    if (res.isError) {
+        message.value.show(res.error)
     } else {
-        message.value.show(accounts.error)
+        managerAccounts.value = res.result as Array<Manager>
     }
 }
 
@@ -166,12 +167,13 @@ async function loadManagerAccounts() {
 let branchDetails = ref(Array<Branch>())
 async function loadAllBranches() {
     isProgressHidden.value = false
-    let res = await Api.loadAllBranches()
+    let res = await Api.getAllBranch()
     isProgressHidden.value = true
-    if (res.isSuccess == true) {
-        branchDetails.value = res.result as Array<Branch>
-    } else {
+
+    if (res.isError) {
         message.value.show(res.error)
+    } else {
+        branchDetails.value = res.result as Array<Branch>
     }
 }
 
@@ -187,27 +189,26 @@ function fetchData() {
 
 
 async function deleteData() {
-    // fetch data
-    console.log("deleting...")
-    let tableName = null
 
+    console.log("deleting...")
+
+    let res = null
+    isProgressHidden.value = false
     if (activeTabIndex.value == 0) {
-        tableName = 'manager'
+        res = await Api.deleteManager(idToDelete)
+
     } else if (activeTabIndex.value == 1) {
-        tableName = 'branch'
+        res = await Api.deleteBranch(idToDelete)
     }
 
-    if (tableName == null) return
-
-    isProgressHidden.value = false
-    let result = await Api.deleteOperation(tableName, idToDelete)
-    console.log(idToDelete)
-    console.log(tableName)
     isProgressHidden.value = true
-    if (result.isSuccess == true) {
-        fetchData()
+
+    if(res == null) return
+    
+    if (res.isError) {
+        message.value.show(res.error)
     } else {
-        message.value.show(result.error)
+        fetchData()
     }
 }
 
@@ -274,18 +275,18 @@ function openManager(id: string) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr @click="openManager(manager.account_id)" v-for="manager, index in managerAccounts">
+                            <tr v-for="manager, index in managerAccounts">
                                 <th scope="row">{{ index }}</th>
-                                <td>{{ manager.account_id }}</td>
-                                <td>{{ manager.branch_id }}</td>
-                                <td>{{ manager.name }}</td>
-                                <td>{{ manager.email }}</td>
-                                <td>{{ manager.address }}</td>
-                                <td>{{ manager.contact }}</td>
-                                <td>{{ manager.dob }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.account_id }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.branch_id }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.name }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.email }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.address }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.contact }}</td>
+                                <td @click="openManager(manager.account_id)">{{ manager.dob }}</td>
 
                                 <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really wants to delete? ' + manager.email, manager.account_id)"><i
+                                        @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
                                             class="material-icons">delete</i>Delete</button></td>
                             </tr>
                         </tbody>

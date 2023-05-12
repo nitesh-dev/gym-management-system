@@ -1,5 +1,6 @@
-import { Admin, Branch, Manager, Trainer } from "./RestApiDataType"
+import { Admin, Branch, Manager, Member, Staff, Trainer } from "./RestApiDataType"
 interface Result<T> {
+    type(account_id: string, type: any): unknown
     isError: boolean,
     result: T | null,
     error: string
@@ -14,14 +15,136 @@ namespace Api {
         return post<{ account_id: string, type: string }>("signin", "", { email: email, password: password })
     }
 
+    export async function signUp(member: Member) {
+        return post<{ account_id: string, type: string }>("member", "", member)
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*-----------------------admin-----------------------*/
     export async function getAdmin(id: string) {
         return get<Admin>("admin/id", `id=${id}`)
     }
-    /*-----------------branch-----------*/
+
+
+    export async function getAllManagers() {
+        return get<Manager[]>("manager", ``)
+    }
+
     export async function getAllBranch() {
         return get<Branch[]>("branch", ``)
     }
+
+    export async function deleteManager(accountId: string) {
+        return delete_("manager", `id=${accountId}`)
+    }
+
+    export async function deleteBranch(id: string) {
+        return delete_("branch", `id=${id}`)
+    }
+
+    export async function getAllUnusedBranch() {
+        return get<Branch[]>("branch/unused", ``)
+    }
+
+    export async function createManager(manager: Manager) {
+        return post("manager", "", manager)
+    }
+
+    export async function createBranch(branch: Branch) {
+        return post("branch", "", branch)
+    }
+
+
+
+
+    /*----------------- Manager -----------*/
+    export async function getManager(id: string) {
+        return get<Manager>("manager/id", `id=${id}`)
+    }
+
+    export async function getAllTrainer(branch_id: string) {
+        return get<Trainer[]>("trainer", `branch_id=${branch_id}`)
+    }
+
+    export async function getAllStaff(branch_id: string) {
+        return get<Staff[]>("staff", `branch_id=${branch_id}`)
+    }
+
+    export async function getAllMember(branch_id: string) {
+        return get<Member[]>("member", `branch_id=${branch_id}`)
+    }
+
+    export async function createTrainer(trainer: Trainer) {
+        return post("trainer", "", trainer)
+    }
+
+    export async function createStaff(staff: Staff) {
+        return post("staff", "", staff)
+    }
+
+    export async function deleteTrainer(accountId: string) {
+        return delete_("trainer", `id=${accountId}`)
+    }
+
+    export async function deleteStaff(accountId: string) {
+        return delete_("staff", `id=${accountId}`)
+    }
+
+    export async function getBranch(id: string) {
+        return get<Branch>("branch/id", `id=${id}`)
+    }
+
+    export async function deleteMember(accountId: string) {
+        return delete_("member", `id=${accountId}`)
+    }
+
+
+
+
+
+
+    /*----------------- Staff -----------*/
+
+    export async function getStaff(id: string) {
+        return get<Staff>("staff/id", `id=${id}`)
+    }
+
+
+
+
+
+    /*----------------- Trainer -----------*/
+
+    export async function getTrainer(id: string) {
+        return get<Trainer>("trainer/id", `id=${id}`)
+    }
+
+
+    /*----------------- Member -----------*/
+
+    export async function getMember(id: string) {
+        return get<Member>("member/id", `id=${id}`)
+    }
+
+
+
+
+
+
+
+
 
     async function get<T>(path: string, query: string) {
         const requestOptions: RequestInit = {
@@ -42,6 +165,26 @@ namespace Api {
             return createResult<T>(null, true, "fetch error")
         }
     }
+    async function delete_(path: string, query: string) {
+        const requestOptions: RequestInit = {
+            method: "DELETE",
+            redirect: "follow",
+        };
+
+        // console.log(`${apiURL}/${path}?${query}`)
+
+        try {
+            const res = await fetch(`${apiURL}/${path}?${query}`, requestOptions);
+            if (res.ok) {
+                return createResult(await res.text(), false)
+            } else {
+                return createResult("", true, await res.text())
+            }
+        } catch (error) {
+            console.log(error)
+            return createResult(null, true, "fetch error")
+        }
+    }
     async function post<T>(path: string, query: string, body: any) {
         const requestOptions: RequestInit = {
             headers: {
@@ -59,7 +202,7 @@ namespace Api {
             if (res.ok) {
                 return createResult<T>(await res.json(), false)
             } else {
-                return createResult<T>(null, true, await res.text())
+                return createResult(null, true, await res.text())
             }
         } catch (error) {
             return createResult<T>(null, true, "fetch error")
