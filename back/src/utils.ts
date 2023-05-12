@@ -3,13 +3,15 @@ export interface Admin {
     account_id: string
     name: string, email: string,
     password: string, address: string,
-    contact: string, dob: number
+    contact: string, dob: number,
+    gender: "male" | "female"
 }
 export interface Manager {
     account_id: string,
     branch_id: string,
     name: string, email: string,
     password: string, address: string,
+    gender: "male" | "female",
     contact: string, dob: number
 }
 export interface Branch {
@@ -24,6 +26,7 @@ export interface Trainer {
     name: string, email: string,
     password: string, address: string,
     contact: string, dob: number,
+    gender: "male" | "female",
     specialization: 'Cardio' | 'Strength Training' | 'Yoga' | 'Pilates' | 'Crossfit'
 }
 
@@ -37,6 +40,7 @@ export interface Member {
     name: string, email: string,
     password: string, address: string,
     contact: string, dob: number,
+    gender: "male" | "female",
     membership: 'bronze' | 'gold' | 'silver' | 'free'
 }
 export interface Staff {
@@ -45,6 +49,7 @@ export interface Staff {
     name: string, email: string,
     password: string, address: string,
     contact: string, dob: number,
+    gender: "male" | "female",
     work: 'security' | 'cleaner'
 }
 export interface Result<T> {

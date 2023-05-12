@@ -22,32 +22,19 @@ const db = await mysql2.createConnection({
 });
 console.log("database connected")
 
-function createTables() {
-    createTableAdmin()
-    createTableBranch()
-    createTableManager()
-    createTableTrainer()
-    createTableStaff()
-    createTableMember()
-    createTableSession()
-    createTableMembership()
+async function createTables() {
+    await createTableAdmin()
+    await createTableBranch()
+    await createTableManager()
+    await createTableTrainer()
+    await createTableStaff()
+    await createTableMember()
+    await createTableSession()
+    await createTableMembership()
 }
-function createTableAdmin() {
-    db.query(`
+async function createTableAdmin() {
+    await db.query(`
     CREATE TABLE IF NOT EXISTS admin(
-      account_id CHAR(36) NOT NULL ,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      address VARCHAR(255) NOT NULL,
-      contact VARCHAR(15),
-      dob DOUBLE,
-      PRIMARY KEY (account_id)
-    );`)
-
-}
-function createTableBranch() {
-    db.query(`CREATE TABLE IF NOT EXISTS branch(
         account_id CHAR(36) NOT NULL ,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
@@ -55,29 +42,47 @@ function createTableBranch() {
         address VARCHAR(255) NOT NULL,
         contact VARCHAR(15),
         dob DOUBLE,
+        gender ENUM('male', 'female') NOT NULL ,
         PRIMARY KEY (account_id)
-      );`)
+      );
+    `)
 
 }
-function createTableManager() {
-    db.query(
-        `CREATE TABLE IF NOT EXISTS manager (
-            account_id CHAR(50) NOT NULL,
-            branch_id CHAR(50) NOT NULL,
-            name VARCHAR(50) NOT NULL,
-            email VARCHAR(50) NOT NULL,
-            password VARCHAR(50) NOT NULL,
-            address VARCHAR(100) NOT NULL,
-            contact VARCHAR(20) NOT NULL,
-            dob DOUBLE NOT NULL,
-            PRIMARY KEY (account_id),
-            FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
-          );`)
+async function createTableBranch() {
+    await db.query(`
+    CREATE TABLE IF NOT EXISTS branch (
+        branch_id CHAR(50) NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        address VARCHAR(100) NOT NULL,
+        email VARCHAR(50) NOT NULL,
+        contact VARCHAR(20) NOT NULL,
+        PRIMARY KEY (branch_id)
+      );
+      `)
 
 }
-function createTableTrainer() {
-    db.query(
-        `CREATE TABLE IF NOT EXISTS trainer (
+async function createTableManager() {
+    await db.query(`
+    CREATE TABLE IF NOT EXISTS manager (
+        account_id CHAR(50) NOT NULL,
+        branch_id CHAR(50) NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        email VARCHAR(50) NOT NULL,
+        password VARCHAR(50) NOT NULL,
+        address VARCHAR(100) NOT NULL,
+        contact VARCHAR(20) NOT NULL,
+        dob DOUBLE NOT NULL,
+           gender ENUM('male', 'female') NOT NULL ,
+        PRIMARY KEY (account_id),
+        FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
+      );      
+          `)
+
+}
+async function createTableTrainer() {
+    await db.query(
+        `
+        CREATE TABLE IF NOT EXISTS trainer (
             account_id CHAR(36) NOT NULL,
             branch_id CHAR(36) NOT NULL,
             name VARCHAR(50) NOT NULL,
@@ -87,31 +92,17 @@ function createTableTrainer() {
             address VARCHAR(100) NOT NULL,
             dob DOUBLE NOT NULL,
             specialization ENUM('Cardio', 'Strength Training', 'Yoga', 'Pilates', 'Crossfit') NOT NULL,
+               gender ENUM('male', 'female') NOT NULL ,
             PRIMARY KEY (account_id),
             FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
-          );`)
+          );
+          `)
 
 }
-function createTableStaff() {
-    db.query(
-        `CREATE TABLE IF NOT EXISTS staff (
-        account_id CHAR(36) NOT NULL,
-        branch_id CHAR(36) NOT NULL,
-        name VARCHAR(50) NOT NULL,
-        email VARCHAR(50) NOT NULL,
-        password VARCHAR(50) NOT NULL,
-         address VARCHAR(100) NOT NULL,
-        contact VARCHAR(20) NOT NULL,
-        dob DOUBLE NOT NULL,
-        work ENUM('security', 'cleaner') NOT NULL,
-        PRIMARY KEY (account_id),
-        FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
-      );`)
-
-}
-function createTableMember() {
-    db.query(
-        `CREATE TABLE IF NOT EXISTS member (
+async function createTableStaff() {
+    await db.query(
+        `
+        CREATE TABLE IF NOT EXISTS staff (
             account_id CHAR(36) NOT NULL,
             branch_id CHAR(36) NOT NULL,
             name VARCHAR(50) NOT NULL,
@@ -120,15 +111,37 @@ function createTableMember() {
             address VARCHAR(100) NOT NULL,
             contact VARCHAR(20) NOT NULL,
             dob DOUBLE NOT NULL,
-            membership ENUM('free','bronze', 'gold', 'silver') NOT NULL DEFAULT 'free',
+            work ENUM('security', 'cleaner') NOT NULL,
+               gender ENUM('male', 'female') NOT NULL ,
             PRIMARY KEY (account_id),
             FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
           );
+      `)
+
+}
+async function createTableMember() {
+    await db.query(
+        `
+        CREATE TABLE IF NOT EXISTS member (
+            account_id CHAR(36) NOT NULL,
+            branch_id CHAR(36) NOT NULL,
+            name VARCHAR(50) NOT NULL,
+            email VARCHAR(50) NOT NULL,
+            password VARCHAR(50) NOT NULL,
+            address VARCHAR(100) NOT NULL,
+            contact VARCHAR(20) NOT NULL,
+            dob DOUBLE NOT NULL ,
+            is_approved BOOL NOT NULL,
+             gender ENUM('male', 'female') NOT NULL ,
+            PRIMARY KEY (account_id),
+            FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
+          );
+          
           `)
 
 }
-function createTableSession() {
-    db.query(`CREATE TABLE IF NOT EXISTS training_session (
+async function createTableSession() {
+    await db.query(`CREATE TABLE IF NOT EXISTS training_session (
         session_id CHAR(36) NOT NULL,
         trainer_id CHAR(36) NOT NULL,
         member_id CHAR(36) NOT NULL,
@@ -140,8 +153,8 @@ function createTableSession() {
       );
       `)
 }
-function createTableMembership() {
-    db.query(`
+async function createTableMembership() {
+    await db.query(`
     CREATE TABLE IF NOT EXISTS membership (
         membership_id CHAR(36) NOT NULL,
         member_id CHAR(36) NOT NULL,
@@ -155,6 +168,22 @@ function createTableMembership() {
       
       `)
 }
+function deleteAllTable() {
+    const tables = [
+        'membership',
+        'member',
+        'training_session',
+        'trainer',
+        'manager',
+        'admin',
+        'branch',
+        'staff',
+    ]
+    tables.forEach(async (t) => { 
+        await db.query(`DROP TABLE IF EXISTS ${t};`)
+    })
+}
+//deleteAllTable()
 createTables()
 
 export default db 
