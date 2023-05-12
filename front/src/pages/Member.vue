@@ -6,10 +6,11 @@ import MembershipDialog, { MembershipData } from '../components/MembershipDialog
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
-import { Member } from '../RestApiDataType';
+import { Branch, Member, Membership } from '../RestApiDataType';
 import { unixMillisecondsToDateString } from '../utils';
 
 
+let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 
@@ -38,36 +39,36 @@ function getCookies() {
 // profile dialog
 const profileData = new (class extends ProfileData {
 
-show(): void {
-    this.accountType = "member"
-    this.profile.name = memberDetail.value.name
-    this.profile.contact = memberDetail.value.contact
-    this.profile.email = memberDetail.value.email
-    this.profile.gender = memberDetail.value.gender
-    this.profile.password = memberDetail.value.password
-    this.profile.address = memberDetail.value.address
-    this.profile.account_id = memberDetail.value.account_id
-    this.profile.dob = memberDetail.value.dob
-    super.show()
-}
+    show(): void {
+        this.accountType = "member"
+        this.profile.name = memberDetail.value.name
+        this.profile.contact = memberDetail.value.contact
+        this.profile.email = memberDetail.value.email
+        this.profile.gender = memberDetail.value.gender
+        this.profile.password = memberDetail.value.password
+        this.profile.address = memberDetail.value.address
+        this.profile.account_id = memberDetail.value.account_id
+        this.profile.dob = memberDetail.value.dob
+        super.show()
+    }
 
-onUpdateProfile(): void {
-    super.onUpdateProfile()
-    isProgressHidden.value = false
-}
+    onUpdateProfile(): void {
+        super.onUpdateProfile()
+        isProgressHidden.value = false
+    }
 
-onSuccessFul(text: string): void {
-    super.onSuccessFul(text)
-    isProgressHidden.value = true
-    message.value.show(text)
-    fetchData()
-}
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+        fetchData()
+    }
 
-onFailed(text: string): void {
-    super.onFailed(text)
-    isProgressHidden.value = true
-    message.value.show(text)
-}
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+    }
 })
 
 let profile = ref(profileData)
@@ -109,11 +110,33 @@ function logout() {
 }
 
 
-function showProfile() {
-    profile.value.show()
+
+
+
+function changeTab(index: number) {
+    activeTabIndex.value = index
+    fetchData()
 }
 
 
+
+let branchDetail = ref<Branch>({
+    branch_id: "loading...",
+    name: "loading...",
+    email: "loading...",
+    address: "loading...",
+    contact: "loading..."
+})
+
+async function loadBranchDetail(branchId: string) {
+
+    let res = await Api.getBranch(branchId)
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        branchDetail.value = res.result as Branch
+    }
+}
 
 
 
@@ -127,8 +150,6 @@ const memberDetail = ref<Member>({
     is_approved: false
 })
 
-
-
 async function loadAccountDetail() {
     isProgressHidden.value = false
     const res = await Api.getMember(accountId.value)
@@ -137,15 +158,57 @@ async function loadAccountDetail() {
         message.value.show(res.error)
     } else {
         memberDetail.value = res.result as Member
+        loadBranchDetail(memberDetail.value.branch_id)
     }
 }
 
 
 
+const activeMembership = ref(Array<Membership>())
+const membershipHistory = ref(Array<Membership>())
+
+async function loadMembership() {
+    isProgressHidden.value = false
+    const res = await Api.getMembership(accountId.value)
+    isProgressHidden.value = true
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+
+        // filtering
+        let temp = res.result as Membership[]
+        const currentDatetime = new Date().getTime()
+
+        activeMembership.value = Array<Membership>()
+        membershipHistory.value = Array<Membership>()
+        temp.forEach(membership => {
+            
+            if(currentDatetime > membership.start_time && currentDatetime < membership.end_time){
+                activeMembership.value.push(membership)
+            }else{
+                membershipHistory.value.push(membership)
+            }
+        });
+    }
+}
+
+
 function fetchData() {
-    // fetch data
     console.log("fetching...")
-    loadAccountDetail()
+
+    if (activeTabIndex.value == 0) {
+        loadAccountDetail()
+
+    } else if (activeTabIndex.value == 1) {
+        loadMembership()
+    }
+
+}
+
+
+function bookMembership(memberId: string){
+    localStorage.setItem("bookingMemberId", memberId)
+    window.location.href = './member/membership'
 }
 
 
@@ -155,95 +218,180 @@ getCookies()
 
 <template>
     <nav class="navbar sticky-top navbar-light bg-light">
-        <div class="container-fluid">
+        <div class="container-fluid" style="justify-content: left;">
             <div class="navbar-header">
                 <a class="navbar-brand">GYM Manager</a>
             </div>
-            <button class="btn btn-primary" @click="showProfile">Profile</button>
-            <button class="btn btn-danger" @click="logout">Log out</button>
+
+            <ul class="nav nav-pills mb-3" id="pills-tab">
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 1 }" @click="changeTab(1)">History</button>
+                </li>
+                <li v-if="memberDetail.is_approved"  class="nav-item" style="margin-left: 100px;" >
+                    <button class="btn btn-success" @click="bookMembership(accountId)">Book Membership</button>
+                </li>
+
+            </ul>
+
+            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
     </nav>
 
-    <!-- account detail -->
 
-    <div class="card mb-4 card-parent">
-        <div class="card-body">
-            <h5>Member Detail</h5>
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Account ID</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.account_id }}</p>
-                </div>
-            </div>
+    <div class="tab-content" id="pills-tabContent">
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Branch ID</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.branch_id }}</p>
-                </div>
-            </div>
+        <!-- account detail -->
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
+            <div class="container">
+                <div class="row justify-content-start">
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Full Name</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.name }}</p>
-                </div>
-            </div>
+                    <!-- branch detail -->
+                    <div class="col-sm">
+                        <div class="card mb-4 card-parent">
+                            <div class="card-body">
+                                <h5>Branch Detail</h5>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Email</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.email }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.branch_id }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Contact</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.contact }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.name }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Gender</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.gender }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.email }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">DOB</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ unixMillisecondsToDateString(memberDetail.dob) }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.contact }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Address</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ memberDetail.address }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ branchDetail.address }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
+                    <!-- Member detail -->
+                    <div class="col-sm">
+                        <div class="card mb-4 card-parent">
+                            <div class="card-body">
+                                <h5>Member Detail</h5>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Account ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.account_id }}</p>
+                                    </div>
+                                </div>
 
-            <!-- <div class="row">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.branch_id }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Full Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.name }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.contact }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Gender</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.gender }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">DOB</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(memberDetail.dob) }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ memberDetail.address }}</p>
+                                    </div>
+                                </div>
+
+                                <div v-if="!memberDetail.is_approved" class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Status</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p style="color:white" class="btn btn-info">Pending</p>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
+
+                                <!-- <div class="row">
                 <div class="col-sm-3">
                     <p class="mb-0">Membership</p>
                 </div>
@@ -256,42 +404,58 @@ getCookies()
                     <p v-else>{{ memberDetail.membership }}</p>
                 </div>
             </div> -->
-        </div>
-    </div>
-    <!-- 
-    <div class="table-container">
-        <div class="container">
-            <h3>Members</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Branch ID</th>
-                        <th scope="col">Trainer ID</th>
-                        <th scope="col">Member ID</th>
-                        <th scope="col">Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="plan, index in vehiclePlan">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ plan.vehicle_id }}</td>
-                                <td>{{ plan.name }}</td>
-                                <td>{{ plan.rate }}</td>
-                                <td>{{ plan.seats }}</td>
-                                <td><button @click="vehicle.edit(plan.vehicle_id, plan.name, plan.rate, plan.seats)" class="btn btn-primary"><i class="material-icons">edit</i>Edit</button></td>
-                                <td><Button class="btn btn-danger" @click="deleteOperation('Do you really want to delete?', plan.vehicle_id)"><i class="material-icons">delete</i>Delete</Button></td>
+
+        <!-- Membership history -->
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+
+            <div class="table-container">
+                <div class="container">
+                    <h3>Membership History</h3>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Membership</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Start</th>
+                                <th scope="col">End</th>
+                                <th scope="col">Status</th>
                             </tr>
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            <tr v-for="membership, index in activeMembership">
+                                <th scope="row">{{ index }}</th>
+                                <td>{{ membership.type }}</td>
+                                <td>{{ membership.price }}</td>
+                                <td>{{ unixMillisecondsToDateString(membership.start_time) }}</td>
+                                <td>{{ unixMillisecondsToDateString(membership.end_time)}}</td>
+                                <td>Active</td>
+                            </tr>
+                            <tr v-for="membership, index in membershipHistory">
+                                <th scope="row">{{ index + activeMembership.length }}</th>
+                                <td>{{ membership.type }}</td>
+                                <td>{{ membership.price }}</td>
+                                <td>{{ unixMillisecondsToDateString(membership.start_time) }}</td>
+                                <td>{{ unixMillisecondsToDateString(membership.end_time)}}</td>
+                                <td>Done</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div> -->
 
-
-
+    </div>
 
     <MembershipDialog :membership="membershipDialog" />
     <ProfileDialogVue :profile="profile" />
@@ -300,8 +464,8 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-#pills-tab {
-    margin-top: 30px;
+.nav {
+    margin-bottom: 0 !important;
 }
 
 #add-button {

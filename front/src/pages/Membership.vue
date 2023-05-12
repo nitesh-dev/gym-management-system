@@ -1,16 +1,105 @@
 <script setup lang='ts'>
+import { ref } from 'vue';
+import MessageDialog, { Message } from '../components/MessageDialog.vue';
+import ProgressDialog from '../components/ProgressDialog.vue';
+import { Membership } from '../RestApiDataType';
+import Api from '../api';
 
-function onSilverRegister(){
+let message = ref(new Message())
+let isProgressHidden = ref(true)
+
+async function onBronzeRegister() {
+    isProgressHidden.value = false
+    let accountId = localStorage.getItem("bookingMemberId")
+    if (accountId == null) {
+        message.value.show("No member account found")
+    } else {
+        // registering
+        let currentDateTime = new Date()
+        const startDateTime = currentDateTime.getTime()
+        const endDateTime = startDateTime + 30 * 24 * 3600 * 1000   //  add 30days
+        let membership: Membership = {
+            membership_id: "",
+            member_id: accountId,
+            type: 'bronze',
+            start_time: startDateTime,
+            end_time: endDateTime,
+            price: 199
+        }
+
+        let res = await Api.registerMembership(membership)
+        if (res.isError) {
+            message.value.show(res.error)
+        } else {
+            message.value.show("Bronze membership registered")
+        }
+    }
+
+    isProgressHidden.value = true
 
 }
 
-function onGoldRegister(){
+async function onSilverRegister() {
+    isProgressHidden.value = false
+    let accountId = localStorage.getItem("bookingMemberId")
+    if (accountId == null) {
+        message.value.show("No member account found")
+    } else {
 
+        // registering
+        let currentDateTime = new Date()
+        const startDateTime = currentDateTime.getTime()
+        const endDateTime = startDateTime + 6 * 30 * 24 * 3600 * 1000   //  add 6 month
+        let membership: Membership = {
+            membership_id: "",
+            member_id: accountId,
+            type: 'silver',
+            start_time: startDateTime,
+            end_time: endDateTime,
+            price: 799
+        }
+
+        let res = await Api.registerMembership(membership)
+        if (res.isError) {
+            message.value.show(res.error)
+        } else {
+            message.value.show("Silver membership registered")
+        }
+    }
+
+    isProgressHidden.value = true
 }
 
 
-function onBronzeRegister(){
+async function onGoldRegister() {
+    isProgressHidden.value = false
+    let accountId = localStorage.getItem("bookingMemberId")
+    if (accountId == null) {
+        message.value.show("No member account found")
+    } else {
 
+        // registering
+        let currentDateTime = new Date()
+        const startDateTime = currentDateTime.getTime()
+        const endDateTime = startDateTime + 12 * 30 * 24 * 3600 * 1000   //  add 12 month
+        let membership: Membership = {
+            membership_id: "",
+            member_id: accountId,
+            type: 'gold',
+            start_time: startDateTime,
+            end_time: endDateTime,
+            price: 1299
+        }
+
+        let res = await Api.registerMembership(membership)
+        if (res.isError) {
+            message.value.show(res.error)
+        } else {
+            message.value.show("Gold membership registered")
+        }
+    }
+
+    isProgressHidden.value = true
 }
 
 
@@ -52,7 +141,7 @@ function onBronzeRegister(){
                             <p><i class="lni lni-close"></i>Pilates Trainer</p>
                             <p><i class="lni lni-close"></i>Crossfit Trainer</p>
                         </div>
-                        <button class="btn btn-primary">Register</button>
+                        <button class="btn btn-primary" @click="onBronzeRegister">Register</button>
                     </div>
                 </div>
                 <!-- Single Price Plan Area-->
@@ -77,7 +166,7 @@ function onBronzeRegister(){
                             <p><i class="lni lni-checkmark-circle"></i>Pilates Trainer</p>
                             <p><i class="lni lni-close"></i>Crossfit Trainer</p>
                         </div>
-                        <button class="btn btn-primary">Register</button>
+                        <button class="btn btn-primary" @click="onSilverRegister">Register</button>
                     </div>
                 </div>
                 <!-- Single Price Plan Area-->
@@ -100,12 +189,17 @@ function onBronzeRegister(){
                             <p><i class="lni lni-checkmark-circle"></i>Pilates Trainer</p>
                             <p><i class="lni lni-checkmark-circle"></i>Crossfit Trainer</p>
                         </div>
-                        <button class="btn btn-primary">Register</button>
+                        <button class="btn btn-primary" @click="onGoldRegister">Register</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+
+
+    <MessageDialog :message="message" />
+    <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
 .price_plan_area {

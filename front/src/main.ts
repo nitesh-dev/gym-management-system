@@ -93,7 +93,7 @@ router.addRoute({
 })
 
 router.addRoute({
-  path: "/membership", component: Membership, meta: {
+  path: "/member/membership", component: Membership, meta: {
     title: "Membership"
   }
 })

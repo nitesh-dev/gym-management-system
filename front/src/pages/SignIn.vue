@@ -41,6 +41,8 @@ async function onSubmitForm() {
 <template>
   <div class="cus-container text-center">
     <form class="form-signin" @submit.prevent="onSubmitForm">
+      <div class="blur-div"></div>
+      
       <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
       <input type="email" v-model="email" class="form-control" placeholder="Email address" required="true"
         autofocus="true">
@@ -55,8 +57,25 @@ async function onSubmitForm() {
 </template>
 <style scoped>
 .form-signin {
-  max-width: 400px;
+  max-width: 520px;
   width: 100%;
+  padding: 40px 100px;
+  position: relative;
+}
+
+.blur-div{
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+}
+
+.form-signin *{
+  filter: blur(0) !important;
 }
 
 .form-signin h1 {
@@ -88,7 +107,8 @@ form>input {
   padding: 12px;
 }
 
-form p {
+form p, form a {
   margin-top: 30px;
+  color: white;
 }
 </style>

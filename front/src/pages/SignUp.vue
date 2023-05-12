@@ -80,6 +80,7 @@ fetchData()
 <template>
   <div class="cus-container text-center">
     <form class="form-signup" @submit.prevent="onSubmitForm">
+      <div class="blur-div"></div>
 
       <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
       <input type="text" v-model="memberDetail.name" class="form-control" placeholder="Name" required="true">
@@ -109,8 +110,29 @@ fetchData()
 </template>
 <style scoped>
 .form-signup {
-  max-width: 400px;
+  max-width: 520px;
   width: 100%;
+  padding: 40px 100px;
+  position: relative;
+}
+
+.blur-div{
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+}
+
+.form-signup *{
+  filter: blur(0) !important;
+}
+
+.form-signup h1 {
+  color: white
 }
 
 .cus-container {
@@ -118,6 +140,10 @@ fetchData()
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background-image: url("../assets/gym-2.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
 }
 
 button {
@@ -125,8 +151,9 @@ button {
   margin-top: 20px;
 }
 
-p {
+form p, form a {
   margin-top: 30px;
+  color: white;
 }
 
 input[type=checkbox],

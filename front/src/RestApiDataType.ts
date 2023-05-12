@@ -1,3 +1,4 @@
+
 export interface Admin {
     account_id: string
     name: string, email: string,
@@ -26,13 +27,12 @@ export interface Trainer {
     password: string, address: string,
     contact: string, dob: number,
     gender: "male" | "female",
+    start_time: number,
+    end_time: number,
     specialization: 'Cardio' | 'Strength Training' | 'Yoga' | 'Pilates' | 'Crossfit'
 }
 
-export interface TrainerMember {
-    trainer_id: string,
-    member_id: string
-}
+
 export interface Member {
     account_id: string,
     branch_id: string,
@@ -57,17 +57,10 @@ export interface Result<T> {
     isError: boolean,
 }
 
-export interface TrainingSession {
-    session_id: string,
-    trainer_id: string,
-    member_id: string,
-    start_time: number,
-    end_time: number,
-}
 export interface Membership {
     membership_id: string,
     member_id: string,
-    name: string,
+    type: 'bronze' | 'silver' | 'gold',
     start_time: number,
     end_time: number,
     price: number,
@@ -80,3 +73,4 @@ export interface Profile {
     gender: 'male' | 'female'
 
 }
+

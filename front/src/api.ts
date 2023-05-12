@@ -1,4 +1,4 @@
-import { Admin, Branch, Manager, Member, Profile, Staff, Trainer } from "./RestApiDataType"
+import { Admin, Branch, Manager, Member, Membership, Profile, Staff, Trainer } from "./RestApiDataType"
 interface Result<T> {
     type(account_id: string, type: any): unknown
     isError: boolean,
@@ -154,6 +154,19 @@ namespace Api {
     export async function updateMember(member: Member) {
         return put<Member>("member", "", member)
     }
+
+
+
+        /*----------------- Membership -----------*/
+
+        export async function getMembership(id: string) {
+            return get<Membership[]>("membership", `member_id=${id}`)
+        }
+
+        export async function registerMembership(membership: Membership) {
+            return post("membership", "", membership)
+        }
+    
 
 
 

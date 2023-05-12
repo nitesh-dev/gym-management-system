@@ -330,7 +330,7 @@ namespace SqlUtils {
     }
     export async function getAllMemberOfTrainer(branch_id: string, specialization: string) {
         const sql = `
-        SELECT m.*
+        SELECT DISTINCT m.*
         FROM member m
         INNER JOIN membership ms ON m.account_id = ms.member_id 
         WHERE 
