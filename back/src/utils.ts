@@ -27,13 +27,12 @@ export interface Trainer {
     password: string, address: string,
     contact: string, dob: number,
     gender: "male" | "female",
+    start_time: number,
+    end_time: number,
     specialization: 'Cardio' | 'Strength Training' | 'Yoga' | 'Pilates' | 'Crossfit'
 }
 
-export interface TrainerMember {
-    trainer_id: string,
-    member_id: string
-}
+
 export interface Member {
     account_id: string,
     branch_id: string,
@@ -63,17 +62,15 @@ export interface Result<T> {
 export function createSqlResult<T>(isError: boolean, result: T): Result<T> {
     return { result: result, isError: isError, }
 }
-export interface TrainingSession {
-    session_id: string,
-    trainer_id: string,
-    member_id: string,
-    start_time: number,
-    end_time: number,
-}
+// export interface TrainingSession {
+//     session_id: string,
+//     trainer_id: string,
+//     member_id: string,
+// }
 export interface Membership {
     membership_id: string,
     member_id: string,
-    name: string,
+    type: string,
     start_time: number,
     end_time: number,
     price: number,

@@ -42,8 +42,10 @@ CREATE TABLE IF NOT EXISTS trainer (
   contact VARCHAR(20) NOT NULL,
   address VARCHAR(100) NOT NULL,
   dob DOUBLE NOT NULL,
+  start_time DOUBLE NOT NULL,
+  end_time DOUBLE NOT NULL,
   specialization ENUM('Cardio', 'Strength Training', 'Yoga', 'Pilates', 'Crossfit') NOT NULL,
-     gender ENUM('male', 'female') NOT NULL ,
+  gender ENUM('male', 'female') NOT NULL ,
   PRIMARY KEY (account_id),
   FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
 );
@@ -100,3 +102,4 @@ CREATE TABLE IF NOT EXISTS membership (
   PRIMARY KEY (membership_id),
   FOREIGN KEY (member_id) REFERENCES member (account_id)
 );
+

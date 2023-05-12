@@ -29,7 +29,6 @@ async function createTables() {
     await createTableTrainer()
     await createTableStaff()
     await createTableMember()
-    await createTableSession()
     await createTableMembership()
 }
 async function createTableAdmin() {
@@ -91,8 +90,10 @@ async function createTableTrainer() {
             contact VARCHAR(20) NOT NULL,
             address VARCHAR(100) NOT NULL,
             dob DOUBLE NOT NULL,
+            start_time DOUBLE NOT NULL,
+            end_time DOUBLE NOT NULL,
             specialization ENUM('Cardio', 'Strength Training', 'Yoga', 'Pilates', 'Crossfit') NOT NULL,
-               gender ENUM('male', 'female') NOT NULL ,
+            gender ENUM('male', 'female') NOT NULL ,
             PRIMARY KEY (account_id),
             FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
           );
@@ -140,19 +141,19 @@ async function createTableMember() {
           `)
 
 }
-async function createTableSession() {
-    await db.query(`CREATE TABLE IF NOT EXISTS training_session (
-        session_id CHAR(36) NOT NULL,
-        trainer_id CHAR(36) NOT NULL,
-        member_id CHAR(36) NOT NULL,
-        start_time DOUBLE NOT NULL,
-        end_time DOUBLE NOT NULL,
-        PRIMARY KEY (session_id),
-        FOREIGN KEY (trainer_id) REFERENCES trainer (account_id),
-        FOREIGN KEY (member_id) REFERENCES member (account_id)
-      );
-      `)
-}
+// async function createTableSession() {
+//     await db.query(`CREATE TABLE IF NOT EXISTS training_session (
+//         session_id CHAR(36) NOT NULL,
+//         trainer_id CHAR(36) NOT NULL,
+//         member_id CHAR(36) NOT NULL,
+//         start_time DOUBLE NOT NULL,
+//         end_time DOUBLE NOT NULL,
+//         PRIMARY KEY (session_id),
+//         FOREIGN KEY (trainer_id) REFERENCES trainer (account_id),
+//         FOREIGN KEY (member_id) REFERENCES member (account_id)
+//       );
+//       `)
+// }
 async function createTableMembership() {
     await db.query(`
     CREATE TABLE IF NOT EXISTS membership (
@@ -172,7 +173,6 @@ function deleteAllTable() {
     const tables = [
         'membership',
         'member',
-        'training_session',
         'trainer',
         'manager',
         'admin',

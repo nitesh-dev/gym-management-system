@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import db from "./database.js";
-import { Admin, Branch, Manager, Member, Membership, Profile, Result, Staff, Trainer, TrainingSession, createSqlResult } from "./utils.js";
+import { Admin, Branch, Manager, Member, Membership, Profile, Result, Staff, Trainer, createSqlResult } from "./utils.js";
 import { Session } from "inspector";
 
 async function _query<T>(sql: string, values: any[] = []) {
@@ -281,18 +281,14 @@ namespace SqlUtils {
         if (await isEmailExist(info.email)) {
             return createSqlResult(true, "email already exist")
         }
-        const sql = 'INSERT INTO trainer(account_id, name, email, password, address, contact, dob,branch_id,specialization,gender) VALUES(?,?,?,?,?,?,?,?,?,?)'
-        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.gender]
+        const sql = 'INSERT INTO trainer(start_time,end_time,account_id, name, email, password, address, contact, dob,branch_id,specialization,gender) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
+        const values = [info.start_time, info.end_time, info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.gender]
         const result = await _query(sql, values)
-        if (result.isError) {
-            return result
-        } else {
-            return createSqlResult(false, "created")
-        }
+        return result
     }
     export async function getTrainer(id: string) {
         const sql = `SELECT * FROM trainer WHERE account_id='${id}';`
-        const result = await _query<any[]>(sql)
+        const result = await _query<Trainer[]>(sql)
         const arr = result.result
         if (result.isError) {
             return result
@@ -305,7 +301,7 @@ namespace SqlUtils {
     }
     export async function getAllTrainer() {
         const sql = `SELECT * FROM trainer;`
-        const result = await _query<any[]>(sql)
+        const result = await _query<Trainer[]>(sql)
         const arr = result.result
         if (result.isError) {
             return result
@@ -315,7 +311,7 @@ namespace SqlUtils {
     }
     export async function getAllTrainerWithBranchId(branch_id: string) {
         const sql = `SELECT * FROM trainer WHERE branch_id='${branch_id}';`
-        const result = await _query<any[]>(sql)
+        const result = await _query<Trainer[]>(sql)
         const arr = result.result
         if (result.isError) {
             return result
@@ -323,14 +319,10 @@ namespace SqlUtils {
         return createSqlResult(false, arr)
     }
     export async function updateTrainer(info: Trainer) {
-        const sql = 'UPDATE trainer SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ?,gender=? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.account_id, info.gender]
+        const sql = 'UPDATE trainer SET start_time=? ,end_time=?, name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ?,gender=? WHERE account_id = ?';
+        const values = [info.start_time, info.end_time, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.account_id, info.gender]
         const result = await _query(sql, values)
-        if (result.isError) {
-            return result
-        } else {
-            return createSqlResult(false, "updated")
-        }
+        return result
     }
 
     export async function deleteTrainer(id: string) {
@@ -343,14 +335,9 @@ namespace SqlUtils {
             return createSqlResult(false, "deleted")
         }
         else {
-
             return createSqlResult(true, "unable to delete")
         }
     }
-
-
-
-
 
     /**--------------------staff-----------------------*/
     export async function createStaff(
@@ -501,47 +488,74 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
-
-
-
-
-
-
     /**----------------------session--------------------- */
-    async function isSessionExist(session: TrainingSession) {
-        //check if trainer and member id exist or not
-        const sql = `SELECT * FROM training_session WHERE trainer_id = '${session.trainer_id}' AND member_id = '${session.member_id}' LIMIT 1;`
-        const result = await _query<any[]>(sql)
-        if (result.result.length > 0) return true
-        return false
-    }
-    async function createSession(info: TrainingSession) {
-        if ((await isSessionExist(info))) {
-            return createSqlResult(true, "session already exist")
-        }
-        const sql = `INSERT INTO training_session(session_id,trainer_id,member_id,start_time,end_time) VALUES(?,?,?,?,?)`
-        const values = [info.session_id, info.trainer_id, info.member_id, info.start_time, info.end_time]
-        const result = await _query(sql, values)
-        if (result.isError) {
-            return result
-        } else {
-            return createSqlResult(false, "created")
-        }
-    }
+    // async function isSessionExist(session: TrainingSession) {
+    //     //check if trainer and member id exist or not
+    //     const sql = `SELECT * FROM training_session WHERE trainer_id = '${session.trainer_id}' AND member_id = '${session.member_id}' LIMIT 1;`
+    //     const result = await _query<any[]>(sql)
+    //     if (result.result.length > 0) return true
+    //     return false
+    // }
+    // async function createSession(info: TrainingSession) {
+    //     if ((await isSessionExist(info))) {
+    //         return createSqlResult(true, "session already exist")
+    //     }
+    //     const sql = `INSERT INTO training_session(session_id,trainer_id,member_id,start_time,end_time) VALUES(?,?,?,?,?)`
+    //     const values = [info.session_id, info.trainer_id, info.member_id, info.start_time, info.end_time]
+    //     const result = await _query(sql, values)
+    //     if (result.isError) {
+    //         return result
+    //     } else {
+    //         return createSqlResult(false, "created")
+    //     }
+    // }
     /**--------------------membership-----------------------*/
     export async function createMembership(
         info: Membership
     ) {
-        const sql = 'INSERT INTO membership (membership_id,member_id,name,price,start_time,end_time) VALUES()'
-        const values = [info.membership_id, info.member_id, info.name, info.price, info.start_time, info.end_time]
+        const sql = 'INSERT INTO membership (membership_id,member_id,type,price,start_time,end_time) VALUES(?,?,?,?,?,?)'
+        const values = [info.membership_id, info.member_id, info.type, info.price, info.start_time, info.end_time]
         const result = await _query(sql, values)
+        return result
+    }
+    export async function getAllMembership() {
+        const sql = `SELECT * FROM membership;`
+        const result = await _query<Membership[]>(sql)
+        const arr = result.result
         if (result.isError) {
             return result
         } else {
-            return createSqlResult(false, "created")
+            return createSqlResult(false, arr)
+        }
+    }
+    export async function getAllMembershipWithMemberId(member_id: string) {
+        const sql = `SELECT * FROM membership WHERE member_id='${member_id}';`
+        const result = await _query<Membership[]>(sql)
+        const arr = result.result
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+    export async function getAllMemberOfTrainer(branch_id: string, specialization: string) {
+        const sql = `
+        SELECT DISTINCT m.*
+        FROM member m
+        INNER JOIN trainer t ON m.branch_id = ? AND   t.branch_id = ?
+        WHERE t.specialization = ? AND m.is_approved = true;
+        `
+        const values = [branch_id, branch_id, specialization]
+        const result = await _query<Member[]>(sql)
+        const arr = result.result
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, arr)
         }
     }
 }
+
 export default SqlUtils
 
 

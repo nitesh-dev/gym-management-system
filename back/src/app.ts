@@ -31,7 +31,20 @@ router.put("/profile", async (req, res) => {
         res.send({ result: result.result })
     }
 })
+router.get("/trainer/member", async (req, res) => {
+    const { branch_id, specialization } = req.query as any
+    if (isAnyInvalid([branch_id, specialization])) {
+        return res.status(400).send("required all input")
+    } else {
+        const result = await SqlUtils.getAllMemberOfTrainer(branch_id, specialization)
+        if (result.isError) {
+            return res.status(400).send(result.result)
 
+        } else {
+            res.send(result.result)
+        }
+    }
+})
 /**--------------Admin-------------------- */
 
 router.get("/admin/id", async (req, res) => {
@@ -216,14 +229,15 @@ router.delete("/manager", async (req, res) => {
 /*-------------trainer--------------*/
 
 router.post("/trainer", async (req, res) => {
-    const { name, email, address, contact, dob, password, branch_id, specialization, gender } = req.body
-    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, specialization])) {
+    const { name, email, address, contact, dob, password, branch_id, specialization, gender, start_time, end_time } = req.body
+    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, specialization, start_time, end_time])) {
         return res.status(400).send("required all trainer info")
     } else {
         const result = await SqlUtils.createTrainer({
             account_id: randomUUID(), dob: dob, password: password,
             branch_id: branch_id, address: address, contact: contact,
-            email: email, name: name, specialization: specialization, gender: gender
+            email: email, name: name, specialization: specialization, gender: gender,
+            start_time: start_time, end_time: end_time
         })
         if (result.isError) {
             return res.status(400).send(result.result)
@@ -456,30 +470,40 @@ router.delete("/member", async (req, res) => {
     }
 })
 
-
-
-
-
 /*-------------membership--------------*/
 
-// router.post("/membership", async (req, res) => {
-//     const { name, email, address, contact, dob, password, branch_id, specialization: membership } = req.body
-//     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, membership])) {
-//         return res.status(400).send("required all member info")
-//     } else {
-//         const result = await SqlUtils.createMember({
-//             account_id: randomUUID(), dob: dob, password: password,
-//             branch_id: branch_id, address: address, contact: contact,
-//             email: email, name: name, membership: membership
-//         })
-//         if (result.isError) {
-//             return res.status(400).send(result.result)
+router.post("/membership", async (req, res) => {
+    const { member_id, type, price, start_time, end_time } = req.body
+    if (isAnyInvalid([member_id, type, price, start_time, end_time])) {
+        return res.status(400).send("required all membership info")
+    } else {
+        const result = await SqlUtils.createMembership({
+            membership_id: randomUUID(), type: type, price: price,
+            start_time: start_time, end_time: end_time, member_id: member_id
+        })
+        if (result.isError) {
+            return res.status(400).send(result.result)
 
-//         } else {
-//             res.send(result.result)
-//         }
-//     }
-// })
+        } else {
+            res.send(result.result)
+        }
+    }
+})
+router.get("/membership", async (req, res) => {
+    const { member_id } = req.query as any
+    let result
+    if (member_id) {
+        result = await SqlUtils.getAllMembershipWithMemberId(member_id)
+    } else {
+        result = await SqlUtils.getAllMembership()
+    }
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
 
 
 
