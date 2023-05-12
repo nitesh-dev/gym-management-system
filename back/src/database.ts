@@ -159,7 +159,7 @@ async function createTableMembership() {
     CREATE TABLE IF NOT EXISTS membership (
         membership_id CHAR(36) NOT NULL,
         member_id CHAR(36) NOT NULL,
-        name VARCHAR(50) NOT NULL,
+        type VARCHAR(50) NOT NULL,
         price DECIMAL(10, 2) NOT NULL,
         start_time DOUBLE NOT NULL,
         end_time DOUBLE NOT NULL,

@@ -187,7 +187,6 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
-
     export async function deleteBranch(id: string) {
         const sql = `DELETE FROM branch WHERE branch_id = ?;`
         const values = [id]
@@ -202,9 +201,6 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
-
-
-
     /**--------------------manager-----------------------*/
     export async function createManager(
         info: Manager
@@ -268,12 +264,6 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
-
-
-
-
-
-
     /**--------------------trainer-----------------------*/
     export async function createTrainer(
         info: Trainer
@@ -338,7 +328,30 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+    export async function getAllMemberOfTrainer(branch_id: string, specialization: string) {
+        const sql = `
+        SELECT m.*
+        FROM member m
+        INNER JOIN membership ms ON m.account_id = ms.member_id 
+        WHERE 
+            m.branch_id = ? AND
+            m.is_approved = 1 AND
+            (
+                ms.type = 'bronze' AND ? IN ('Cardio', 'Strength Training') OR
+                ms.type = 'silver' AND ? IN ('Cardio', 'Strength Training', 'Yoga') OR
+                ms.type = 'gold' AND ? IN ('Cardio', 'Strength Training', 'Yoga', 'Pilates', 'Crossfit')
+            );
 
+        `
+        const values = [branch_id, specialization, specialization, specialization]
+        const result = await _query<Member[]>(sql, values)
+        const arr = result.result
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
     /**--------------------staff-----------------------*/
     export async function createStaff(
         info: Staff
@@ -413,11 +426,6 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
-
-
-
-
-
     /**--------------------member-----------------------*/
     export async function createMember(
         info: Member
@@ -488,6 +496,7 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+
     /**----------------------session--------------------- */
     // async function isSessionExist(session: TrainingSession) {
     //     //check if trainer and member id exist or not
@@ -538,22 +547,7 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
-    export async function getAllMemberOfTrainer(branch_id: string, specialization: string) {
-        const sql = `
-        SELECT DISTINCT m.*
-        FROM member m
-        INNER JOIN trainer t ON m.branch_id = ? AND t.branch_id = ?
-        WHERE t.specialization = ? AND m.is_approved = 1;
-        `
-        const values = [branch_id, branch_id, specialization]
-        const result = await _query<Member[]>(sql,values)
-        const arr = result.result
-        if (result.isError) {
-            return result
-        } else {
-            return createSqlResult(false, arr)
-        }
-    }
+
 }
 
 export default SqlUtils
