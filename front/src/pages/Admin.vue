@@ -7,7 +7,8 @@ import CreateBranchDialog, { DialogBranchData } from '../components/CreateBranch
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
-import { Branch, Manager } from '../RestApiDataType';
+import { Admin, Branch, Manager } from '../RestApiDataType';
+import { unixMillisecondsToDateString } from '../utils'
 
 
 let activeTabIndex = ref(0)
@@ -38,24 +39,20 @@ function getCookies() {
 
 // profile dialog
 const profileData = new (class extends ProfileData {
-    // show() {
-
-    //     isProgressHidden.value = false
-    //     super.show()
-    // }
 
     show(): void {
-        this.profile.name = 
-        this.profile.contact
-        this.profile.email
-        this.profile.gender
-        this.profile.password
-        this.profile.address
-        this.profile.account_id
-        this.profile.dob
+        this.accountType = "admin"
+        this.profile.name = adminDetail.value.name
+        this.profile.contact = adminDetail.value.contact
+        this.profile.email = adminDetail.value.email
+        this.profile.gender = adminDetail.value.gender
+        this.profile.password = adminDetail.value.password
+        this.profile.address = adminDetail.value.address
+        this.profile.account_id = adminDetail.value.account_id
+        this.profile.dob = adminDetail.value.dob
         super.show()
     }
-    
+
     onUpdateProfile(): void {
         isProgressHidden.value = false
     }
@@ -71,7 +68,6 @@ const profileData = new (class extends ProfileData {
         super.onFailed(text)
         isProgressHidden.value = true
         message.value.show(text)
-
     }
 })
 
@@ -147,6 +143,34 @@ let branchDialog = ref(branchDialogData)
 
 
 
+let adminDetail = ref<Admin>({
+    account_id: "loading...",
+    name: "loading...",
+    gender: 'male',
+    email: "loading...",
+    password: "loading...", address: "loading...",
+    contact: "loading...", dob: 0
+})
+
+async function loadAdminDetail() {
+    isProgressHidden.value = false
+    let res = await Api.getAdmin(accountId.value)
+    isProgressHidden.value = true
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        adminDetail.value = res.result as Admin
+    }
+}
+
+
+
+
+
+
+
+
+
 function logout() {
     localStorage.removeItem("accountType")
     localStorage.removeItem("accountId")
@@ -159,10 +183,6 @@ function changeTab(index: number) {
     fetchData()
 }
 
-
-function showProfile() {
-    profile.value.show()
-}
 
 
 let managerAccounts = ref(Array<Manager>())
@@ -196,8 +216,12 @@ function fetchData() {
     // fetch data
     console.log("fetching...")
     if (activeTabIndex.value == 0) {
-        loadManagerAccounts()
+        loadAdminDetail()
+
     } else if (activeTabIndex.value == 1) {
+        loadManagerAccounts()
+
+    } else if (activeTabIndex.value == 2) {
         loadAllBranches()
     }
 }
@@ -209,10 +233,10 @@ async function deleteData() {
 
     let res = null
     isProgressHidden.value = false
-    if (activeTabIndex.value == 0) {
+    if (activeTabIndex.value == 1) {
         res = await Api.deleteManager(idToDelete)
 
-    } else if (activeTabIndex.value == 1) {
+    } else if (activeTabIndex.value == 2) {
         res = await Api.deleteBranch(idToDelete)
     }
 
@@ -249,12 +273,15 @@ function openManager(id: string) {
             </div>
             <ul class="nav nav-pills mb-3" id="pills-tab">
                 <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }"
-                        @click="changeTab(0)">Managers</button>
+                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
-                        @click="changeTab(1)">Branches</button>
+                        @click="changeTab(1)">Managers</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 2 }"
+                        @click="changeTab(2)">Branches</button>
                 </li>
             </ul>
 
@@ -265,8 +292,89 @@ function openManager(id: string) {
 
     <div class="tab-content" id="pills-tabContent">
 
-        <!-- Managers -->
+        <!-- account detail -->
         <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
+            <div class="container">
+                <div class="row justify-content-start">
+
+                    <!-- Admin detail -->
+                    <div class="col-sm">
+                        <div class="card mb-4 card-parent">
+                            <div class="card-body">
+                                <h5>Admin Detail</h5>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Account ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ adminDetail.account_id }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Full Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ adminDetail.name }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ adminDetail.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ adminDetail.contact }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Gender</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ adminDetail.gender }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">DOB</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(adminDetail.dob) }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ adminDetail.address }}</p>
+                                    </div>
+                                </div>
+                                <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Managers -->
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
 
             <div class="table-container">
                 <div class="container">
@@ -313,7 +421,7 @@ function openManager(id: string) {
 
 
         <!-- Branch -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
 
             <div class="table-container">
                 <div class="container">
@@ -364,9 +472,22 @@ function openManager(id: string) {
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-
-.nav{
+.nav {
     margin-bottom: 0 !important;
+}
+
+.card-parent {
+    margin: 24px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.card-parent .row {
+    margin-bottom: 16px;
+}
+
+.card-body h5 {
+    margin-bottom: 20px;
 }
 
 #add-button {
