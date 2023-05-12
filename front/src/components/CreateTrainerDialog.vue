@@ -45,18 +45,15 @@ async function onSubmitForm() {
     let millisecond = new Date(dob.value).getTime()
     trainer.value.dob = millisecond
     trainer.value.contact = contact.value.toString()
-
-    console.log(trainer.value)
-
+    trainer.value.branch_id = prop.branchId
     prop.dialog.onCreateTrainer()
     
     let res = await Api.createTrainer(trainer.value)
 
-    if (res.isSuccess == true) {
-        prop.dialog.onSuccessFul("Trainer created")
-
-    } else {
+    if (res.isError) {
         prop.dialog.onFailed(res.error)
+    } else {
+        prop.dialog.onSuccessFul("Trainer created")
     }
 }
 
@@ -98,8 +95,8 @@ let allSpecialization = ref(['Cardio', 'Strength Training' , 'Yoga' , 'Pilates' 
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
-                        <select class="form-select" required="true">
-                            <option @click="" :value="item" v-for="item in allSpecialization">{{ item }}</option>
+                        <select class="form-select" v-model="trainer.specialization" required="true">
+                            <option :value="item" v-for="item in allSpecialization">{{ item }}</option>
                         </select>
 
 

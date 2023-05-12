@@ -5,13 +5,32 @@ import ProgressDialog from '../components/ProgressDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
+import { Staff } from '../RestApiDataType';
+import { unixMillisecondsToDateString } from '../utils';
 
 
 let message = ref(new Message())
 let isProgressHidden = ref(true)
-
-let accountId = ref(0)
+let accountId = ref("")
 let accountType = ref("")
+
+
+function getCookies() {
+
+    let type = localStorage.getItem("accountType")
+    let id = localStorage.getItem("accountId")
+
+
+    if (type == null || id == null || type != "staff") {
+        window.location.href = '/'
+    } else {
+        accountId.value = id
+        accountType.value = type
+        fetchData()
+    }
+}
+
+
 
 
 // profile dialog
@@ -71,47 +90,39 @@ function showProfile() {
 
 
 
+const staffDetail = ref<Staff>({
+    account_id: "loading...",
+    branch_id: "loading...",
+    name: "loading...", email: "loading...",
+    password: "loading...", address: "loading...",
+    contact: "loading...", dob: 0,
+    work: 'security'
+})
 
-let detailAccountId = ref(0)
-let detailBranchId = ref(0)
-let detailFullName = ref("loading...")
-let detailEmail = ref("loading...")
-let detailContact = ref(0)
-let detailGender = ref("loading...")
-let detailDOB = ref(0)
-let detailRole = ref("loading...")
+
 
 async function loadAccountDetail() {
-    const res = await Api.getAccountDetail(accountId.value, accountType.value)
-    if (res.isSuccess) {
-        // detailAccountId.value = res.data.account_id
-        // detailFullName.value = res.data.name
-        // detailEmail.value = res.data.email
-        // detailContact.value = res.data.number
-        // detailGender.value = res.data.gender
-        // detailAge.value = res.data.age
+    isProgressHidden.value = false
+    const res = await Api.getStaff(accountId.value)
+    isProgressHidden.value = true
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        staffDetail.value = res.result as Staff
     }
 }
 
 
 
-
-// let customerAccounts = ref(Array())
-// async function loadCustomerAccounts(accountId: number) {
-//     isProgressHidden.value = false
-//     let accounts = await Api.getAllCustomerAccounts(accountId)
-//     isProgressHidden.value = true
-//     if (accounts.isSuccess == true) {
-//         customerAccounts.value = accounts.data
-//     } else {
-//         message.value.show(accounts.error)
-//     }
-// }
-
 function fetchData() {
     // fetch data
     console.log("fetching...")
+    loadAccountDetail()
 }
+
+
+
+getCookies()
 
 </script>
 
@@ -130,13 +141,13 @@ function fetchData() {
 
     <div class="card mb-4 card-parent">
         <div class="card-body">
-            <h5>Member Detail</h5>
+            <h5>Staff Detail</h5>
             <div class="row">
                 <div class="col-sm-3">
                     <p class="mb-0">Account ID</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailAccountId }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.account_id }}</p>
                 </div>
             </div>
 
@@ -145,7 +156,7 @@ function fetchData() {
                     <p class="mb-0">Branch ID</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailBranchId }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.branch_id }}</p>
                 </div>
             </div>
 
@@ -154,7 +165,7 @@ function fetchData() {
                     <p class="mb-0">Full Name</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailFullName }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.name }}</p>
                 </div>
             </div>
 
@@ -163,7 +174,7 @@ function fetchData() {
                     <p class="mb-0">Email</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailEmail }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.email }}</p>
                 </div>
             </div>
 
@@ -172,7 +183,7 @@ function fetchData() {
                     <p class="mb-0">Contact</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailContact }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.contact }}</p>
                 </div>
             </div>
 
@@ -181,7 +192,7 @@ function fetchData() {
                     <p class="mb-0">Gender</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailGender }}</p>
+                    <p class="text-muted mb-0">TODO</p>
                 </div>
             </div>
 
@@ -190,7 +201,7 @@ function fetchData() {
                     <p class="mb-0">DOB</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailDOB }}</p>
+                    <p class="text-muted mb-0">{{ unixMillisecondsToDateString(staffDetail.dob) }}</p>
                 </div>
             </div>
 
@@ -199,7 +210,7 @@ function fetchData() {
                     <p class="mb-0">Address</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailDOB }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.address }}</p>
                 </div>
             </div>
 
@@ -208,7 +219,7 @@ function fetchData() {
                     <p class="mb-0">Role</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailRole }}</p>
+                    <p class="text-muted mb-0">{{ staffDetail.work }}</p>
                 </div>
             </div>
         </div>

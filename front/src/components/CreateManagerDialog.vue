@@ -3,20 +3,20 @@ export class DialogManagerData {
 
     isHidden = true
     branchData = Array<Branch>()
-    selectedBranchIndex = 0
+    selectedBranchId = ""
 
     show() {
         this.isHidden = false
         this.branchData = Array<Branch>()
+        this.selectedBranchId = ""
         this.loadBranchData()
-        this.selectedBranchIndex = 0
     }
 
     hide() {
         this.isHidden = true
     }
 
-    onSuccessFul(text: string) { 
+    onSuccessFul(text: string) {
         this.hide()
 
     }
@@ -30,13 +30,16 @@ export class DialogManagerData {
     }
 
     async loadBranchData() {
-        let res = await Api.loadUnallocatedBranches()
+        let res = await Api.getAllUnusedBranch()
 
-        if (res.isSuccess) {
-            this.branchData = res.result as Array<Branch>
-        } else {
+        if (res.isError) {
             this.hide()
             this.onFailed(res.error)
+        } else {
+            this.branchData = res.result as Array<Branch>
+            if(this.branchData.length > 0){
+                this.selectedBranchId = this.branchData[0].branch_id
+            }
         }
     }
 }
@@ -72,27 +75,25 @@ async function onSubmitForm() {
     let dateMill = new Date(dob.value).getTime()
     const data: Manager = {
         account_id: "",
-        branch_id: prop.dialog.branchData[prop.dialog.selectedBranchIndex].branch_id,
+        branch_id: prop.dialog.selectedBranchId,
         name: name.value, email: email.value,
         password: password.value, address: address.value,
         contact: contact.value.toString(), dob: dateMill
     }
 
 
-    let result = await Api.createManager(data)
+    let res = await Api.createManager(data)
 
-    if (result.isSuccess == true) {
-        prop.dialog.onSuccessFul("Manager created successfully")
-
+    if (res.isError) {
+        prop.dialog.onFailed(res.error)
     } else {
-        prop.dialog.onFailed(result.error)
+        prop.dialog.onSuccessFul("Manager created successfully")
     }
 }
 
-
-function setSelectedBranch(index: number){
-    alert(index)
-    prop.dialog.selectedBranchIndex = index
+const branchId=ref("")
+function setSelectedBranch() {
+    prop.dialog.selectedBranchId = branchId.value
 }
 
 
@@ -114,7 +115,8 @@ function setSelectedBranch(index: number){
 
                         <input type="email" v-model="email" class="form-control" placeholder="Email" required="true">
 
-                        <input type="password" v-model="password" class="form-control" placeholder="Password" required="true">
+                        <input type="password" v-model="password" class="form-control" placeholder="Password"
+                            required="true">
 
                         <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
 
@@ -122,8 +124,9 @@ function setSelectedBranch(index: number){
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
-                        <select class="form-select" required="true">
-                            <option @click="setSelectedBranch(index)" v-for="branch, index in dialog.branchData" :value="branch.branch_id">{{ branch.address }}
+                        <select v-model="branchId" class="form-select" @change="setSelectedBranch()" required="true">
+                            <option v-for="branch, index in dialog.branchData"
+                                :value="branch.branch_id">{{ branch.address }}
                             </option>
                         </select>
 

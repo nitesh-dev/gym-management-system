@@ -3,21 +3,26 @@ import MessageDialog, { Message } from '../components/MessageDialog.vue';
 import ProgressDialog from '../components/ProgressDialog.vue';
 import Api from '../api'
 import { ref } from 'vue';
+import { Branch, Member } from '../RestApiDataType';
 
-let name = ref<string>("")
-let contact = ref<number>()
-let email = ref<string>("")
-let password = ref<string>("")
-let accountType = ref<string>("customer")
-let gender = ref("Male")
-let dob = ref<string>("")
-let address = ref<string>("")
+
+let memberDetail = ref<Member>({
+  account_id: "",
+  branch_id: "",
+  name: "", email: "",
+  password: "", address: "",
+  contact: "", dob: 0,
+  membership: 'free'
+})
+
+let dob = ref("")
+let contact = ref("")
 
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 
 
-function saveCookies(accountType: string, accountId: string) {
+function saveCookies(accountId: string, accountType: string) {
   localStorage.setItem("accountType", accountType)
   localStorage.setItem("accountId", accountId)
 }
@@ -26,17 +31,48 @@ function saveCookies(accountType: string, accountId: string) {
 // TODO incomplete
 async function onSubmitForm() {
 
-  // isProgressHidden.value = false
-  // const res = await Api.signUp(name.value, (contact.value as number).toString(), email.value, password.value, gender.value, 0, accountType.value)
-  // isProgressHidden.value = true
-  // if (res.isSuccess) {
-  //   saveCookies(res.accountType, res.accountId)
-  //   window.location.href = '/'
-  // } else {
-  //   message.value.show(res.error as string)
-  // }
+  let millisecond = new Date(dob.value).getTime()
+  memberDetail.value.dob = millisecond
+  memberDetail.value.contact = contact.value.toString()
+  //staff.value.branch_id = prop.branchId
+  isProgressHidden.value = false
+  const res = await Api.signUp(memberDetail.value)
+  isProgressHidden.value = true
+
+  if (res.isError) {
+    message.value.show(res.error)
+  } else {
+
+    const info = res.result as { account_id: string; type: string; }
+    saveCookies(info.account_id, info.type)
+    window.location.href = '/'
+  }
+}
+
+
+
+
+let branchDetails = ref(Array<Branch>())
+async function loadAllBranches() {
+  isProgressHidden.value = false
+  let res = await Api.getAllBranch()
+  isProgressHidden.value = true
+
+  if (res.isError) {
+    message.value.show(res.error)
+  } else {
+    branchDetails.value = res.result as Array<Branch>
+  }
+}
+
+
+function fetchData() {
+  console.log("fetching...")
+  loadAllBranches()
 
 }
+
+fetchData()
 
 
 </script>
@@ -45,17 +81,22 @@ async function onSubmitForm() {
     <form class="form-signup" @submit.prevent="onSubmitForm">
 
       <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
-      <input type="text" v-model="name" class="form-control" placeholder="Name" required="true">
+      <input type="text" v-model="memberDetail.name" class="form-control" placeholder="Name" required="true">
       <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
-      <input type="email" v-model="email" class="form-control" placeholder="Email address" required="true">
-      <input type="password" v-model="password" class="form-control" placeholder="Password" required="true">
-      <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
+      <input type="email" v-model="memberDetail.email" class="form-control" placeholder="Email address" required="true">
+      <input type="password" v-model="memberDetail.password" class="form-control" placeholder="Password" required="true">
+      <input type="text" v-model="memberDetail.address" class="form-control" placeholder="Address" required="true">
       <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
-      <select class="form-select" v-model="gender" aria-label="Default select example" style="margin-bottom: 20px;"
+      <!-- <select class="form-select" v-model="gender" aria-label="Default select example" style="margin-bottom: 20px;"
         required>
         <option value="Male" selected>Male</option>
         <option value="Female">Female</option>
+      </select> -->
+
+      <select class="form-select" v-model="memberDetail.branch_id" style="margin-bottom: 20px;"
+        required>
+        <option :value="branch.branch_id" v-for="branch in branchDetails">{{ branch.name }}, {{ branch.address }}</option>
       </select>
 
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>

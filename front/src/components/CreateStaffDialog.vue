@@ -1,17 +1,17 @@
 <script lang="ts">
-export class DialogBranchData {
+export class DialogStaffData {
 
     isHidden = true
-
     show() {
         this.isHidden = false
+
     }
 
     hide() {
         this.isHidden = true
     }
 
-    onSuccessFul(text: string) { 
+    onSuccessFul(text: string) {
         this.hide()
     }
 
@@ -19,7 +19,7 @@ export class DialogBranchData {
 
     }
 
-    onCreateBranch() {
+    onCreateStaff() {
 
     }
 
@@ -31,39 +31,45 @@ export class DialogBranchData {
 <script setup lang='ts'>
 import { ref } from 'vue'
 import Api from '../api'
-import { Branch } from '../RestApiDataType'
+import { Staff } from '../RestApiDataType'
 
 let prop = defineProps<{
-    dialog: DialogBranchData
+    dialog: DialogStaffData,
+    branchId: string
 }>()
 
 
 
 async function onSubmitForm() {
 
-    prop.dialog.onCreateBranch()
-    let data: Branch = {
-        branch_id: "",
-        name: name.value, email: email.value,
-        address: address.value,
-        contact: contact.value.toString()
-    }
-
-    let res = await Api.createBranch(data)
+    let millisecond = new Date(dob.value).getTime()
+    staff.value.dob = millisecond
+    staff.value.contact = contact.value.toString()
+    staff.value.branch_id = prop.branchId
+    prop.dialog.onCreateStaff()
+    
+    let res = await Api.createStaff(staff.value)
 
     if (res.isError) {
         prop.dialog.onFailed(res.error)
     } else {
-        prop.dialog.onSuccessFul("Branch created")
+        prop.dialog.onSuccessFul("Staff created")
     }
 }
 
+const staff = ref<Staff>({
+    account_id: "",
+    branch_id: prop.branchId,
+    name: "", email: "",
+    password: "", address: "",
+    contact: "", dob: 0,
+    work: 'security'
+})
 
-let name = ref("")
-let email = ref("")
-let address = ref("")
+// cleaner
+
+let dob = ref("")
 let contact = ref("")
-
 
 
 </script>
@@ -74,16 +80,24 @@ let contact = ref("")
                 <div class="cus-container text-center">
                     <form class="form-dialog" @submit.prevent="onSubmitForm">
 
-                        <h1 class="h3 mb-3 font-weight-normal">Create Branch</h1>
+                        <h1 class="h3 mb-3 font-weight-normal">Create Staff</h1>
 
-                        <input type="text" v-model="name" class="form-control" placeholder="Name" required="true">
+                        <input type="text" v-model="staff.name" class="form-control" placeholder="Name" required="true">
 
-                        <input type="email" v-model="email" class="form-control" placeholder="Email" required="true">
+                        <input type="email" v-model="staff.email" class="form-control" placeholder="Email" required="true">
 
-                        <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
+                        <input type="password" v-model="staff.password" class="form-control" placeholder="Password" required="true">
+
+                        <input type="text" v-model="staff.address" class="form-control" placeholder="Address" required="true">
 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
+                        <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+
+                        <select v-model="staff.work" class="form-select" required="true">
+                            <option  value="security" >Security</option>
+                            <option  value="cleaner" >Cleaner</option>
+                        </select>
 
 
                         <div class="row buttons-container">

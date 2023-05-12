@@ -12,12 +12,14 @@ import Manager from "./pages/Manager.vue"
 import Trainer from "./pages/Trainer.vue"
 import Member from "./pages/Member.vue"
 import Staff from "./pages/Staff.vue"
+import Membership from "./pages/Membership.vue"
 
 import { createRouter, createWebHistory } from 'vue-router'
 import Api from './api';
 
-const res = await Api.signIn("admin@gmail.com", "admidn12345")
-console.log(await Api.getAllBranch())
+// const res = await Api.signIn("admin@gmail.com", "admid12345")
+// console.log(res)
+// console.log(await Api.getAllBranch())
 const router = createRouter({
   history: createWebHistory(),
   routes: []
@@ -81,6 +83,18 @@ router.addRoute({
 router.addRoute({
   path: "/staff", component: Staff, meta: {
     title: "Staff"
+  }
+})
+
+router.addRoute({
+  path: "/member", component: Member, meta: {
+    title: "Member"
+  }
+})
+
+router.addRoute({
+  path: "/membership", component: Membership, meta: {
+    title: "Membership"
   }
 })
 

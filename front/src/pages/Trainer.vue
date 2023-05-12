@@ -5,14 +5,32 @@ import ProgressDialog from '../components/ProgressDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
-import { TrainingSession } from '../RestApiDataType';
+import { Trainer, TrainingSession } from '../RestApiDataType';
+import { unixMillisecondsToDateString } from '../utils';
 
 
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 
-let accountId = ref(0)
+let accountId = ref("")
 let accountType = ref("")
+
+
+function getCookies() {
+
+    let type = localStorage.getItem("accountType")
+    let id = localStorage.getItem("accountId")
+
+    if (type == null || id == null || type != "trainer") {
+        window.location.href = '/'
+    } else {
+        accountId.value = id
+        accountType.value = type
+        fetchData()
+    }
+}
+
+
 
 const profileData = new (class extends ProfileData {
     show() {
@@ -68,14 +86,28 @@ function showProfile() {
 
 
 
-let detailAccountId = ref(0)
-let detailBranchId = ref(0)
-let detailFullName = ref("loading...")
-let detailEmail = ref("loading...")
-let detailContact = ref(0)
-let detailGender = ref("loading...")
-let detailDOB = ref(0)
-let detailSpecialization = ref("loading...")
+const trainerDetail = ref<Trainer>({
+    account_id: "loading...",
+    branch_id: "loading...",
+    name: "loading...", email: "loading...",
+    password: "loading...", address: "loading...",
+    contact: "loading...", dob: 0,
+    specialization: 'Yoga'
+})
+
+
+
+async function loadAccountDetail() {
+    isProgressHidden.value = false
+    const res = await Api.getTrainer(accountId.value)
+    isProgressHidden.value = true
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        trainerDetail.value = res.result as Trainer
+    }
+}
+
 
 // async function loadAccountDetail() {
 //     const res = await Api.getAccountDetail(accountId.value, accountType.value)
@@ -89,42 +121,15 @@ let detailSpecialization = ref("loading...")
 //     }
 // }
 
-
-
-
-// let customerAccounts = ref(Array())
-// async function loadCustomerAccounts(accountId: number) {
-//     isProgressHidden.value = false
-//     let accounts = await Api.getAllCustomerAccounts(accountId)
-//     isProgressHidden.value = true
-//     if (accounts.isSuccess == true) {
-//         customerAccounts.value = accounts.data
-//     } else {
-//         message.value.show(accounts.error)
-//     }
-// }
-
-const info = ref<TrainingSession[]>([])
-async function fetchTrainingSession() {
-    const random = () => {
-        return {
-            session_id: "asldjfklj",
-            trainer_id: "545444sdf",
-            member_id: "saldfjlkasjd",
-            start_time: new Date().getMilliseconds(),
-            end_time: new Date().getMilliseconds()
-        } as TrainingSession
-    }
-    // fetch data
+function fetchData() {
     console.log("fetching...")
-    info.value = [
-        random(), random(), random(), random(),
-        random(), random(), random(), random(),
-    ]
-
-
+    loadAccountDetail()
 }
-fetchTrainingSession()
+
+
+getCookies()
+
+
 </script>
 
 <template>
@@ -148,7 +153,7 @@ fetchTrainingSession()
                     <p class="mb-0">Account ID</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailAccountId }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.account_id }}</p>
                 </div>
             </div>
 
@@ -157,7 +162,7 @@ fetchTrainingSession()
                     <p class="mb-0">Branch ID</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailBranchId }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.branch_id }}</p>
                 </div>
             </div>
 
@@ -166,7 +171,7 @@ fetchTrainingSession()
                     <p class="mb-0">Full Name</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailFullName }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.name }}</p>
                 </div>
             </div>
 
@@ -175,7 +180,7 @@ fetchTrainingSession()
                     <p class="mb-0">Email</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailEmail }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.email }}</p>
                 </div>
             </div>
 
@@ -184,7 +189,7 @@ fetchTrainingSession()
                     <p class="mb-0">Contact</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailContact }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.contact }}</p>
                 </div>
             </div>
 
@@ -193,7 +198,7 @@ fetchTrainingSession()
                     <p class="mb-0">Gender</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailGender }}</p>
+                    <p class="text-muted mb-0">TODO</p>
                 </div>
             </div>
 
@@ -202,7 +207,7 @@ fetchTrainingSession()
                     <p class="mb-0">DOB</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailDOB }}</p>
+                    <p class="text-muted mb-0">{{ unixMillisecondsToDateString(trainerDetail.dob) }}</p>
                 </div>
             </div>
 
@@ -211,7 +216,7 @@ fetchTrainingSession()
                     <p class="mb-0">Address</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailDOB }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.address }}</p>
                 </div>
             </div>
 
@@ -220,7 +225,7 @@ fetchTrainingSession()
                     <p class="mb-0">Specialization</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailSpecialization }}</p>
+                    <p class="text-muted mb-0">{{ trainerDetail.specialization }}</p>
                 </div>
             </div>
         </div>
@@ -244,14 +249,14 @@ fetchTrainingSession()
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="value in info">
+                    <!-- <tr v-for="value in info">
                         <th scope="row">{{ }}</th>
                         <td>{{ value.session_id }}</td>
                         <td>{{ value.trainer_id }}</td>
                         <td>{{ value.session_id }}</td>
                         <td>{{ value.start_time }}</td>
                         <td>{{ value.end_time }}</td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
         </div>

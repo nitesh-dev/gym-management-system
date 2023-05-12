@@ -188,6 +188,9 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+
+
+
     /**--------------------manager-----------------------*/
     export async function createManager(
         info: Manager
@@ -251,6 +254,12 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+
+
+
+
+
+
     /**--------------------trainer-----------------------*/
     export async function createTrainer(
         info: Trainer
@@ -309,6 +318,26 @@ namespace SqlUtils {
             return createSqlResult(false, "updated")
         }
     }
+
+    export async function deleteTrainer(id: string) {
+        const sql = `DELETE FROM trainer WHERE account_id = ?;`
+        const values = [id]
+        const result = await _query<any>(sql, values)
+        if (result.isError) {
+            return result
+        } else if (result.result.affectedRows > 0) {
+            return createSqlResult(false, "deleted")
+        }
+        else {
+
+            return createSqlResult(true, "unable to delete")
+        }
+    }
+
+
+
+
+
     /**--------------------staff-----------------------*/
     export async function createStaff(
         info: Staff
@@ -355,11 +384,7 @@ namespace SqlUtils {
         if (result.isError) {
             return result
         }
-        if (arr.length == 0) {
-            return createSqlResult(true, "staff not found")
-        } else {
-            return createSqlResult(false, arr)
-        }
+        return createSqlResult(false, arr)
     }
     export async function updateStaff(info: Staff) {
         const sql = 'UPDATE staff SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,work = ? WHERE account_id = ?';
@@ -371,6 +396,27 @@ namespace SqlUtils {
             return createSqlResult(false, "updated")
         }
     }
+
+
+    export async function deleteStaff(id: string) {
+        const sql = `DELETE FROM staff WHERE account_id = ?;`
+        const values = [id]
+        const result = await _query<any>(sql, values)
+        if (result.isError) {
+            return result
+        } else if (result.result.affectedRows > 0) {
+            return createSqlResult(false, "deleted")
+        }
+        else {
+
+            return createSqlResult(true, "unable to delete")
+        }
+    }
+
+
+
+
+
     /**--------------------member-----------------------*/
     export async function createMember(
         info: Member
@@ -430,6 +476,27 @@ namespace SqlUtils {
             return createSqlResult(false, "updated")
         }
     }
+
+    export async function deleteMember(id: string) {
+        const sql = `DELETE FROM member WHERE account_id = ?;`
+        const values = [id]
+        const result = await _query<any>(sql, values)
+        if (result.isError) {
+            return result
+        } else if (result.result.affectedRows > 0) {
+            return createSqlResult(false, "deleted")
+        }
+        else {
+
+            return createSqlResult(true, "unable to delete")
+        }
+    }
+
+
+
+
+
+
     /**----------------------session--------------------- */
     async function isSessionExist(session: TrainingSession) {
         //check if trainer and member id exist or not

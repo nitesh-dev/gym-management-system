@@ -12,9 +12,9 @@ let password = ref<string>("")
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 
-function saveCookies(accountType: string, accountId: number) {
+function saveCookies(accountId: string, accountType: string) {
   localStorage.setItem("accountType", accountType)
-  localStorage.setItem("accountId", accountId.toString())
+  localStorage.setItem("accountId", accountId)
 }
 
 
@@ -24,13 +24,16 @@ async function onSubmitForm() {
   const res = await Api.signIn(email.value, password.value)
   isProgressHidden.value = true
 
-  if (res.isSuccess) {
-    saveCookies(res.accountType, res.accountId)
-    window.location.href = '/'
-  } else {
+  if (res.isError) {
     message.value.show(res.error as string)
-  }
+  } else {
 
+    if (res.result) {
+      const info = res.result as { account_id: string; type: string; }
+      saveCookies(info.account_id, info.type)
+      window.location.href = '/'
+    }
+  }
 }
 
 
@@ -65,7 +68,7 @@ async function onSubmitForm() {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-image:url("../assets/gym-1.jpg");
+  background-image: url("../assets/gym-1.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center;

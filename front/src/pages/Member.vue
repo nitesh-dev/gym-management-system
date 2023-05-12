@@ -2,17 +2,37 @@
 import ProfileDialogVue, { ProfileData } from '../components/ProfileDialog.vue';
 import MessageDialog, { Message } from '../components/MessageDialog.vue';
 import ProgressDialog from '../components/ProgressDialog.vue';
-import MembershipDialog, {MembershipData} from '../components/MembershipDialog.vue';
+import MembershipDialog, { MembershipData } from '../components/MembershipDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
+import { Member } from '../RestApiDataType';
+import { unixMillisecondsToDateString } from '../utils';
 
 
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 
-let accountId = ref(0)
+let accountId = ref("")
 let accountType = ref("")
+
+
+function getCookies() {
+
+    let type = localStorage.getItem("accountType")
+    let id = localStorage.getItem("accountId")
+
+
+    if (type == null || id == null || type != "member") {
+        window.location.href = '/'
+    } else {
+        accountId.value = id
+        accountType.value = type
+        fetchData()
+    }
+}
+
+
 
 
 // profile dialog
@@ -60,9 +80,9 @@ let warning = ref(warningData)
 
 // Membership dialog
 const membershipData = new (class extends MembershipData {
-   show(): void{
-    super.show()
-   }
+    show(): void {
+        super.show()
+    }
 
 })
 
@@ -84,46 +104,39 @@ function showProfile() {
 
 
 
-let detailAccountId = ref(0)
-let detailBranchId = ref(0)
-let detailFullName = ref("loading...")
-let detailEmail = ref("loading...")
-let detailContact = ref(0)
-let detailGender = ref("loading...")
-let detailDOB = ref(0)
-let detailMembership = ref("loading...")
+
+const memberDetail = ref<Member>({
+    account_id: "loading...",
+    branch_id: "loading...",
+    name: "loading...", email: "loading...",
+    password: "loading...", address: "loading...",
+    contact: "loading...", dob: 0,
+    membership: 'free'
+})
+
+
 
 async function loadAccountDetail() {
-    const res = await Api.getAccountDetail(accountId.value, accountType.value)
-    if (res.isSuccess) {
-        // detailAccountId.value = res.data.account_id
-        // detailFullName.value = res.data.name
-        // detailEmail.value = res.data.email
-        // detailContact.value = res.data.number
-        // detailGender.value = res.data.gender
-        // detailAge.value = res.data.age
+    isProgressHidden.value = false
+    const res = await Api.getMember(accountId.value)
+    isProgressHidden.value = true
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        memberDetail.value = res.result as Member
     }
 }
 
 
 
-
-// let customerAccounts = ref(Array())
-// async function loadCustomerAccounts(accountId: number) {
-//     isProgressHidden.value = false
-//     let accounts = await Api.getAllCustomerAccounts(accountId)
-//     isProgressHidden.value = true
-//     if (accounts.isSuccess == true) {
-//         customerAccounts.value = accounts.data
-//     } else {
-//         message.value.show(accounts.error)
-//     }
-// }
-
 function fetchData() {
     // fetch data
     console.log("fetching...")
+    loadAccountDetail()
 }
+
+
+getCookies()
 
 </script>
 
@@ -148,7 +161,7 @@ function fetchData() {
                     <p class="mb-0">Account ID</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailAccountId }}</p>
+                    <p class="text-muted mb-0">{{ memberDetail.account_id }}</p>
                 </div>
             </div>
 
@@ -157,7 +170,7 @@ function fetchData() {
                     <p class="mb-0">Branch ID</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailBranchId }}</p>
+                    <p class="text-muted mb-0">{{ memberDetail.branch_id }}</p>
                 </div>
             </div>
 
@@ -166,7 +179,7 @@ function fetchData() {
                     <p class="mb-0">Full Name</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailFullName }}</p>
+                    <p class="text-muted mb-0">{{ memberDetail.name }}</p>
                 </div>
             </div>
 
@@ -175,7 +188,7 @@ function fetchData() {
                     <p class="mb-0">Email</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailEmail }}</p>
+                    <p class="text-muted mb-0">{{ memberDetail.email }}</p>
                 </div>
             </div>
 
@@ -184,7 +197,7 @@ function fetchData() {
                     <p class="mb-0">Contact</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailContact }}</p>
+                    <p class="text-muted mb-0">{{ memberDetail.contact }}</p>
                 </div>
             </div>
 
@@ -193,7 +206,7 @@ function fetchData() {
                     <p class="mb-0">Gender</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailGender }}</p>
+                    <p class="text-muted mb-0">TODO</p>
                 </div>
             </div>
 
@@ -202,7 +215,7 @@ function fetchData() {
                     <p class="mb-0">DOB</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailDOB }}</p>
+                    <p class="text-muted mb-0">{{ unixMillisecondsToDateString(memberDetail.dob) }}</p>
                 </div>
             </div>
 
@@ -211,7 +224,7 @@ function fetchData() {
                     <p class="mb-0">Address</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ detailDOB }}</p>
+                    <p class="text-muted mb-0">{{ memberDetail.address }}</p>
                 </div>
             </div>
 
@@ -221,11 +234,11 @@ function fetchData() {
                 </div>
                 <div class="col-sm-9">
                     <!-- <p class="text-muted mb-0">{{ detailMembership }}</p> -->
-                    <p v-if="detailMembership == 'bronze'">Bronze</p>
-                    <p v-else-if="detailMembership == 'silver'">Silver</p>
-                    <p v-else-if="detailMembership == 'gold'">Gold</p>
-                    <button v-else-if="detailMembership == 'free'" class="btn btn-primary">Book Membership</button>
-                    <p v-else>{{ detailMembership }}</p>
+                    <p v-if="memberDetail.membership == 'bronze'">Bronze</p>
+                    <p v-else-if="memberDetail.membership== 'silver'">Silver</p>
+                    <p v-else-if="memberDetail.membership == 'gold'">Gold</p>
+                    <button v-else-if="memberDetail.membership == 'free'" class="btn btn-primary">Book Membership</button>
+                    <p v-else>{{ memberDetail.membership }}</p>
                 </div>
             </div>
         </div>
@@ -265,7 +278,7 @@ function fetchData() {
 
 
 
-    <MembershipDialog :membership="membershipDialog"/>
+    <MembershipDialog :membership="membershipDialog" />
     <ProfileDialogVue :profile="profile" />
     <MessageDialog :message="message" />
     <WarningDialogVue :warning="warning" />
