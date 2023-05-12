@@ -138,6 +138,12 @@ namespace Api {
         return get<Trainer>("trainer/id", `id=${id}`)
     }
 
+    export async function getTrainerMembers(branch_id: string, specialization: string) {
+        return get<Member[]>("trainer/member", `branch_id=${branch_id}&specialization=${specialization}`)
+    }
+
+
+
 
     /*----------------- Member -----------*/
 

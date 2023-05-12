@@ -208,12 +208,6 @@ function changeTab(index: number) {
 }
 
 
-function showProfile() {
-    profile.value.show()
-}
-
-
-
 let managerDetail = ref<Manager>({
     account_id: "loading...",
     branch_id: "",
@@ -375,11 +369,7 @@ getCookies()
                 </li>
 
             </ul>
-            <!-- <div>
-
-                <button class="btn btn-primary" @click="showProfile">Profile</button>
-                <button class="btn btn-primary" @click="showProfile">Profile</button>
-            </div> -->
+           
 
             <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
@@ -696,7 +686,6 @@ getCookies()
                                 <th scope="col">Approve</th>
                                 <th scope="col">Account ID</th>
                                 <th scope="col">Branch ID</th>
-                                <th scope="col">Approve</th>
                                 <th scope="col">Delete</th>
                             </tr>
                         </thead>
@@ -708,7 +697,6 @@ getCookies()
                                 <td>{{ member.address }}</td>
                                 <td>{{ member.contact }}</td>
                                 <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
-                                <td>{{ member.is_approved }}</td>
                                 <td>{{ member.account_id }}</td>
                                 <td>{{ member.branch_id }}</td>
 
@@ -742,7 +730,6 @@ getCookies()
 #add-button {
     width: 100%;
     margin-bottom: 20px;
-
 }
 
 .card-parent {

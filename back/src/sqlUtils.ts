@@ -542,11 +542,11 @@ namespace SqlUtils {
         const sql = `
         SELECT DISTINCT m.*
         FROM member m
-        INNER JOIN trainer t ON m.branch_id = ? AND   t.branch_id = ?
-        WHERE t.specialization = ? AND m.is_approved = true;
+        INNER JOIN trainer t ON m.branch_id = ? AND t.branch_id = ?
+        WHERE t.specialization = ? AND m.is_approved = 1;
         `
         const values = [branch_id, branch_id, specialization]
-        const result = await _query<Member[]>(sql)
+        const result = await _query<Member[]>(sql,values)
         const arr = result.result
         if (result.isError) {
             return result
