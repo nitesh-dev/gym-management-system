@@ -12,7 +12,8 @@ let memberDetail = ref<Member>({
   name: "", email: "",
   password: "", address: "",
   contact: "", dob: 0,
-  membership: 'free'
+  gender:'male',
+  is_approved: false
 })
 
 let dob = ref("")

@@ -74,7 +74,7 @@ namespace SqlUtils {
     }
     export async function updateProfile(type: string, profile: Profile) {
         const sql = `UPDATE ${type} SET email=? ,name = ?, password = ?, address = ?, contact = ?, dob = ?,gender = ? WHERE account_id = ? ;`
-        const values = [profile.email,profile.name,profile.password,profile.address,profile.contact,profile.dob,profile.gender,profile.account_id]
+        const values = [profile.email, profile.name, profile.password, profile.address, profile.contact, profile.dob, profile.gender, profile.account_id]
         return _query(sql, values)
     }
 
@@ -484,11 +484,7 @@ namespace SqlUtils {
         const sql = 'UPDATE member SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,is_approved = ?,gender=? WHERE account_id = ?';
         const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.is_approved, info.gender, info.account_id]
         const result = await _query(sql, values)
-        if (result.isError) {
-            return result
-        } else {
-            return createSqlResult(false, "updated")
-        }
+        return result
     }
 
     export async function deleteMember(id: string) {

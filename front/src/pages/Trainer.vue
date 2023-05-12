@@ -32,27 +32,39 @@ function getCookies() {
 
 
 
+// profile dialog
 const profileData = new (class extends ProfileData {
-    show() {
-        isProgressHidden.value = false
-        super.show()
-    }
-    hide(): void {
-        super.hide()
-        isProgressHidden.value = true
-    }
 
-    hideProgress(): void {
-        isProgressHidden.value = true
-    }
+show(): void {
+    this.accountType = "trainer"
+    this.profile.name = trainerDetail.value.name
+    this.profile.contact = trainerDetail.value.contact
+    this.profile.email = trainerDetail.value.email
+    this.profile.gender = trainerDetail.value.gender
+    this.profile.password = trainerDetail.value.password
+    this.profile.address = trainerDetail.value.address
+    this.profile.account_id = trainerDetail.value.account_id
+    this.profile.dob = trainerDetail.value.dob
+    super.show()
+}
 
-    showProgress(): void {
-        isProgressHidden.value = false
-    }
+onUpdateProfile(): void {
+    super.onUpdateProfile()
+    isProgressHidden.value = false
+}
 
-    showMessage(text: string): void {
-        message.value.show(text)
-    }
+onSuccessFul(text: string): void {
+    super.onSuccessFul(text)
+    isProgressHidden.value = true
+    message.value.show(text)
+    fetchData()
+}
+
+onFailed(text: string): void {
+    super.onFailed(text)
+    isProgressHidden.value = true
+    message.value.show(text)
+}
 })
 
 let profile = ref(profileData)
@@ -92,7 +104,8 @@ const trainerDetail = ref<Trainer>({
     name: "loading...", email: "loading...",
     password: "loading...", address: "loading...",
     contact: "loading...", dob: 0,
-    specialization: 'Yoga'
+    specialization: 'Yoga',
+    gender: 'male'
 })
 
 
