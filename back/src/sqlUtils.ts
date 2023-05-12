@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import db from "./database.js";
-import { Admin, Branch, Manager, Member, Membership, Result, Staff, Trainer, TrainingSession, createSqlResult } from "./utils.js";
+import { Admin, Branch, Manager, Member, Membership, Profile, Result, Staff, Trainer, TrainingSession, createSqlResult } from "./utils.js";
 import { Session } from "inspector";
 
 async function _query<T>(sql: string, values: any[] = []) {
@@ -71,6 +71,11 @@ namespace SqlUtils {
         const result = await _query<any[]>(sql)
         if (result.result.length > 0) return true
         return false
+    }
+    export async function updateProfile(type: string, profile: Profile) {
+        const sql = `UPDATE ${type} SET email=? ,name = ?, password = ?, address = ?, contact = ?, dob = ?,gender = ? WHERE account_id = ? ;`
+        const values = [profile.email,profile.name,profile.password,profile.address,profile.contact,profile.dob,profile.gender,profile.account_id]
+        return _query(sql, values)
     }
 
     /**----------------admin------------------------ */
@@ -433,8 +438,8 @@ namespace SqlUtils {
         if (await isEmailExist(info.email)) {
             return createSqlResult(true, "email already exist")
         }
-        const sql = 'INSERT INTO member(account_id, name, email, password, address, contact, dob,branch_id,membership,gender) VALUES(?,?,?,?,?,?,?,?,?,?)'
-        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership, info.gender]
+        const sql = 'INSERT INTO member(account_id, name, email, password, address, contact, dob,branch_id,is_approved,gender) VALUES(?,?,?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.is_approved, info.gender]
         const result = await _query(sql, values)
         if (result.isError) {
             return result
@@ -476,8 +481,8 @@ namespace SqlUtils {
         }
     }
     export async function updateMember(info: Member) {
-        const sql = 'UPDATE member SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,membership = ?,gender=? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.membership, info.gender, info.account_id]
+        const sql = 'UPDATE member SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,is_approved = ?,gender=? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.is_approved, info.gender, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
             return result

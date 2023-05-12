@@ -41,7 +41,8 @@ export interface Member {
     password: string, address: string,
     contact: string, dob: number,
     gender: "male" | "female",
-    membership: 'bronze' | 'gold' | 'silver' | 'free'
+    is_approved:boolean
+    // membership: 'bronze' | 'gold' | 'silver' | 'free'
 }
 export interface Staff {
     account_id: string,
@@ -77,6 +78,15 @@ export interface Membership {
     end_time: number,
     price: number,
 }
+export interface Profile {
+    account_id: string,
+    name: string, email: string,
+    password: string, address: string,
+    contact: string, dob: number,
+    gender: 'male' | 'female'
+
+}
+
 export function isAnyInvalid(values: any[]) {
     for (let i = 0; i < values.length; i++) {
         const value = values[i]

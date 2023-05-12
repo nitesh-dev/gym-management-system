@@ -22,7 +22,7 @@ async function addAdminIfNotExist() {
     const all = await SqlUtils.getAllAdmin()
     if (!all.isError) {
         const admins = all.result as Admin[]
-        console.log(admins)
+        //console.log(admins)
         if (admins.length == 0) {
             //create account
             const res = await SqlUtils.createAdmin({
