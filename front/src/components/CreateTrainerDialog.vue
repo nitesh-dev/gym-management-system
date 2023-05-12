@@ -63,7 +63,8 @@ const trainer = ref<Trainer>({
     name: "", email: "",
     password: "", address: "",
     contact: "", dob: 0,
-    specialization: 'Cardio'
+    specialization: 'Cardio',
+    gender: 'male'
 })
 
 let dob = ref("")
@@ -94,6 +95,11 @@ let allSpecialization = ref(['Cardio', 'Strength Training' , 'Yoga' , 'Pilates' 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+
+                        <select v-model="trainer.gender" class="form-select" required="true">
+                            <option  value="male">Male</option>
+                            <option  value="female" >Female</option>
+                        </select>
 
                         <select class="form-select" v-model="trainer.specialization" required="true">
                             <option :value="item" v-for="item in allSpecialization">{{ item }}</option>

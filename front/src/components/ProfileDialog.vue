@@ -4,6 +4,7 @@ export class ProfileData {
 
     isHidden = true
     isEditable = false
+    accountType = ""
     profile: Profile = {
         account_id: "",
         name: "",
@@ -21,8 +22,8 @@ export class ProfileData {
     show() {
         this.isHidden = false
         this.isEditable = false
-        this.profile.account_id = localStorage.getItem("accountId") as string
         this.dob = this.getDateString(this.profile.dob)
+        this.contact = +this.profile.contact
     }
     hide() {
         this.isHidden = true
@@ -37,7 +38,6 @@ export class ProfileData {
     }
 
     onUpdateProfile() {
-
     }
 
 
@@ -65,14 +65,16 @@ let prop = defineProps<{
 
 async function onSubmitForm() {
 
-    let accountType = localStorage.getItem("accountType") as string
+    prop.profile.profile.contact = prop.profile.contact.toString()
     prop.profile.onUpdateProfile()
-    let res = await Api.updateProfile(accountType, prop.profile.profile)
+    
+    let res = await Api.updateProfile(prop.profile.accountType, prop.profile.profile)
     // prop.profile.hideProgress()
-
+    console.log(res)
     if (res.isError) {
         prop.profile.onFailed(res.error)
     } else {
+       
         prop.profile.onSuccessFul("Profile updated")
     }
 }

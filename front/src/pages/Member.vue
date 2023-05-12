@@ -37,29 +37,41 @@ function getCookies() {
 
 // profile dialog
 const profileData = new (class extends ProfileData {
-    show() {
-        isProgressHidden.value = false
-        super.show()
-    }
-    hide(): void {
-        super.hide()
-        isProgressHidden.value = true
-    }
 
-    hideProgress(): void {
-        isProgressHidden.value = true
-    }
+show(): void {
+    this.accountType = "member"
+    this.profile.name = memberDetail.value.name
+    this.profile.contact = memberDetail.value.contact
+    this.profile.email = memberDetail.value.email
+    this.profile.gender = memberDetail.value.gender
+    this.profile.password = memberDetail.value.password
+    this.profile.address = memberDetail.value.address
+    this.profile.account_id = memberDetail.value.account_id
+    this.profile.dob = memberDetail.value.dob
+    super.show()
+}
 
-    showProgress(): void {
-        isProgressHidden.value = false
-    }
+onUpdateProfile(): void {
+    super.onUpdateProfile()
+    isProgressHidden.value = false
+}
 
-    showMessage(text: string): void {
-        message.value.show(text)
-    }
+onSuccessFul(text: string): void {
+    super.onSuccessFul(text)
+    isProgressHidden.value = true
+    message.value.show(text)
+    fetchData()
+}
+
+onFailed(text: string): void {
+    super.onFailed(text)
+    isProgressHidden.value = true
+    message.value.show(text)
+}
 })
 
 let profile = ref(profileData)
+
 
 
 // warning dialog
@@ -108,10 +120,11 @@ function showProfile() {
 const memberDetail = ref<Member>({
     account_id: "loading...",
     branch_id: "loading...",
+    gender: 'male',
     name: "loading...", email: "loading...",
     password: "loading...", address: "loading...",
     contact: "loading...", dob: 0,
-    membership: 'free'
+    is_approved: false
 })
 
 
@@ -206,7 +219,7 @@ getCookies()
                     <p class="mb-0">Gender</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">TODO</p>
+                    <p class="text-muted mb-0">{{ memberDetail.gender }}</p>
                 </div>
             </div>
 
@@ -228,19 +241,21 @@ getCookies()
                 </div>
             </div>
 
-            <div class="row">
+            <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
+
+            <!-- <div class="row">
                 <div class="col-sm-3">
                     <p class="mb-0">Membership</p>
                 </div>
                 <div class="col-sm-9">
-                    <!-- <p class="text-muted mb-0">{{ detailMembership }}</p> -->
+                    
                     <p v-if="memberDetail.membership == 'bronze'">Bronze</p>
                     <p v-else-if="memberDetail.membership== 'silver'">Silver</p>
                     <p v-else-if="memberDetail.membership == 'gold'">Gold</p>
                     <button v-else-if="memberDetail.membership == 'free'" class="btn btn-primary">Book Membership</button>
                     <p v-else>{{ memberDetail.membership }}</p>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <!-- 

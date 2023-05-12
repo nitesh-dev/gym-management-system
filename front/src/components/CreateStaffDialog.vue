@@ -63,7 +63,8 @@ const staff = ref<Staff>({
     name: "", email: "",
     password: "", address: "",
     contact: "", dob: 0,
-    work: 'security'
+    work: 'security',
+    gender: 'male'
 })
 
 // cleaner
@@ -94,10 +95,17 @@ let contact = ref("")
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
+                        <select v-model="staff.gender" class="form-select" required="true">
+                            <option  value="male">Male</option>
+                            <option  value="female" >Female</option>
+                        </select>
+
                         <select v-model="staff.work" class="form-select" required="true">
                             <option  value="security" >Security</option>
                             <option  value="cleaner" >Cleaner</option>
                         </select>
+
+
 
 
                         <div class="row buttons-container">

@@ -1,4 +1,3 @@
-
 export interface Admin {
     account_id: string
     name: string, email: string,
@@ -41,7 +40,8 @@ export interface Member {
     password: string, address: string,
     contact: string, dob: number,
     gender: "male" | "female",
-    membership: 'bronze' | 'gold' | 'silver' | 'free'
+    is_approved:boolean
+    // membership: 'bronze' | 'gold' | 'silver' | 'free'
 }
 export interface Staff {
     account_id: string,
@@ -72,7 +72,6 @@ export interface Membership {
     end_time: number,
     price: number,
 }
-
 export interface Profile {
     account_id: string,
     name: string, email: string,
@@ -81,4 +80,3 @@ export interface Profile {
     gender: 'male' | 'female'
 
 }
-

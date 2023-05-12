@@ -51,6 +51,7 @@ function getCookies() {
 const profileData = new (class extends ProfileData {
 
     show(): void {
+        this.accountType = "manager"
         this.profile.name = managerDetail.value.name
         this.profile.contact = managerDetail.value.contact
         this.profile.email = managerDetail.value.email
@@ -61,7 +62,7 @@ const profileData = new (class extends ProfileData {
         this.profile.dob = managerDetail.value.dob
         super.show()
     }
-    
+
     onUpdateProfile(): void {
         isProgressHidden.value = false
     }
@@ -216,7 +217,7 @@ function showProfile() {
 let managerDetail = ref<Manager>({
     account_id: "loading...",
     branch_id: "",
-    name: "loading...", 
+    name: "loading...",
     gender: 'male',
     email: "loading...",
     password: "loading...", address: "loading...",
@@ -258,15 +259,19 @@ async function loadBranchDetail(branchId: string) {
 
 
 let memberAccounts = ref(Array<Member>())
-async function loadMemberAccounts(branchId: string) {
+async function loadMemberAccounts(branchId: string, isPending: boolean) {
     isProgressHidden.value = false
+    memberAccounts.value = Array<Member>()
     let res = await Api.getAllMember(branchId)
     isProgressHidden.value = true
 
     if (res.isError) {
         message.value.show(res.error)
     } else {
-        memberAccounts.value = res.result as Array<Member>
+        let temp = res.result as Array<Member>
+        memberAccounts.value = temp.filter(function (element, index, array) {
+            return element.is_approved != isPending
+        })
     }
 }
 
@@ -283,6 +288,19 @@ async function loadStaffAccounts(branchId: string) {
     } else {
         staffAccounts.value = res.result as Array<Staff>
     }
+}
+
+async function approveMember(member: Member){
+    isProgressHidden.value = false
+    member.is_approved = true
+    let res = await Api.updateMember(member)
+    isProgressHidden.value = true
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        fetchData()
+    }
+
 }
 
 
@@ -314,12 +332,12 @@ function fetchData() {
         loadStaffAccounts(managerDetail.value.branch_id)
 
     } else if (activeTabIndex.value == 3) {
-        loadMemberAccounts(managerDetail.value.branch_id)
+        loadMemberAccounts(managerDetail.value.branch_id, false)
 
     } else if (activeTabIndex.value == 4) {
 
         // TODO load pending members
-        loadMemberAccounts(managerDetail.value.branch_id)
+        loadMemberAccounts(managerDetail.value.branch_id, true)
     }
 }
 
@@ -484,7 +502,7 @@ getCookies()
                                         <p class="mb-0">Gender</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">TODO</p>
+                                        <p class="text-muted mb-0">{{ managerDetail.gender }}</p>
                                     </div>
                                 </div>
 
@@ -493,7 +511,7 @@ getCookies()
                                         <p class="mb-0">DOB</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.dob }}</p>
+                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(managerDetail.dob) }}</p>
                                     </div>
                                 </div>
 
@@ -548,7 +566,7 @@ getCookies()
                                 <td>{{ trainer.email }}</td>
                                 <td>{{ trainer.address }}</td>
                                 <td>{{ trainer.contact }}</td>
-                                <td>{{ trainer.dob }}</td>
+                                <td>{{ unixMillisecondsToDateString(trainer.dob) }}</td>
                                 <td>{{ trainer.specialization }}</td>
 
                                 <td>{{ trainer.account_id }}</td>
@@ -597,7 +615,7 @@ getCookies()
                                 <td>{{ staff.email }}</td>
                                 <td>{{ staff.address }}</td>
                                 <td>{{ staff.contact }}</td>
-                                <td>{{ staff.dob }}</td>
+                                <td>{{ unixMillisecondsToDateString(staff.dob) }}</td>
                                 <td>{{ staff.work }}</td>
                                 <td>{{ staff.account_id }}</td>
                                 <td>{{ staff.branch_id }}</td>
@@ -630,7 +648,6 @@ getCookies()
                                 <th scope="col">Address</th>
                                 <th scope="col">Contact</th>
                                 <th scope="col">DOB</th>
-                                <th scope="col">Membership</th>
                                 <th scope="col">Account ID</th>
                                 <th scope="col">Branch ID</th>
                                 <th scope="col">Delete</th>
@@ -644,7 +661,6 @@ getCookies()
                                 <td>{{ member.address }}</td>
                                 <td>{{ member.contact }}</td>
                                 <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
-                                <td>{{ member.membership }}</td>
                                 <td>{{ member.account_id }}</td>
                                 <td>{{ member.branch_id }}</td>
 
@@ -677,7 +693,7 @@ getCookies()
                                 <th scope="col">Address</th>
                                 <th scope="col">Contact</th>
                                 <th scope="col">DOB</th>
-                                <th scope="col">Membership</th>
+                                <th scope="col">Approve</th>
                                 <th scope="col">Account ID</th>
                                 <th scope="col">Branch ID</th>
                                 <th scope="col">Approve</th>
@@ -692,11 +708,11 @@ getCookies()
                                 <td>{{ member.address }}</td>
                                 <td>{{ member.contact }}</td>
                                 <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
-                                <td>{{ member.membership }}</td>
+                                <td>{{ member.is_approved }}</td>
                                 <td>{{ member.account_id }}</td>
                                 <td>{{ member.branch_id }}</td>
 
-                                <td><button class="btn btn-success" @click="">Approve</button></td>
+                                <td><button class="btn btn-success" @click="approveMember(member)">Approve</button></td>
 
                                 <td><button class="btn btn-danger"
                                         @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
@@ -719,10 +735,10 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-
-.nav{
+.nav {
     margin-bottom: 0 !important;
 }
+
 #add-button {
     width: 100%;
     margin-bottom: 20px;

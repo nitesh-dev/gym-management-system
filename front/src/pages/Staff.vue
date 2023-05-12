@@ -96,7 +96,8 @@ const staffDetail = ref<Staff>({
     name: "loading...", email: "loading...",
     password: "loading...", address: "loading...",
     contact: "loading...", dob: 0,
-    work: 'security'
+    work: 'security',
+    gender: 'male'
 })
 
 
@@ -192,7 +193,7 @@ getCookies()
                     <p class="mb-0">Gender</p>
                 </div>
                 <div class="col-sm-9">
-                    <p class="text-muted mb-0">TODO</p>
+                    <p class="text-muted mb-0">{{ staffDetail.gender }}</p>
                 </div>
             </div>
 

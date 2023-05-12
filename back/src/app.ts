@@ -210,6 +210,9 @@ router.delete("/manager", async (req, res) => {
         res.send({ result: result.result })
     }
 })
+
+
+
 /*-------------trainer--------------*/
 
 router.post("/trainer", async (req, res) => {
