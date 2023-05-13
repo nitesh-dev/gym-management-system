@@ -79,6 +79,19 @@ router.put("/admin", async (req, res) => {
 
 
 
+router.get("/admin/gym-detail", async (req, res) => {
+    const result = await SqlUtils.getDetail()
+
+    if (result.isError) {
+        return res.status(400).send(result.result)
+
+    } else {
+        res.send(result.result)
+    }
+})
+
+
+
 
 
 /*-----------------branch---------------*/
@@ -225,7 +238,7 @@ router.put("/manager", async (req, res) => {
         return res.status(400).send(result.result)
 
     } else {
-        res.send(result.result)
+        res.send({result:result.result})
     }
 })
 router.delete("/manager", async (req, res) => {
@@ -300,7 +313,7 @@ router.put("/trainer", async (req, res) => {
         return res.status(400).send(result.result)
 
     } else {
-        res.send(result.result)
+        res.send({result:result.result})
     }
 })
 
@@ -382,7 +395,7 @@ router.put("/staff", async (req, res) => {
         return res.status(400).send(result.result)
 
     } else {
-        res.send(result.result)
+        res.send({result:result.result})
     }
 })
 

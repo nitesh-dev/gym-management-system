@@ -1,4 +1,4 @@
-import { Admin, Branch, Manager, Member, Membership, Profile, Staff, Trainer } from "./RestApiDataType"
+import { Admin, Branch, GYMDetail, Manager, Member, Membership, Profile, Staff, Trainer } from "./RestApiDataType"
 interface Result<T> {
     type(account_id: string, type: any): unknown
     isError: boolean,
@@ -73,6 +73,10 @@ namespace Api {
         return post("branch", "", branch)
     }
 
+    export async function getGymDetail(){
+        return get<GYMDetail>("admin/gym-detail", '')
+    }
+
 
 
 
@@ -121,6 +125,10 @@ namespace Api {
         return get<{total_rev: number, total_exp: number}>("branch/revenue", `branch_id=${branchId}`)
     }
 
+    export async function updateManager(manager: Manager) {
+        return put<Manager>("manager", "", manager)
+    }
+
 
 
 
@@ -131,6 +139,10 @@ namespace Api {
 
     export async function getStaff(id: string) {
         return get<Staff>("staff/id", `id=${id}`)
+    }
+
+    export async function updateStaff(staff: Staff) {
+        return put<Staff>("staff", "", staff)
     }
 
 
@@ -145,6 +157,10 @@ namespace Api {
 
     export async function getTrainerMembers(branch_id: string, specialization: string) {
         return get<Member[]>("trainer/member", `branch_id=${branch_id}&specialization=${specialization}`)
+    }
+
+    export async function updateTrainer(trainer: Trainer) {
+        return put<Trainer>("trainer", "", trainer)
     }
 
 

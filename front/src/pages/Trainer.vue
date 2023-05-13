@@ -375,6 +375,8 @@ getCookies()
                                             <p class="mb-0">₹{{ trainerDetail.salary }}</p>
                                         </div>
                                     </div>
+
+                                    <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
                                 </div>
                             </div>
                         </div>

@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
 import CreateTrainerDialog, { DialogTrainerData } from '../components/CreateTrainerDialog.vue';
+import UpdateSalary ,{DialogUpdateSalary} from '../components/UpdateSalary.vue';
 import CreateStaffDialog, { DialogStaffData } from '../components/CreateStaffDialog.vue';
 import { Trainer, Manager, Staff, Member, Branch } from '../RestApiDataType';
 import { unixMillisecondsToDateString, unixMillisecondsToTimeString } from '../utils';
@@ -61,6 +62,41 @@ function removeOldCookies() {
     localStorage.removeItem("tempMemberId")
 }
 
+
+
+
+
+// update salary dialog
+const updateSalaryData = new (class extends DialogUpdateSalary {
+
+    show(accountType: string, data: any): void {
+        super.show(accountType, data)
+    }
+
+    onUpdateSalary(): void {
+        isProgressHidden.value = false
+        super.onUpdateSalary()
+    }
+
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+        fetchData()
+    }
+
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+    }
+})
+
+let updateSalary = ref(updateSalaryData)
+
+function editSalary(accountType: string, accountData: any){
+    updateSalary.value.show(accountType, Object.assign({}, accountData))
+}
 
 
 // profile dialog
@@ -261,8 +297,9 @@ let managerDetail = ref<Manager>({
 })
 
 async function loadManagerDetail() {
-
+    isProgressHidden.value = false
     let res = await Api.getManager(accountId.value)
+    isProgressHidden.value = true
     if (res.isError) {
         message.value.show(res.error)
     } else {
@@ -339,7 +376,6 @@ async function approveMember(member: Member) {
     } else {
         fetchData()
     }
-
 }
 
 
@@ -379,6 +415,10 @@ function fetchData() {
         loadMemberAccounts(managerDetail.value.branch_id, true)
     }
 }
+
+
+
+
 
 
 getCookies()
@@ -650,7 +690,7 @@ getCookies()
                     <div class="blur-div"></div>
                     <div class="container">
                         <h3>Trainers</h3>
-                        <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
+                        <button v-if="!isAdmin" id="add-button" class="btn btn-info btn-block"
                             @click="trainerDialog.show()">Add Trainers</button>
                     </div>
 
@@ -668,8 +708,9 @@ getCookies()
                                     <th scope="col">Start Time</th>
                                     <th scope="col">End Time</th>
                                     <th scope="col">Specialization</th>
-                                    <th scope="col">Account ID</th>
-                                    <th scope="col">Branch ID</th>
+                                    <!-- <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th> -->
+                                    <th scope="col">Edit Salary</th>
                                     <th scope="col">Delete</th>
                                 </tr>
                             </thead>
@@ -690,8 +731,11 @@ getCookies()
                                         unixMillisecondsToTimeString(trainer.end_time) }}</td>
 
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.specialization }}</td>
-                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.account_id }}</td>
-                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.branch_id }}</td>
+                                    <!-- <td @click="openTrainer(trainer.account_id)">{{ trainer.account_id }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.branch_id }}</td> -->
+
+                                    <td><button class="btn btn-info"
+                                            @click="editSalary('trainer', trainer)"><i class="material-icons">edit</i>Edit</button></td>
 
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really want to delete?', trainer.account_id)"><i
@@ -711,7 +755,7 @@ getCookies()
                     <div class="blur-div"></div>
                     <div class="container">
                         <h3>Staffs</h3>
-                        <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
+                        <button v-if="!isAdmin" id="add-button" class="btn btn-info btn-block"
                             @click="staffDialog.show()">Add Staff</button>
                     </div>
 
@@ -727,8 +771,9 @@ getCookies()
                                     <th scope="col">DOB</th>
                                     <th scope="col">Salary</th>
                                     <th scope="col">Work</th>
-                                    <th scope="col">Account ID</th>
-                                    <th scope="col">Branch ID</th>
+                                    <!-- <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th> -->
+                                    <th scope="col">Edit Salary</th>
                                     <th scope="col">Delete</th>
                                 </tr>
                             </thead>
@@ -743,8 +788,10 @@ getCookies()
                                     </td>
                                     <td @click="openStaff(staff.account_id)">₹{{ staff.salary }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.work }}</td>
-                                    <td @click="openStaff(staff.account_id)">{{ staff.account_id }}</td>
-                                    <td @click="openStaff(staff.account_id)">{{ staff.branch_id }}</td>
+                                    <!-- <td @click="openStaff(staff.account_id)">{{ staff.account_id }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.branch_id }}</td> -->
+                                    <td><button class="btn btn-info"
+                                            @click="editSalary('staff', staff)"><i class="material-icons">edit</i>Edit</button></td>
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really want to delete?', staff.account_id)"><i
                                                 class="material-icons">delete</i>Delete</button></td>
@@ -775,8 +822,8 @@ getCookies()
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
                                     <th scope="col">DOB</th>
-                                    <th scope="col">Account ID</th>
-                                    <th scope="col">Branch ID</th>
+                                    <!-- <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th> -->
                                     <th scope="col">Delete</th>
                                 </tr>
                             </thead>
@@ -790,8 +837,8 @@ getCookies()
                                     <td @click="openMember(member.account_id)">{{ unixMillisecondsToDateString(member.dob)
                                     }}
                                     </td>
-                                    <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
-                                    <td @click="openMember(member.account_id)">{{ member.branch_id }}</td>
+                                    <!-- <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.branch_id }}</td> -->
 
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
@@ -824,8 +871,8 @@ getCookies()
                                     <th scope="col">Contact</th>
                                     <th scope="col">DOB</th>
                                     <th scope="col">Approve</th>
-                                    <th scope="col">Account ID</th>
-                                    <th scope="col">Branch ID</th>
+                                    <!-- <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th> -->
                                     <th scope="col">Delete</th>
                                 </tr>
                             </thead>
@@ -839,8 +886,8 @@ getCookies()
                                     <td @click="openMember(member.account_id)">{{ unixMillisecondsToDateString(member.dob)
                                     }}
                                     </td>
-                                    <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
-                                    <td @click="openMember(member.account_id)">{{ member.branch_id }}</td>
+                                    <!-- <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.branch_id }}</td> -->
 
                                     <td><button class="btn btn-success" @click="approveMember(member)">Approve</button></td>
 
@@ -860,6 +907,7 @@ getCookies()
 
     <CreateStaffDialog :dialog="staffDialog" :branch-id="managerDetail.branch_id" />
     <CreateTrainerDialog :dialog="trainerDialog" :branch-id="managerDetail.branch_id" />
+    <UpdateSalary :dialog="updateSalary" />
     <ProfileDialogVue :profile="profile" />
     <MessageDialog :message="message" />
     <WarningDialogVue :warning="warning" />

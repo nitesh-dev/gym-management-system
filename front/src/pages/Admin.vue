@@ -7,8 +7,9 @@ import CreateBranchDialog, { DialogBranchData } from '../components/CreateBranch
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
-import { Admin, Branch, Manager } from '../RestApiDataType';
+import { Admin, Branch, GYMDetail, Manager } from '../RestApiDataType';
 import { unixMillisecondsToDateString } from '../utils'
+import UpdateSalary, { DialogUpdateSalary } from '../components/UpdateSalary.vue';
 
 
 let activeTabIndex = ref(0)
@@ -42,6 +43,38 @@ function removeOldCookies() {
 
 
 
+
+// update salary dialog
+const updateSalaryData = new (class extends DialogUpdateSalary {
+
+    show(accountType: string, data: any): void {
+        super.show(accountType, data)
+    }
+
+    onUpdateSalary(): void {
+        isProgressHidden.value = false
+        super.onUpdateSalary()
+    }
+
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+        fetchData()
+    }
+
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+    }
+})
+
+let updateSalary = ref(updateSalaryData)
+
+function editSalary(accountType: string, accountData: any) {
+    updateSalary.value.show(accountType, Object.assign({}, accountData))
+}
 
 
 // profile dialog
@@ -191,6 +224,28 @@ function changeTab(index: number) {
 }
 
 
+let gymDetail = ref<GYMDetail>({
+    exp: 0,
+    rev: 0,
+    staff: 0,
+    member: 0,
+    manager: 0,
+    trainer: 0,
+    branch: 0
+})
+async function loadGymDetail() {
+    isProgressHidden.value = false
+    let res = await Api.getGymDetail()
+    isProgressHidden.value = true
+
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        gymDetail.value = res.result as GYMDetail
+    }
+}
+
+
 
 let managerAccounts = ref(Array<Manager>())
 async function loadManagerAccounts() {
@@ -224,6 +279,7 @@ function fetchData() {
     console.log("fetching...")
     if (activeTabIndex.value == 0) {
         loadAdminDetail()
+        loadGymDetail()
 
     } else if (activeTabIndex.value == 1) {
         loadManagerAccounts()
@@ -397,6 +453,81 @@ function openBranch(branchId: string) {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Others detail -->
+                        <div class="col-sm">
+
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Others Detail</h5>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Expenditure</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">₹{{ gymDetail.exp }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Revenue</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">₹{{ gymDetail.rev }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Manager</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ gymDetail.manager }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Branch</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ gymDetail.branch }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Staff</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ gymDetail.staff }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Trainer</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ gymDetail.trainer }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Total Member</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ gymDetail.member }}</p>
+                                        </div>
+                                    </div>
+
+                
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -408,7 +539,7 @@ function openBranch(branchId: string) {
                     <div class="blur-div"></div>
                     <div class="container">
                         <h3>Managers</h3>
-                        <button id="add-button" class="btn btn-success btn-block" @click="managerDialog.show()">Add
+                        <button id="add-button" class="btn btn-info btn-block" @click="managerDialog.show()">Add
                             Manager</button>
                     </div>
 
@@ -417,26 +548,29 @@ function openBranch(branchId: string) {
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Account ID</th>
-                                    <th scope="col">Branch ID</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
+                                    <th scope="col">Salary</th>
                                     <th scope="col">DOB</th>
+                                    <th scope="col">Update Salary</th>
                                     <th scope="col">Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="manager, index in managerAccounts">
                                     <th scope="row">{{ index }}</th>
-                                    <td @click="openManager(manager.account_id)">{{ manager.account_id }}</td>
-                                    <td @click="openManager(manager.account_id)">{{ manager.branch_id }}</td>
                                     <td @click="openManager(manager.account_id)">{{ manager.name }}</td>
                                     <td @click="openManager(manager.account_id)">{{ manager.email }}</td>
                                     <td @click="openManager(manager.account_id)">{{ manager.address }}</td>
                                     <td @click="openManager(manager.account_id)">{{ manager.contact }}</td>
-                                    <td @click="openManager(manager.account_id)">{{ manager.dob }}</td>
+                                    <td @click="openManager(manager.account_id)">₹{{ manager.salary }}</td>
+                                    <td @click="openManager(manager.account_id)">{{
+                                        unixMillisecondsToDateString(manager.dob) }}</td>
+
+                                    <td><button class="btn btn-info" @click="editSalary('manager', manager)"><i
+                                                class="material-icons">edit</i>Edit</button></td>
 
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
@@ -455,7 +589,7 @@ function openBranch(branchId: string) {
                     <div class="blur-div"></div>
                     <div class="container">
                         <h3>Branch</h3>
-                        <button id="add-button" class="btn btn-success btn-block" @click="branchDialog.show()">Add
+                        <button id="add-button" class="btn btn-info btn-block" @click="branchDialog.show()">Add
                             Branch</button>
                     </div>
 
@@ -464,7 +598,6 @@ function openBranch(branchId: string) {
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Branch ID</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Address</th>
@@ -475,7 +608,6 @@ function openBranch(branchId: string) {
                             <tbody>
                                 <tr v-for="branch, index in branchDetails">
                                     <th @click="openBranch(branch.branch_id)" scope="row">{{ index }}</th>
-                                    <td @click="openBranch(branch.branch_id)">{{ branch.branch_id }}</td>
                                     <td @click="openBranch(branch.branch_id)">{{ branch.name }}</td>
                                     <td @click="openBranch(branch.branch_id)">{{ branch.email }}</td>
                                     <td @click="openBranch(branch.branch_id)">{{ branch.address }}</td>
@@ -503,6 +635,7 @@ function openBranch(branchId: string) {
     <CreateBranchDialog :dialog="branchDialog" />
     <CreateManagerDialog :dialog="managerDialog" />
     <ProfileDialogVue :profile="profile" />
+    <UpdateSalary :dialog="updateSalary" />
     <MessageDialog :message="message" />
     <WarningDialogVue :warning="warning" />
     <ProgressDialog v-if="!isProgressHidden" />

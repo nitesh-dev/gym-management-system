@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import db from "./database.js";
-import { Admin, Branch, Manager, Member, Membership, Profile, Result, Staff, Trainer, createSqlResult } from "./utils.js";
+import { Admin, Branch, Manager, Member, Membership, Profile, Result, Staff, Trainer, createSqlResult, GYMDetail } from "./utils.js";
 import { Session } from "inspector";
 
 async function _query<T>(sql: string, values: any[] = []) {
@@ -120,6 +120,63 @@ namespace SqlUtils {
             return result
         }
         return createSqlResult(false, arr)
+    }
+
+
+    async function getTotalMembers() {
+        const sql = `
+        SELECT COUNT(*) AS row_count, 'staff' AS name FROM staff
+        UNION ALL
+        SELECT COUNT(*) AS row_count, 'manager' AS name FROM manager
+        UNION ALL
+        SELECT COUNT(*) AS row_count, 'trainer' AS name FROM trainer
+        UNION ALL
+        SELECT COUNT(*) AS row_count, 'member' AS name FROM member
+        UNION ALL
+        SELECT COUNT(*) AS row_count, 'branch' AS name FROM branch
+        `
+        return await _query<any>(sql)
+    }
+
+    async function getTotalExp() {
+        const sql = `
+        SELECT CAST(SUM(salary) AS DECIMAL(10,2)) AS exp FROM (
+            SELECT salary FROM staff
+            UNION ALL
+            SELECT salary FROM manager
+            UNION ALL
+            SELECT salary FROM trainer
+          ) AS salaries;
+        `
+        return await _query<any>(sql)
+    }
+
+    async function getTotalRevenue() {
+        const sql = `
+        SELECT CAST(SUM(price) AS DECIMAL(10,2)) AS rev FROM membership
+        `
+        return await _query<any>(sql)
+    }
+
+    export async function getDetail() {
+        
+        let exp = await getTotalExp()
+        if (exp.isError) return exp
+        let rev = await getTotalRevenue()
+        if (rev.isError) return rev
+        let totalMembers = await getTotalMembers()
+        if (totalMembers.isError) return totalMembers
+
+        let gymDetail: GYMDetail = {
+            exp: exp.result[0].exp,
+            rev: rev.result[0].rev,
+            staff: totalMembers.result[0].row_count,
+            member: totalMembers.result[3].row_count,
+            manager: totalMembers.result[1].row_count,
+            trainer: totalMembers.result[2].row_count,
+            branch: totalMembers.result[4].row_count
+        }
+        return createSqlResult(false, gymDetail)
     }
 
 
@@ -248,8 +305,8 @@ namespace SqlUtils {
         }
     }
     export async function updateManager(info: Manager) {
-        const sql = 'UPDATE manager SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,gender=? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.gender, info.account_id]
+        const sql = 'UPDATE manager SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,gender=?,salary=? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.gender, info.salary, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
             return result
@@ -320,8 +377,8 @@ namespace SqlUtils {
         return createSqlResult(false, arr)
     }
     export async function updateTrainer(info: Trainer) {
-        const sql = 'UPDATE trainer SET start_time=? ,end_time=?, name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ?,gender=? WHERE account_id = ?';
-        const values = [info.start_time, info.end_time, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.account_id, info.gender]
+        const sql = 'UPDATE trainer SET start_time=? ,end_time=?, name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,specialization = ?,gender=?, salary=? WHERE account_id = ?';
+        const values = [info.start_time, info.end_time, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.gender, info.salary, info.account_id]
         const result = await _query(sql, values)
         return result
     }
@@ -414,8 +471,8 @@ namespace SqlUtils {
         return createSqlResult(false, arr)
     }
     export async function updateStaff(info: Staff) {
-        const sql = 'UPDATE staff SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,work = ? ,gender=? WHERE account_id = ?';
-        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.gender, info.account_id]
+        const sql = 'UPDATE staff SET name = ?, email = ?, password = ?, address = ?, contact = ?, dob = ?,branch_id = ?,work = ? ,gender=?, salary=? WHERE account_id = ?';
+        const values = [info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.gender, info.salary, info.account_id]
         const result = await _query(sql, values)
         if (result.isError) {
             return result

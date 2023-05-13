@@ -77,3 +77,14 @@ export interface Profile {
 
 }
 
+export interface GYMDetail {
+    exp: number,
+    rev: number,
+    staff: number,
+    member: number,
+    manager: number,
+    trainer: number,
+    branch: number
+}
+
+

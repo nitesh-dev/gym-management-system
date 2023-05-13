@@ -87,6 +87,20 @@ export interface Profile {
 
 }
 
+export interface GYMDetail {
+    exp: number,
+    rev: number,
+    staff: number,
+    member: number,
+    manager: number,
+    trainer: number,
+    branch: number
+}
+
+
+
+
+
 export function isAnyInvalid(values: any[]) {
     for (let i = 0; i < values.length; i++) {
         const value = values[i]

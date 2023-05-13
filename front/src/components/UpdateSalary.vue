@@ -1,10 +1,16 @@
 <script lang="ts">
-export class DialogBranchData {
+export class DialogUpdateSalary {
 
     isHidden = true
+    salaryData: any = null
+    accountType: string = ""
+    salary: number | undefined
 
-    show() {
+    show(accountType: string, data: any) {
         this.isHidden = false
+        this.accountType = accountType
+        this.salaryData = data
+        this.salary = undefined
     }
 
     hide() {
@@ -19,8 +25,8 @@ export class DialogBranchData {
 
     }
 
-    onCreateBranch() {
-
+    onUpdateSalary() {
+        this.salaryData.salary = this.salary
     }
 
 }
@@ -29,40 +35,39 @@ export class DialogBranchData {
 
 
 <script setup lang='ts'>
-import { ref } from 'vue'
 import Api from '../api'
-import { Branch } from '../RestApiDataType'
 
 let prop = defineProps<{
-    dialog: DialogBranchData
+    dialog: DialogUpdateSalary
 }>()
 
 
 
 async function onSubmitForm() {
+    prop.dialog.onUpdateSalary()
+    let res = null
 
-    prop.dialog.onCreateBranch()
-    let data: Branch = {
-        branch_id: "",
-        name: name.value, email: email.value,
-        address: address.value,
-        contact: contact.value.toString()
+    console.log(prop.dialog.salaryData)
+    if(prop.dialog.accountType == "trainer"){
+        res = await Api.updateTrainer(prop.dialog.salaryData)
+    }else if(prop.dialog.accountType == "staff"){
+        res = await Api.updateStaff(prop.dialog.salaryData)
+    }else if(prop.dialog.accountType == "manager"){
+        res = await Api.updateManager(prop.dialog.salaryData)
     }
-
-    let res = await Api.createBranch(data)
+    
+    if(res == null){
+        prop.dialog.onFailed("Unable to update")
+        return
+    }
 
     if (res.isError) {
         prop.dialog.onFailed(res.error)
     } else {
-        prop.dialog.onSuccessFul("Branch created")
+        prop.dialog.onSuccessFul("Salary updated")
     }
 }
 
-
-let name = ref("")
-let email = ref("")
-let address = ref("")
-let contact = ref("")
 
 
 
@@ -74,23 +79,16 @@ let contact = ref("")
                 <div class="cus-container text-center">
                     <form class="form-dialog" @submit.prevent="onSubmitForm">
 
-                        <h1 class="h3 mb-3 font-weight-normal">Create Branch</h1>
+                        <h1 class="h3 mb-3 font-weight-normal">Update salary</h1>
 
-                        <input type="text" v-model="name" class="form-control" placeholder="Name" required="true">
-
-                        <input type="email" v-model="email" class="form-control" placeholder="Email" required="true">
-
-                        <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
-
-                        <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
-
+                        <input type="number" v-model="prop.dialog.salary" class="form-control" placeholder="Salary" required="true">
 
                         <div class="row buttons-container">
                             <div class="col">
                                 <button class="btn btn-lg btn-secondary btn-block" @click="dialog.hide()">Close</button>
                             </div>
                             <div class="col">
-                                <button class="btn btn-lg btn-primary btn-block" type="submit">Create</button>
+                                <button class="btn btn-lg btn-primary btn-block" type="submit">Update Salary</button>
                             </div>
                         </div>
                     </form>
