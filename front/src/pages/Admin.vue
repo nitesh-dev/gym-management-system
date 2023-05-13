@@ -36,6 +36,7 @@ function getCookies() {
 
 function removeOldCookies() {
     localStorage.removeItem("tempId")
+    localStorage.removeItem("isMangerProfile")
 }
 
 
@@ -266,7 +267,20 @@ function deleteOperation(message: string, id: string) {
 
 function openManager(id: string) {
     localStorage.setItem("tempId", id)
+    localStorage.setItem("isMangerProfile", "true")
     window.location.href = '/admin/manager'
+}
+
+function openBranch(branchId: string) {
+    for (let index = 0; index < managerAccounts.value.length; index++) {
+        const manager = managerAccounts.value[index];
+        if (manager.branch_id == branchId) {
+            localStorage.setItem("tempId", manager.account_id)
+            localStorage.setItem("isMangerProfile", "false")
+            window.location.href = '/admin/manager'
+            break
+        }
+    }
 }
 
 
@@ -460,12 +474,12 @@ function openManager(id: string) {
                             </thead>
                             <tbody>
                                 <tr v-for="branch, index in branchDetails">
-                                    <th scope="row">{{ index }}</th>
-                                    <td>{{ branch.branch_id }}</td>
-                                    <td>{{ branch.name }}</td>
-                                    <td>{{ branch.email }}</td>
-                                    <td>{{ branch.address }}</td>
-                                    <td>{{ branch.contact }}</td>
+                                    <th @click="openBranch(branch.branch_id)" scope="row">{{ index }}</th>
+                                    <td @click="openBranch(branch.branch_id)">{{ branch.branch_id }}</td>
+                                    <td @click="openBranch(branch.branch_id)">{{ branch.name }}</td>
+                                    <td @click="openBranch(branch.branch_id)">{{ branch.email }}</td>
+                                    <td @click="openBranch(branch.branch_id)">{{ branch.address }}</td>
+                                    <td @click="openBranch(branch.branch_id)">{{ branch.contact }}</td>
 
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i

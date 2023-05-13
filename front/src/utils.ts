@@ -9,11 +9,31 @@ export function unixMillisecondsToDateString(unixMilliseconds: number) {
     const month = date.toLocaleString('default', { month: 'short' });
     const year = date.getFullYear();
 
-    
+
     // Construct the date string in the desired format
     const dateString = `${day} ${month} ${year}`;
 
     return dateString;
+}
+
+export function timeStringToUnixMilliseconds(time: string) {
+    const [hour, minute] = time.split(":").map(Number);
+
+    return (hour * 60 + minute) * 60 * 1000;
+}
+
+export function unixMillisecondsToTimeString(timeInMilliseconds: number) {
+    const dateObj = new Date(timeInMilliseconds);
+    const hour = dateObj.getHours();
+    const minute = dateObj.getMinutes();
+
+    let hour12 = hour % 12;
+    const meridian = hour < 12 ? "AM" : "PM";
+    if (hour12 === 0) {
+        hour12 = 12;
+    }
+
+    return `${hour12}:${minute.toString().padStart(2, "0")} ${meridian}`;
 }
 
 

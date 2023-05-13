@@ -138,7 +138,7 @@ const trainerDetail = ref<Trainer>({
     specialization: 'Yoga',
     start_time: 0,
     end_time: 0,
-    gender: 'male'
+    gender: 'male', salary: 0
 })
 
 async function loadAccountDetail() {
@@ -191,227 +191,239 @@ getCookies()
 
 <template>
     <div class="bg-img">
-    <nav class="blur-div-parent navbar sticky-top navbar-light">
-        <div class="blur-div"></div>
-        <div class="container-fluid" style="justify-content: left;">
-            <div class="navbar-header">
-                <a class="navbar-brand">GYM Manager</a>
-            </div>
-
-            <ul class="nav nav-pills mb-3" id="pills-tab">
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 1 }" @click="changeTab(1)">Members</button>
-                </li>
-
-            </ul>
-
-            <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
-        </div>
-    </nav>
-
-
-    <div class="tab-content" id="pills-tabContent">
-
-        <!-- account detail -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
-            <div class="container">
-                <div class="row justify-content-start">
-
-                    <!-- branch detail -->
-                    <div class="col-sm">
-                        <div class="blur-div-parent card mb-4 card-parent">
-                            <div class="blur-div"></div>
-                            <div class="card-body">
-                                <h5>Branch Detail</h5>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch ID</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.branch_id }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.name }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.email }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.contact }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.address }}</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- trainer detail -->
-                    <div class="col-sm">
-                        <div class="blur-div-parent card mb-4 card-parent">
-                            <div class="blur-div"></div>
-                            <div class="card-body">
-                                <h5>Trainer Detail</h5>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Account ID</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.account_id }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch ID</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.branch_id }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Full Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.name }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.email }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.contact }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Gender</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.gender }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">DOB</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ unixMillisecondsToDateString(trainerDetail.dob) }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.address }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Specialization</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ trainerDetail.specialization }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <nav class="blur-div-parent navbar sticky-top navbar-light">
+            <div class="blur-div"></div>
+            <div class="container-fluid" style="justify-content: left;">
+                <div class="navbar-header">
+                    <a class="navbar-brand">GYM Manager</a>
                 </div>
+
+                <ul class="nav nav-pills mb-3" id="pills-tab">
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 0 }"
+                            @click="changeTab(0)">Info</button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
+                            @click="changeTab(1)">Members</button>
+                    </li>
+
+                </ul>
+
+                <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log
+                    out</button>
             </div>
-        </div>
+        </nav>
 
 
-        <!-- Trainers members -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+        <div class="tab-content" id="pills-tabContent">
 
-            <div class="blur-div-parent table-container">
-                <div class="blur-div"></div>
+            <!-- account detail -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
                 <div class="container">
-                    <h3>Members</h3>
-                </div>
+                    <div class="row justify-content-start">
 
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">DOB</th>
-                                <th scope="col">Account ID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="member, index in allTrainerMembers">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ member.name }}</td>
-                                <td>{{ member.email }}</td>
-                                <td>{{ member.address }}</td>
-                                <td>{{ member.contact }}</td>
-                                <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
-                                <td>{{ member.account_id }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <!-- branch detail -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Branch Detail</h5>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.branch_id }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.name }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.contact }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.address }}</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- trainer detail -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Trainer Detail</h5>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Account ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.account_id }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.branch_id }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Full Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.name }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.contact }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Gender</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.gender }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">DOB</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ unixMillisecondsToDateString(trainerDetail.dob) }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.address }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Specialization</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ trainerDetail.specialization }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Salary</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">₹{{ trainerDetail.salary }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+
+            <!-- Trainers members -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Members</h3>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">DOB</th>
+                                    <th scope="col">Account ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="member, index in allTrainerMembers">
+                                    <th scope="row">{{ index }}</th>
+                                    <td>{{ member.name }}</td>
+                                    <td>{{ member.email }}</td>
+                                    <td>{{ member.address }}</td>
+                                    <td>{{ member.contact }}</td>
+                                    <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
+                                    <td>{{ member.account_id }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
-
-</div>
 
 
 
@@ -421,7 +433,6 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-
 .bg-img {
     background-image: url("../assets/gym-1.jpg");
     background-repeat: no-repeat;
@@ -434,6 +445,7 @@ getCookies()
     color: white;
     filter: blur(0) !important;
 }
+
 .nav {
     margin-bottom: 0 !important;
 }
@@ -498,5 +510,4 @@ table button i {
 table .table-active {
     background-color: #1f8bff !important;
     color: white !important;
-}
-</style>
+}</style>

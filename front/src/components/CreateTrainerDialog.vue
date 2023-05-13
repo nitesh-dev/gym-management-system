@@ -32,6 +32,7 @@ export class DialogTrainerData {
 import { ref } from 'vue'
 import Api from '../api'
 import { Branch, Trainer } from '../RestApiDataType'
+import {timeStringToUnixMilliseconds} from '../utils'
 
 let prop = defineProps<{
     dialog: DialogTrainerData,
@@ -46,6 +47,9 @@ async function onSubmitForm() {
     trainer.value.dob = millisecond
     trainer.value.contact = contact.value.toString()
     trainer.value.branch_id = prop.branchId
+
+    trainer.value.start_time = timeStringToUnixMilliseconds(startTime.value)
+    trainer.value.end_time = timeStringToUnixMilliseconds(endTime.value)
     prop.dialog.onCreateTrainer()
     
     let res = await Api.createTrainer(trainer.value)
@@ -64,11 +68,16 @@ const trainer = ref<Trainer>({
     password: "", address: "",
     contact: "", dob: 0,
     specialization: 'Cardio',
-    gender: 'male'
+    gender: 'male',
+    salary: 0,
+    start_time: 0,
+    end_time: 0
 })
 
 let dob = ref("")
 let contact = ref("")
+let startTime = ref("")
+let endTime = ref("")
 
 // | 'Strength Training' | 'Yoga' | 'Pilates' | 'Crossfit'
 
@@ -93,6 +102,12 @@ let allSpecialization = ref(['Cardio', 'Strength Training' , 'Yoga' , 'Pilates' 
                         <input type="text" v-model="trainer.address" class="form-control" placeholder="Address" required="true">
 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
+
+                        <input type="number" v-model="trainer.salary" class="form-control" placeholder="Salary" required="true">
+
+                        <input type="time" v-model="startTime" class="form-control" placeholder="Start Time" required="true">
+
+                        <input type="time" v-model="endTime" class="form-control" placeholder="End Time" required="true">
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 

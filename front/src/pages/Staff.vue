@@ -139,7 +139,7 @@ const staffDetail = ref<Staff>({
     password: "loading...", address: "loading...",
     contact: "loading...", dob: 0,
     work: 'security',
-    gender: 'male'
+    gender: 'male', salary: 0
 })
 
 async function loadAccountDetail() {
@@ -177,175 +177,186 @@ getCookies()
 
 <template>
     <div class="bg-img">
-    <nav class="blur-div-parent navbar sticky-top navbar-light">
-        <div class="blur-div"></div>
-        <div class="container-fluid"  style="justify-content: left;">
-            <div class="navbar-header">
-                <a class="navbar-brand">GYM Manager</a>
-            </div>
-            <ul class="nav nav-pills mb-3" id="pills-tab">
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
-                </li>
+        <nav class="blur-div-parent navbar sticky-top navbar-light">
+            <div class="blur-div"></div>
+            <div class="container-fluid" style="justify-content: left;">
+                <div class="navbar-header">
+                    <a class="navbar-brand">GYM Manager</a>
+                </div>
+                <ul class="nav nav-pills mb-3" id="pills-tab">
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 0 }"
+                            @click="changeTab(0)">Info</button>
+                    </li>
 
-                <!-- <li class="nav-item">
+                    <!-- <li class="nav-item">
                     <button class="nav-link" :class="{ active: activeTabIndex == 1 }" @click="changeTab(1)">History</button>
                 </li> -->
-            </ul>
+                </ul>
 
-            <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
-        </div>
-    </nav>
+                <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log
+                    out</button>
+            </div>
+        </nav>
 
-    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-content" id="pills-tabContent">
 
-        <!-- account detail -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
-            <div class="container">
-                <div class="row justify-content-start">
+            <!-- account detail -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
+                <div class="container">
+                    <div class="row justify-content-start">
 
-                    <!-- branch detail -->
-                    <div class="col-sm">
-                        <div class="blur-div-parent card mb-4 card-parent">
-                            <div class="blur-div"></div>
-                            <div class="card-body">
-                                <h5>Branch Detail</h5>
+                        <!-- branch detail -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Branch Detail</h5>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch ID</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.branch_id }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.branch_id }}</p>
-                                    </div>
-                                </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch Name</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.name }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.name }}</p>
-                                    </div>
-                                </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.email }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.email }}</p>
-                                    </div>
-                                </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.contact }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.contact }}</p>
-                                    </div>
-                                </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ branchDetail.address }}</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.address }}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Staff detail -->
-                    <div class="col-sm">
-                        <div class="blur-div-parent card mb-4 card-parent">
-                            <div class="blur-div"></div>
-                            <div class="card-body">
-                                <h5>Staff Detail</h5>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Account ID</p>
+                        <!-- Staff detail -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Staff Detail</h5>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Account ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.account_id }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.account_id }}</p>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.branch_id }}</p>
+                                        </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Full Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.name }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.contact }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Gender</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.gender }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">DOB</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ unixMillisecondsToDateString(staffDetail.dob) }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ staffDetail.address }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Salary</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">₹{{ staffDetail.salary }}</p>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
+
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch ID</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.branch_id }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Full Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.name }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.email }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.contact }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Gender</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.gender }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">DOB</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ unixMillisecondsToDateString(staffDetail.dob) }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="mb-0">{{ staffDetail.address }}</p>
-                                    </div>
-                                </div>
-
-                                <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- 
@@ -401,9 +412,11 @@ getCookies()
     color: white;
     filter: blur(0) !important;
 }
+
 .nav {
     margin-bottom: 0 !important;
 }
+
 #add-button {
     width: 100%;
     margin-bottom: 20px;
@@ -464,5 +477,4 @@ table button i {
 table .table-active {
     background-color: #1f8bff !important;
     color: white !important;
-}
-</style>
+}</style>

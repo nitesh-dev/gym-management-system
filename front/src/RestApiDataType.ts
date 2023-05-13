@@ -11,6 +11,7 @@ export interface Manager {
     branch_id: string,
     name: string, email: string,
     password: string, address: string,
+    salary: number,
     gender: "male" | "female",
     contact: string, dob: number
 }
@@ -26,6 +27,7 @@ export interface Trainer {
     name: string, email: string,
     password: string, address: string,
     contact: string, dob: number,
+    salary: number,
     gender: "male" | "female",
     start_time: number,
     end_time: number,
@@ -48,6 +50,7 @@ export interface Staff {
     branch_id: string,
     name: string, email: string,
     password: string, address: string,
+    salary: number,
     contact: string, dob: number,
     gender: "male" | "female",
     work: 'security' | 'cleaner'
@@ -60,7 +63,7 @@ export interface Result<T> {
 export interface Membership {
     membership_id: string,
     member_id: string,
-    type: 'bronze' | 'silver' | 'gold',
+    type: string,
     start_time: number,
     end_time: number,
     price: number,

@@ -161,14 +161,14 @@ router.delete("/branch", async (req, res) => {
 /*-------------manager--------------*/
 
 router.post("/manager", async (req, res) => {
-    const { name, email, address, contact, dob, password, branch_id, gender } = req.body
+    const { name, email, address, salary, contact, dob, password, branch_id, gender } = req.body
     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id])) {
         return res.status(400).send("required all manager info")
     } else {
         const result = await SqlUtils.createManager({
             account_id: randomUUID(), dob: dob, password: password,
             branch_id: branch_id, address: address, contact: contact,
-            email: email, name: name, gender: gender
+            email: email, name: name, gender: gender, salary: salary
         })
         if (result.isError) {
             return res.status(400).send(result.result)
@@ -229,14 +229,14 @@ router.delete("/manager", async (req, res) => {
 /*-------------trainer--------------*/
 
 router.post("/trainer", async (req, res) => {
-    const { name, email, address, contact, dob, password, branch_id, specialization, gender, start_time, end_time } = req.body
+    const { name, email, address, contact, dob, password, salary, branch_id, specialization, gender, start_time, end_time } = req.body
     if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, specialization, start_time, end_time])) {
         return res.status(400).send("required all trainer info")
     } else {
         const result = await SqlUtils.createTrainer({
             account_id: randomUUID(), dob: dob, password: password,
             branch_id: branch_id, address: address, contact: contact,
-            email: email, name: name, specialization: specialization, gender: gender,
+            email: email, name: name, specialization: specialization, gender: gender, salary: salary,
             start_time: start_time, end_time: end_time
         })
         if (result.isError) {
@@ -311,14 +311,14 @@ router.delete("/trainer", async (req, res) => {
 /*-------------staff--------------*/
 
 router.post("/staff", async (req, res) => {
-    const { name, email, address, contact, dob, password, branch_id, work, gender } = req.body
-    if (isAnyInvalid([name, email, address, contact, dob, password, branch_id, work])) {
+    const { name, email, address, contact, salary,dob, password, branch_id, work, gender } = req.body
+    if (isAnyInvalid([name, email, address, salary, contact, dob, password, branch_id, work])) {
         return res.status(400).send("required all staff info")
     } else {
         const result = await SqlUtils.createStaff({
             account_id: randomUUID(), dob: dob, password: password,
             branch_id: branch_id, address: address, contact: contact,
-            email: email, name: name, work: work, gender: gender
+            email: email, name: name, work: work, gender: gender, salary: salary
         })
         if (result.isError) {
             return res.status(400).send(result.result)

@@ -70,6 +70,7 @@ async function createTableManager() {
         password VARCHAR(50) NOT NULL,
         address VARCHAR(100) NOT NULL,
         contact VARCHAR(20) NOT NULL,
+        salary INT NOT NULL,
         dob DOUBLE NOT NULL,
            gender ENUM('male', 'female') NOT NULL ,
         PRIMARY KEY (account_id),
@@ -90,6 +91,7 @@ async function createTableTrainer() {
             contact VARCHAR(20) NOT NULL,
             address VARCHAR(100) NOT NULL,
             dob DOUBLE NOT NULL,
+            salary INT NOT NULL,
             start_time DOUBLE NOT NULL,
             end_time DOUBLE NOT NULL,
             specialization ENUM('Cardio', 'Strength Training', 'Yoga', 'Pilates', 'Crossfit') NOT NULL,
@@ -111,6 +113,7 @@ async function createTableStaff() {
             password VARCHAR(50) NOT NULL,
             address VARCHAR(100) NOT NULL,
             contact VARCHAR(20) NOT NULL,
+            salary INT NOT NULL,
             dob DOUBLE NOT NULL,
             work ENUM('security', 'cleaner') NOT NULL,
                gender ENUM('male', 'female') NOT NULL ,
@@ -154,6 +157,7 @@ async function createTableMember() {
 //       );
 //       `)
 // }
+
 async function createTableMembership() {
     await db.query(`
     CREATE TABLE IF NOT EXISTS membership (

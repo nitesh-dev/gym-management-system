@@ -8,13 +8,14 @@ import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
 import CreateTrainerDialog, { DialogTrainerData } from '../components/CreateTrainerDialog.vue';
 import CreateStaffDialog, { DialogStaffData } from '../components/CreateStaffDialog.vue';
 import { Trainer, Manager, Staff, Member, Branch } from '../RestApiDataType';
-import { unixMillisecondsToDateString } from '../utils';
+import { unixMillisecondsToDateString, unixMillisecondsToTimeString } from '../utils';
 
 
 let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 let isAdmin = ref(true)
+let isProfileMode = ref(false)
 
 
 let accountId = ref("")
@@ -28,6 +29,14 @@ function getCookies() {
     if (window.location.pathname == "/admin/manager") {
         isAdmin.value = true
         id = localStorage.getItem("tempId")
+
+        const mode = localStorage.getItem("isMangerProfile")
+        if(mode == null || mode == "false"){
+            isProfileMode.value = false
+        }else{
+            isProfileMode.value = true
+        }
+        
         type = "manager"
     } else {
         isAdmin.value = false
@@ -234,7 +243,7 @@ let managerDetail = ref<Manager>({
     gender: 'male',
     email: "loading...",
     password: "loading...", address: "loading...",
-    contact: "loading...", dob: 0
+    contact: "loading...", dob: 0, salary: 0
 })
 
 async function loadManagerDetail() {
@@ -373,22 +382,22 @@ getCookies()
                             @click="changeTab(0)">Info</button>
                     </li>
 
-                    <li class="nav-item">
+                    <li v-if="!isProfileMode" class="nav-item">
                         <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
                             @click="changeTab(1)">Trainers</button>
                     </li>
 
-                    <li class="nav-item">
+                    <li v-if="!isProfileMode" class="nav-item">
                         <button class="nav-link" :class="{ active: activeTabIndex == 2 }"
                             @click="changeTab(2)">Staffs</button>
                     </li>
 
-                    <li class="nav-item">
+                    <li v-if="!isProfileMode" class="nav-item">
                         <button class="nav-link" :class="{ active: activeTabIndex == 3 }"
                             @click="changeTab(3)">Members</button>
                     </li>
 
-                    <li class="nav-item">
+                    <li v-if="!isProfileMode" class="nav-item">
                         <button class="nav-link" :class="{ active: activeTabIndex == 4 }"
                             @click="changeTab(4)">Pending</button>
                     </li>
@@ -542,6 +551,15 @@ getCookies()
                                             <p class="mb-0">{{ managerDetail.address }}</p>
                                         </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Salary</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">₹{{ managerDetail.salary }}</p>
+                                        </div>
+                                    </div>
                                     <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
 
                                 </div>
@@ -573,6 +591,9 @@ getCookies()
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
                                     <th scope="col">DOB</th>
+                                    <th scope="col">Salary</th>
+                                    <th scope="col">Start Time</th>
+                                    <th scope="col">End Time</th>
                                     <th scope="col">Specialization</th>
                                     <th scope="col">Account ID</th>
                                     <th scope="col">Branch ID</th>
@@ -589,6 +610,10 @@ getCookies()
                                     <td @click="openTrainer(trainer.account_id)">{{
                                         unixMillisecondsToDateString(trainer.dob) }}
                                     </td>
+                                    <td @click="openTrainer(trainer.account_id)">₹{{ trainer.salary }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ unixMillisecondsToTimeString(trainer.start_time)}}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ unixMillisecondsToTimeString(trainer.end_time) }}</td>
+
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.specialization }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.account_id }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.branch_id }}</td>
@@ -625,6 +650,7 @@ getCookies()
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
                                     <th scope="col">DOB</th>
+                                    <th scope="col">Salary</th>
                                     <th scope="col">Work</th>
                                     <th scope="col">Account ID</th>
                                     <th scope="col">Branch ID</th>
@@ -640,6 +666,7 @@ getCookies()
                                     <td @click="openStaff(staff.account_id)">{{ staff.contact }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ unixMillisecondsToDateString(staff.dob) }}
                                     </td>
+                                    <td @click="openStaff(staff.account_id)">₹{{ staff.salary }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.work }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.account_id }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.branch_id }}</td>

@@ -46,6 +46,7 @@ async function onSubmitForm() {
     staff.value.dob = millisecond
     staff.value.contact = contact.value.toString()
     staff.value.branch_id = prop.branchId
+    staff.value.salary = salary.value as number
     prop.dialog.onCreateStaff()
     
     let res = await Api.createStaff(staff.value)
@@ -64,13 +65,15 @@ const staff = ref<Staff>({
     password: "", address: "",
     contact: "", dob: 0,
     work: 'security',
-    gender: 'male'
+    gender: 'male',
+    salary: 0
 })
 
 // cleaner
 
 let dob = ref("")
 let contact = ref("")
+let salary = ref<number>()
 
 
 </script>
@@ -93,6 +96,8 @@ let contact = ref("")
 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
+                        <input type="number" v-model="salary" class="form-control" placeholder="Salary" required="true">
+
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
                         <select v-model="staff.gender" class="form-select" required="true">
@@ -104,7 +109,6 @@ let contact = ref("")
                             <option  value="security" >Security</option>
                             <option  value="cleaner" >Cleaner</option>
                         </select>
-
 
 
 

@@ -121,6 +121,9 @@ namespace SqlUtils {
         }
         return createSqlResult(false, arr)
     }
+
+
+
     /*-----------------------Branch-----------------------*/
     export async function createBranch(
         branch: Branch
@@ -201,6 +204,10 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+
+
+
+
     /**--------------------manager-----------------------*/
     export async function createManager(
         info: Manager
@@ -208,8 +215,8 @@ namespace SqlUtils {
         if (await isEmailExist(info.email)) {
             return createSqlResult(true, "email already exist")
         }
-        const sql = 'INSERT INTO manager(account_id, name, email, password, address, contact, dob,branch_id,gender) VALUES(?,?,?,?,?,?,?,?,?)'
-        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.gender]
+        const sql = 'INSERT INTO manager(account_id, name, email, password, address, contact, dob,branch_id,gender, salary) VALUES(?,?,?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.gender, info.salary]
         const result = await _query(sql, values)
         if (result.isError) {
             return result
@@ -264,6 +271,10 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+
+
+
+
     /**--------------------trainer-----------------------*/
     export async function createTrainer(
         info: Trainer
@@ -271,8 +282,8 @@ namespace SqlUtils {
         if (await isEmailExist(info.email)) {
             return createSqlResult(true, "email already exist")
         }
-        const sql = 'INSERT INTO trainer(start_time,end_time,account_id, name, email, password, address, contact, dob,branch_id,specialization,gender) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
-        const values = [info.start_time, info.end_time, info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.gender]
+        const sql = 'INSERT INTO trainer(start_time,end_time,account_id, name, email, password, address, contact, dob,branch_id,specialization,gender, salary) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+        const values = [info.start_time, info.end_time, info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.specialization, info.gender, info.salary]
         const result = await _query(sql, values)
         return result
     }
@@ -352,6 +363,8 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
+
+
     /**--------------------staff-----------------------*/
     export async function createStaff(
         info: Staff
@@ -359,8 +372,8 @@ namespace SqlUtils {
         if (await isEmailExist(info.email)) {
             return createSqlResult(true, "email already exist")
         }
-        const sql = 'INSERT INTO staff(account_id, name, email, password, address, contact, dob,branch_id,work,gender) VALUES(?,?,?,?,?,?,?,?,?,?)'
-        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.gender]
+        const sql = 'INSERT INTO staff(account_id, name, email, password, address, contact, dob,branch_id,work,gender,salary) VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+        const values = [info.account_id, info.name, info.email, info.password, info.address, info.contact, info.dob, info.branch_id, info.work, info.gender, info.salary]
         const result = await _query(sql, values)
         if (result.isError) {
             return result

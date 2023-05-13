@@ -67,6 +67,8 @@ let address = ref("")
 let contact = ref<number>(0)
 let gender = ref('male')
 let dob = ref("")
+let salary = ref<number>(0)
+
 
 
 
@@ -80,7 +82,7 @@ async function onSubmitForm() {
         branch_id: prop.dialog.selectedBranchId,
         name: name.value, email: email.value,
         password: password.value, address: address.value,
-        contact: contact.value.toString(), dob: dateMill
+        contact: contact.value.toString(), dob: dateMill, salary: salary.value
     }
 
 
@@ -123,6 +125,8 @@ function setSelectedBranch() {
                         <input type="text" v-model="address" class="form-control" placeholder="Address" required="true">
 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
+
+                        <input type="number" v-model="salary" class="form-control" placeholder="Salary" required="true">
 
                         <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
