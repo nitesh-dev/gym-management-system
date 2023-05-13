@@ -5,13 +5,14 @@ import ProgressDialog from '../components/ProgressDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
-import { Branch, Member, Trainer, TrainingSession } from '../RestApiDataType';
+import { Branch, Member, Trainer } from '../RestApiDataType';
 import { unixMillisecondsToDateString } from '../utils';
 
 
 let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
+let isAdmin = ref(false)
 
 let accountId = ref("")
 let accountType = ref("")
@@ -21,6 +22,14 @@ function getCookies() {
 
     let type = localStorage.getItem("accountType")
     let id = localStorage.getItem("accountId")
+
+    if (window.location.pathname == "/admin/manager/trainer" || window.location.pathname == "/manager/trainer") {
+        isAdmin.value = true
+        id = localStorage.getItem("tempTrainerId")
+        type = "trainer"
+    } else {
+        isAdmin.value = false
+    }
 
     if (type == null || id == null || type != "trainer") {
         window.location.href = '/'
@@ -127,6 +136,8 @@ const trainerDetail = ref<Trainer>({
     password: "loading...", address: "loading...",
     contact: "loading...", dob: 0,
     specialization: 'Yoga',
+    start_time: 0,
+    end_time: 0,
     gender: 'male'
 })
 
@@ -179,7 +190,9 @@ getCookies()
 </script>
 
 <template>
-    <nav class="navbar sticky-top navbar-light bg-light">
+    <div class="bg-img">
+    <nav class="blur-div-parent navbar sticky-top navbar-light">
+        <div class="blur-div"></div>
         <div class="container-fluid" style="justify-content: left;">
             <div class="navbar-header">
                 <a class="navbar-brand">GYM Manager</a>
@@ -196,7 +209,7 @@ getCookies()
 
             </ul>
 
-            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
+            <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
     </nav>
 
@@ -210,7 +223,8 @@ getCookies()
 
                     <!-- branch detail -->
                     <div class="col-sm">
-                        <div class="card mb-4 card-parent">
+                        <div class="blur-div-parent card mb-4 card-parent">
+                            <div class="blur-div"></div>
                             <div class="card-body">
                                 <h5>Branch Detail</h5>
 
@@ -219,7 +233,7 @@ getCookies()
                                         <p class="mb-0">Branch ID</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.branch_id }}</p>
+                                        <p class="mb-0">{{ branchDetail.branch_id }}</p>
                                     </div>
                                 </div>
 
@@ -228,7 +242,7 @@ getCookies()
                                         <p class="mb-0">Branch Name</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.name }}</p>
+                                        <p class="mb-0">{{ branchDetail.name }}</p>
                                     </div>
                                 </div>
 
@@ -237,7 +251,7 @@ getCookies()
                                         <p class="mb-0">Email</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.email }}</p>
+                                        <p class="mb-0">{{ branchDetail.email }}</p>
                                     </div>
                                 </div>
 
@@ -246,7 +260,7 @@ getCookies()
                                         <p class="mb-0">Contact</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.contact }}</p>
+                                        <p class="mb-0">{{ branchDetail.contact }}</p>
                                     </div>
                                 </div>
 
@@ -255,7 +269,7 @@ getCookies()
                                         <p class="mb-0">Address</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.address }}</p>
+                                        <p class="mb-0">{{ branchDetail.address }}</p>
                                     </div>
                                 </div>
 
@@ -265,7 +279,8 @@ getCookies()
 
                     <!-- trainer detail -->
                     <div class="col-sm">
-                        <div class="card mb-4 card-parent">
+                        <div class="blur-div-parent card mb-4 card-parent">
+                            <div class="blur-div"></div>
                             <div class="card-body">
                                 <h5>Trainer Detail</h5>
                                 <div class="row">
@@ -273,7 +288,7 @@ getCookies()
                                         <p class="mb-0">Account ID</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.account_id }}</p>
+                                        <p class="mb-0">{{ trainerDetail.account_id }}</p>
                                     </div>
                                 </div>
 
@@ -282,7 +297,7 @@ getCookies()
                                         <p class="mb-0">Branch ID</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.branch_id }}</p>
+                                        <p class="mb-0">{{ trainerDetail.branch_id }}</p>
                                     </div>
                                 </div>
 
@@ -291,7 +306,7 @@ getCookies()
                                         <p class="mb-0">Full Name</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.name }}</p>
+                                        <p class="mb-0">{{ trainerDetail.name }}</p>
                                     </div>
                                 </div>
 
@@ -300,7 +315,7 @@ getCookies()
                                         <p class="mb-0">Email</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.email }}</p>
+                                        <p class="mb-0">{{ trainerDetail.email }}</p>
                                     </div>
                                 </div>
 
@@ -309,7 +324,7 @@ getCookies()
                                         <p class="mb-0">Contact</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.contact }}</p>
+                                        <p class="mb-0">{{ trainerDetail.contact }}</p>
                                     </div>
                                 </div>
 
@@ -318,7 +333,7 @@ getCookies()
                                         <p class="mb-0">Gender</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.gender }}</p>
+                                        <p class="mb-0">{{ trainerDetail.gender }}</p>
                                     </div>
                                 </div>
 
@@ -327,7 +342,7 @@ getCookies()
                                         <p class="mb-0">DOB</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(trainerDetail.dob) }}</p>
+                                        <p class="mb-0">{{ unixMillisecondsToDateString(trainerDetail.dob) }}</p>
                                     </div>
                                 </div>
 
@@ -336,7 +351,7 @@ getCookies()
                                         <p class="mb-0">Address</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.address }}</p>
+                                        <p class="mb-0">{{ trainerDetail.address }}</p>
                                     </div>
                                 </div>
 
@@ -345,7 +360,7 @@ getCookies()
                                         <p class="mb-0">Specialization</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ trainerDetail.specialization }}</p>
+                                        <p class="mb-0">{{ trainerDetail.specialization }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -359,7 +374,8 @@ getCookies()
         <!-- Trainers members -->
         <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
 
-            <div class="table-container">
+            <div class="blur-div-parent table-container">
+                <div class="blur-div"></div>
                 <div class="container">
                     <h3>Members</h3>
                 </div>
@@ -395,6 +411,8 @@ getCookies()
 
     </div>
 
+</div>
+
 
 
     <ProfileDialogVue :profile="profile" />
@@ -403,6 +421,19 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
+
+.bg-img {
+    background-image: url("../assets/gym-1.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+}
+
+.blur-div-parent * {
+    color: white;
+    filter: blur(0) !important;
+}
 .nav {
     margin-bottom: 0 !important;
 }

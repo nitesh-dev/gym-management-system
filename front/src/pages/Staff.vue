@@ -5,20 +5,30 @@ import ProgressDialog from '../components/ProgressDialog.vue';
 import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
-import { Staff } from '../RestApiDataType';
+import { Branch, Staff } from '../RestApiDataType';
 import { unixMillisecondsToDateString } from '../utils';
 
 
+let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
 let accountId = ref("")
 let accountType = ref("")
+let isAdmin = ref(false)
 
 
 function getCookies() {
 
     let type = localStorage.getItem("accountType")
     let id = localStorage.getItem("accountId")
+
+    if (window.location.pathname == "/admin/manager/staff" || window.location.pathname == "/manager/staff") {
+        isAdmin.value = true
+        id = localStorage.getItem("tempStaffId")
+        type = "staff"
+    } else {
+        isAdmin.value = false
+    }
 
 
     if (type == null || id == null || type != "staff") {
@@ -35,29 +45,41 @@ function getCookies() {
 
 // profile dialog
 const profileData = new (class extends ProfileData {
-    show() {
-        isProgressHidden.value = false
+
+    show(): void {
+        this.accountType = "staff"
+        this.profile.name = staffDetail.value.name
+        this.profile.contact = staffDetail.value.contact
+        this.profile.email = staffDetail.value.email
+        this.profile.gender = staffDetail.value.gender
+        this.profile.password = staffDetail.value.password
+        this.profile.address = staffDetail.value.address
+        this.profile.account_id = staffDetail.value.account_id
+        this.profile.dob = staffDetail.value.dob
         super.show()
     }
-    hide(): void {
-        super.hide()
-        isProgressHidden.value = true
-    }
 
-    hideProgress(): void {
-        isProgressHidden.value = true
-    }
-
-    showProgress(): void {
+    onUpdateProfile(): void {
+        super.onUpdateProfile()
         isProgressHidden.value = false
     }
 
-    showMessage(text: string): void {
+    onSuccessFul(text: string): void {
+        super.onSuccessFul(text)
+        isProgressHidden.value = true
+        message.value.show(text)
+        fetchData()
+    }
+
+    onFailed(text: string): void {
+        super.onFailed(text)
+        isProgressHidden.value = true
         message.value.show(text)
     }
 })
 
 let profile = ref(profileData)
+
 
 
 // warning dialog
@@ -84,11 +106,31 @@ function logout() {
 }
 
 
-function showProfile() {
-    profile.value.show()
+
+function changeTab(index: number) {
+    activeTabIndex.value = index
+    fetchData()
 }
 
 
+
+let branchDetail = ref<Branch>({
+    branch_id: "loading...",
+    name: "loading...",
+    email: "loading...",
+    address: "loading...",
+    contact: "loading..."
+})
+
+async function loadBranchDetail(branchId: string) {
+
+    let res = await Api.getBranch(branchId)
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        branchDetail.value = res.result as Branch
+    }
+}
 
 const staffDetail = ref<Staff>({
     account_id: "loading...",
@@ -100,8 +142,6 @@ const staffDetail = ref<Staff>({
     gender: 'male'
 })
 
-
-
 async function loadAccountDetail() {
     isProgressHidden.value = false
     const res = await Api.getStaff(accountId.value)
@@ -110,16 +150,24 @@ async function loadAccountDetail() {
         message.value.show(res.error)
     } else {
         staffDetail.value = res.result as Staff
+        loadBranchDetail(staffDetail.value.branch_id)
     }
 }
 
 
 
 function fetchData() {
-    // fetch data
     console.log("fetching...")
-    loadAccountDetail()
+
+    if (activeTabIndex.value == 0) {
+        loadAccountDetail()
+
+    } else if (activeTabIndex.value == 1) {
+        // todo
+    }
+
 }
+
 
 
 
@@ -128,103 +176,178 @@ getCookies()
 </script>
 
 <template>
-    <nav class="navbar sticky-top navbar-light bg-light">
-        <div class="container-fluid">
+    <div class="bg-img">
+    <nav class="blur-div-parent navbar sticky-top navbar-light">
+        <div class="blur-div"></div>
+        <div class="container-fluid"  style="justify-content: left;">
             <div class="navbar-header">
                 <a class="navbar-brand">GYM Manager</a>
             </div>
-            <button class="btn btn-primary" @click="showProfile">Profile</button>
-            <button class="btn btn-danger" @click="logout">Log out</button>
+            <ul class="nav nav-pills mb-3" id="pills-tab">
+                <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
+                </li>
+
+                <!-- <li class="nav-item">
+                    <button class="nav-link" :class="{ active: activeTabIndex == 1 }" @click="changeTab(1)">History</button>
+                </li> -->
+            </ul>
+
+            <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
     </nav>
 
-    <!-- account detail -->
+    <div class="tab-content" id="pills-tabContent">
 
-    <div class="card mb-4 card-parent">
-        <div class="card-body">
-            <h5>Staff Detail</h5>
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Account ID</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.account_id }}</p>
-                </div>
-            </div>
+        <!-- account detail -->
+        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
+            <div class="container">
+                <div class="row justify-content-start">
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Branch ID</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.branch_id }}</p>
-                </div>
-            </div>
+                    <!-- branch detail -->
+                    <div class="col-sm">
+                        <div class="blur-div-parent card mb-4 card-parent">
+                            <div class="blur-div"></div>
+                            <div class="card-body">
+                                <h5>Branch Detail</h5>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Full Name</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.name }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ branchDetail.branch_id }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Email</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.email }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ branchDetail.name }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Contact</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.contact }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ branchDetail.email }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Gender</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.gender }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ branchDetail.contact }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">DOB</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ unixMillisecondsToDateString(staffDetail.dob) }}</p>
-                </div>
-            </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ branchDetail.address }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Address</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.address }}</p>
-                </div>
-            </div>
+                    <!-- Staff detail -->
+                    <div class="col-sm">
+                        <div class="blur-div-parent card mb-4 card-parent">
+                            <div class="blur-div"></div>
+                            <div class="card-body">
+                                <h5>Staff Detail</h5>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Account ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.account_id }}</p>
+                                    </div>
+                                </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0">Role</p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ staffDetail.work }}</p>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Branch ID</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.branch_id }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Full Name</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.name }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Contact</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.contact }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Gender</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.gender }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">DOB</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ unixMillisecondsToDateString(staffDetail.dob) }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Address</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p class="mb-0">{{ staffDetail.address }}</p>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" @click="profile.show()">Edit Profile</button>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
+
     <!-- 
     <div class="table-container">
         <div class="container">
@@ -266,10 +389,21 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
-#pills-tab {
-    margin-top: 30px;
+.bg-img {
+    background-image: url("../assets/gym-2.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
 }
 
+.blur-div-parent * {
+    color: white;
+    filter: blur(0) !important;
+}
+.nav {
+    margin-bottom: 0 !important;
+}
 #add-button {
     width: 100%;
     margin-bottom: 20px;

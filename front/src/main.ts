@@ -1,7 +1,7 @@
 
 import { createApp } from 'vue'
-import './style.css';
 import './bootstrap.css'
+import './style.css';
 import App from './App.vue';
 import SignInVue from "./pages/SignIn.vue";
 import SignUpVue from "./pages/SignUp.vue";
@@ -44,6 +44,8 @@ router.addRoute({
 })
 
 
+
+
 router.addRoute({
   path: "/admin", component: Admin, meta: {
     title: "Admin"
@@ -51,14 +53,8 @@ router.addRoute({
 })
 
 router.addRoute({
-  path: "/manager", component: Manager, meta: {
+  path: "/admin/manager", component: Manager, meta: {
     title: "Manager"
-  }
-})
-
-router.addRoute({
-  path: "/trainer", component: Trainer, meta: {
-    title: "Trainer"
   }
 })
 
@@ -75,10 +71,51 @@ router.addRoute({
 })
 
 router.addRoute({
-  path: "/admin/manager", component: Manager, meta: {
+  path: "/admin/manager/staff", component: Staff, meta: {
+    title: "Staff"
+  }
+})
+
+
+
+
+
+
+router.addRoute({
+  path: "/manager", component: Manager, meta: {
     title: "Manager"
   }
 })
+
+router.addRoute({
+  path: "/manager/trainer", component: Trainer, meta: {
+    title: "Trainer"
+  }
+})
+
+router.addRoute({
+  path: "/manager/member", component: Member, meta: {
+    title: "Member"
+  }
+})
+
+router.addRoute({
+  path: "/manager/staff", component: Staff, meta: {
+    title: "Staff"
+  }
+})
+
+
+
+
+
+router.addRoute({
+  path: "/trainer", component: Trainer, meta: {
+    title: "Trainer"
+  }
+})
+
+
 
 router.addRoute({
   path: "/staff", component: Staff, meta: {

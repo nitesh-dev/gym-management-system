@@ -12,7 +12,7 @@ let memberDetail = ref<Member>({
   name: "", email: "",
   password: "", address: "",
   contact: "", dob: 0,
-  gender:'male',
+  gender: 'male',
   is_approved: false
 })
 
@@ -96,8 +96,7 @@ fetchData()
         <option value="Female">Female</option>
       </select> -->
 
-      <select class="form-select" v-model="memberDetail.branch_id" style="margin-bottom: 20px;"
-        required>
+      <select class="form-select" v-model="memberDetail.branch_id" style="margin-bottom: 20px;" required>
         <option :value="branch.branch_id" v-for="branch in branchDetails">{{ branch.name }}, {{ branch.address }}</option>
       </select>
 
@@ -116,7 +115,7 @@ fetchData()
   position: relative;
 }
 
-.blur-div{
+.blur-div {
   position: absolute;
   left: 0;
   top: 0;
@@ -127,7 +126,7 @@ fetchData()
   border-radius: 12px;
 }
 
-.form-signup *{
+.form-signup * {
   filter: blur(0) !important;
 }
 
@@ -151,7 +150,8 @@ button {
   margin-top: 20px;
 }
 
-form p, form a {
+form p,
+form a {
   margin-top: 30px;
   color: white;
 }

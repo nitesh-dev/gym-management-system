@@ -13,6 +13,7 @@ import { unixMillisecondsToDateString } from '../utils';
 let activeTabIndex = ref(0)
 let message = ref(new Message())
 let isProgressHidden = ref(true)
+let isAdmin = ref(true)
 
 let accountId = ref("")
 let accountType = ref("")
@@ -22,6 +23,14 @@ function getCookies() {
 
     let type = localStorage.getItem("accountType")
     let id = localStorage.getItem("accountId")
+
+    if (window.location.pathname == "/admin/manager/member" || window.location.pathname == "/manager/member") {
+        isAdmin.value = true
+        id = localStorage.getItem("tempMemberId")
+        type = "member"
+    } else {
+        isAdmin.value = false
+    }
 
 
     if (type == null || id == null || type != "member") {
@@ -217,7 +226,9 @@ getCookies()
 </script>
 
 <template>
-    <nav class="navbar sticky-top navbar-light bg-light">
+    <div class="bg-img">
+    <nav class="blur-div-parent navbar sticky-top navbar-light">
+        <div class="blur-div"></div>
         <div class="container-fluid" style="justify-content: left;">
             <div class="navbar-header">
                 <a class="navbar-brand">GYM Manager</a>
@@ -231,13 +242,13 @@ getCookies()
                 <li class="nav-item">
                     <button class="nav-link" :class="{ active: activeTabIndex == 1 }" @click="changeTab(1)">History</button>
                 </li>
-                <li v-if="memberDetail.is_approved"  class="nav-item" style="margin-left: 100px;" >
+                <li v-if="memberDetail.is_approved && !isAdmin"  class="nav-item" style="margin-left: 100px;" >
                     <button class="btn btn-success" @click="bookMembership(accountId)">Book Membership</button>
                 </li>
 
             </ul>
 
-            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
+            <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
         </div>
     </nav>
 
@@ -251,7 +262,8 @@ getCookies()
 
                     <!-- branch detail -->
                     <div class="col-sm">
-                        <div class="card mb-4 card-parent">
+                        <div class="blur-div-parent card mb-4 card-parent">
+                            <div class="blur-div"></div>
                             <div class="card-body">
                                 <h5>Branch Detail</h5>
 
@@ -260,7 +272,7 @@ getCookies()
                                         <p class="mb-0">Branch ID</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.branch_id }}</p>
+                                        <p class="mb-0">{{ branchDetail.branch_id }}</p>
                                     </div>
                                 </div>
 
@@ -269,7 +281,7 @@ getCookies()
                                         <p class="mb-0">Branch Name</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.name }}</p>
+                                        <p class="mb-0">{{ branchDetail.name }}</p>
                                     </div>
                                 </div>
 
@@ -278,7 +290,7 @@ getCookies()
                                         <p class="mb-0">Email</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.email }}</p>
+                                        <p class="mb-0">{{ branchDetail.email }}</p>
                                     </div>
                                 </div>
 
@@ -287,7 +299,7 @@ getCookies()
                                         <p class="mb-0">Contact</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.contact }}</p>
+                                        <p class="mb-0">{{ branchDetail.contact }}</p>
                                     </div>
                                 </div>
 
@@ -296,7 +308,7 @@ getCookies()
                                         <p class="mb-0">Address</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.address }}</p>
+                                        <p class="mb-0">{{ branchDetail.address }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -305,7 +317,8 @@ getCookies()
 
                     <!-- Member detail -->
                     <div class="col-sm">
-                        <div class="card mb-4 card-parent">
+                        <div class="blur-div-parent card mb-4 card-parent">
+                            <div class="blur-div"></div>
                             <div class="card-body">
                                 <h5>Member Detail</h5>
                                 <div class="row">
@@ -313,7 +326,7 @@ getCookies()
                                         <p class="mb-0">Account ID</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.account_id }}</p>
+                                        <p class="mb-0">{{ memberDetail.account_id }}</p>
                                     </div>
                                 </div>
 
@@ -322,7 +335,7 @@ getCookies()
                                         <p class="mb-0">Branch ID</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.branch_id }}</p>
+                                        <p class="mb-0">{{ memberDetail.branch_id }}</p>
                                     </div>
                                 </div>
 
@@ -331,7 +344,7 @@ getCookies()
                                         <p class="mb-0">Full Name</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.name }}</p>
+                                        <p class="mb-0">{{ memberDetail.name }}</p>
                                     </div>
                                 </div>
 
@@ -340,7 +353,7 @@ getCookies()
                                         <p class="mb-0">Email</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.email }}</p>
+                                        <p class="mb-0">{{ memberDetail.email }}</p>
                                     </div>
                                 </div>
 
@@ -349,7 +362,7 @@ getCookies()
                                         <p class="mb-0">Contact</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.contact }}</p>
+                                        <p class="mb-0">{{ memberDetail.contact }}</p>
                                     </div>
                                 </div>
 
@@ -358,7 +371,7 @@ getCookies()
                                         <p class="mb-0">Gender</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.gender }}</p>
+                                        <p class="mb-0">{{ memberDetail.gender }}</p>
                                     </div>
                                 </div>
 
@@ -367,7 +380,7 @@ getCookies()
                                         <p class="mb-0">DOB</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(memberDetail.dob) }}</p>
+                                        <p class="mb-0">{{ unixMillisecondsToDateString(memberDetail.dob) }}</p>
                                     </div>
                                 </div>
 
@@ -376,7 +389,7 @@ getCookies()
                                         <p class="mb-0">Address</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ memberDetail.address }}</p>
+                                        <p class="mb-0">{{ memberDetail.address }}</p>
                                     </div>
                                 </div>
 
@@ -415,13 +428,14 @@ getCookies()
         <!-- Membership history -->
         <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
 
-            <div class="table-container">
+            <div class="blur-div-parent table-container">
+                <div class="blur-div"></div>
                 <div class="container">
                     <h3>Membership History</h3>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped">
+                    <table class="table align-middle mb-0">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -457,6 +471,8 @@ getCookies()
 
     </div>
 
+    </div>
+
     <MembershipDialog :membership="membershipDialog" />
     <ProfileDialogVue :profile="profile" />
     <MessageDialog :message="message" />
@@ -464,6 +480,19 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
+
+.bg-img {
+    background-image: url("../assets/gym-2.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+}
+
+.blur-div-parent * {
+    color: white;
+    filter: blur(0) !important;
+}
 .nav {
     margin-bottom: 0 !important;
 }

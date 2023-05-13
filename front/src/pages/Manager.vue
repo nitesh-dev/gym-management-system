@@ -33,6 +33,7 @@ function getCookies() {
         isAdmin.value = false
     }
 
+    removeOldCookies()
 
     if (type == null || id == null || type != "manager") {
         window.location.href = '/'
@@ -41,8 +42,14 @@ function getCookies() {
         accountType.value = type
         fetchData()
     }
+}
 
 
+function removeOldCookies() {
+
+    localStorage.removeItem("tempTrainerId")
+    localStorage.removeItem("tempStaffId")
+    localStorage.removeItem("tempMemberId")
 }
 
 
@@ -189,8 +196,20 @@ function deleteOperation(message: string, id: string) {
 
 
 
+function openTrainer(accountId: string) {
+    localStorage.setItem("tempTrainerId", accountId)
+    window.location.pathname += '/trainer'
+}
 
+function openStaff(accountId: string) {
+    localStorage.setItem("tempStaffId", accountId)
+    window.location.pathname += '/staff'
+}
 
+function openMember(accountId: string) {
+    localStorage.setItem("tempMemberId", accountId)
+    window.location.pathname += '/member'
+}
 
 
 
@@ -284,7 +303,7 @@ async function loadStaffAccounts(branchId: string) {
     }
 }
 
-async function approveMember(member: Member){
+async function approveMember(member: Member) {
     isProgressHidden.value = false
     member.is_approved = true
     let res = await Api.updateMember(member)
@@ -340,378 +359,400 @@ getCookies()
 
 </script>
 <template>
-    <nav class="navbar sticky-top navbar-light bg-light">
-        <div class="container-fluid" style="justify-content: left;">
-            <div class="navbar-header">
-                <a class="navbar-brand">GYM Manager</a>
+    <div class="bg-img">
+        <nav class="blur-div-parent navbar sticky-top navbar-light">
+            <div class="blur-div"></div>
+            <div class="container-fluid" style="justify-content: left;">
+                <div class="navbar-header">
+                    <a class="navbar-brand">GYM Manager</a>
+                </div>
+
+                <ul class="nav nav-pills mb-3" id="pills-tab">
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 0 }"
+                            @click="changeTab(0)">Info</button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
+                            @click="changeTab(1)">Trainers</button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 2 }"
+                            @click="changeTab(2)">Staffs</button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 3 }"
+                            @click="changeTab(3)">Members</button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 4 }"
+                            @click="changeTab(4)">Pending</button>
+                    </li>
+
+                </ul>
+
+
+                <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log
+                    out</button>
             </div>
+        </nav>
 
-            <ul class="nav nav-pills mb-3" id="pills-tab">
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
-                </li>
+        <div class="tab-content" id="pills-tabContent">
 
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
-                        @click="changeTab(1)">Trainers</button>
-                </li>
+            <!-- account detail -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
+                <div class="container">
+                    <div class="row justify-content-start">
 
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 2 }" @click="changeTab(2)">Staffs</button>
-                </li>
+                        <!-- branch detail -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Branch Detail</h5>
 
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 3 }" @click="changeTab(3)">Members</button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 4 }" @click="changeTab(4)">Pending</button>
-                </li>
-
-            </ul>
-           
-
-            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
-        </div>
-    </nav>
-
-    <div class="tab-content" id="pills-tabContent">
-
-        <!-- account detail -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
-            <div class="container">
-                <div class="row justify-content-start">
-
-                    <!-- branch detail -->
-                    <div class="col-sm">
-                        <div class="card mb-4 card-parent">
-                            <div class="card-body">
-                                <h5>Branch Detail</h5>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch ID</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.branch_id }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.branch_id }}</p>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.name }}</p>
+                                        </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.contact }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ branchDetail.address }}</p>
+                                        </div>
+                                    </div>
+
                                 </div>
+                            </div>
+                        </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch Name</p>
+                        <!-- manager detail -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Manager Detail</h5>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Account ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.account_id }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.name }}</p>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Branch ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.branch_id }}</p>
+                                        </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Full Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.name }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.contact }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Gender</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.gender }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">DOB</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ unixMillisecondsToDateString(managerDetail.dob) }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ managerDetail.address }}</p>
+                                        </div>
+                                    </div>
+                                    <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
+
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.email }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.contact }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ branchDetail.address }}</p>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- manager detail -->
-                    <div class="col-sm">
-                        <div class="card mb-4 card-parent">
-                            <div class="card-body">
-                                <h5>Manager Detail</h5>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Account ID</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.account_id }}</p>
-                                    </div>
-                                </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Branch ID</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.branch_id }}</p>
-                                    </div>
-                                </div>
+            <!-- Trainers -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Full Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.name }}</p>
-                                    </div>
-                                </div>
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Trainers</h3>
+                        <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
+                            @click="trainerDialog.show()">Add Trainers</button>
+                    </div>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.email }}</p>
-                                    </div>
-                                </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">DOB</th>
+                                    <th scope="col">Specialization</th>
+                                    <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="trainer, index in trainerAccounts">
+                                    <th @click="openTrainer(trainer.account_id)" scope="row">{{ index }}</th>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.name }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.email }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.address }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.contact }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{
+                                        unixMillisecondsToDateString(trainer.dob) }}
+                                    </td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.specialization }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.account_id }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{ trainer.branch_id }}</td>
 
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.contact }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Gender</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.gender }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">DOB</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(managerDetail.dob) }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ managerDetail.address }}</p>
-                                    </div>
-                                </div>
-                                <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
-
-                            </div>
-                        </div>
+                                    <td><button class="btn btn-danger"
+                                            @click="deleteOperation('Do you really want to delete?', trainer.account_id)"><i
+                                                class="material-icons">delete</i>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
 
 
-        <!-- Trainers -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+            <!-- Staffs -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
 
-            <div class="table-container">
-                <div class="container">
-                    <h3>Trainers</h3>
-                    <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
-                        @click="trainerDialog.show()">Add Trainers</button>
-                </div>
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Staffs</h3>
+                        <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
+                            @click="staffDialog.show()">Add Staff</button>
+                    </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">DOB</th>
-                                <th scope="col">Specialization</th>
-                                <th scope="col">Account ID</th>
-                                <th scope="col">Branch ID</th>
-                                <th scope="col">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="trainer, index in trainerAccounts">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ trainer.name }}</td>
-                                <td>{{ trainer.email }}</td>
-                                <td>{{ trainer.address }}</td>
-                                <td>{{ trainer.contact }}</td>
-                                <td>{{ unixMillisecondsToDateString(trainer.dob) }}</td>
-                                <td>{{ trainer.specialization }}</td>
-
-                                <td>{{ trainer.account_id }}</td>
-                                <td>{{ trainer.branch_id }}</td>
-                                <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really want to delete?', trainer.account_id)"><i
-                                            class="material-icons">delete</i>Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Staffs -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
-
-            <div class="table-container">
-                <div class="container">
-                    <h3>Staffs</h3>
-                    <button v-if="!isAdmin" id="add-button" class="btn btn-success btn-block"
-                        @click="staffDialog.show()">Add Staff</button>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">DOB</th>
-                                <th scope="col">Work</th>
-                                <th scope="col">Account ID</th>
-                                <th scope="col">Branch ID</th>
-                                <th scope="col">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="staff, index in staffAccounts">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ staff.name }}</td>
-                                <td>{{ staff.email }}</td>
-                                <td>{{ staff.address }}</td>
-                                <td>{{ staff.contact }}</td>
-                                <td>{{ unixMillisecondsToDateString(staff.dob) }}</td>
-                                <td>{{ staff.work }}</td>
-                                <td>{{ staff.account_id }}</td>
-                                <td>{{ staff.branch_id }}</td>
-                                <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really want to delete?', staff.account_id)"><i
-                                            class="material-icons">delete</i>Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">DOB</th>
+                                    <th scope="col">Work</th>
+                                    <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="staff, index in staffAccounts">
+                                    <th @click="openStaff(staff.account_id)" scope="row">{{ index }}</th>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.name }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.email }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.address }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.contact }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ unixMillisecondsToDateString(staff.dob) }}
+                                    </td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.work }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.account_id }}</td>
+                                    <td @click="openStaff(staff.account_id)">{{ staff.branch_id }}</td>
+                                    <td><button class="btn btn-danger"
+                                            @click="deleteOperation('Do you really want to delete?', staff.account_id)"><i
+                                                class="material-icons">delete</i>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        <!-- Members -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 3, active: activeTabIndex == 3 }">
+            <!-- Members -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 3, active: activeTabIndex == 3 }">
 
-            <div class="table-container">
-                <div class="container">
-                    <h3>Members</h3>
-                </div>
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Members</h3>
+                    </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">DOB</th>
-                                <th scope="col">Account ID</th>
-                                <th scope="col">Branch ID</th>
-                                <th scope="col">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="member, index in memberAccounts">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ member.name }}</td>
-                                <td>{{ member.email }}</td>
-                                <td>{{ member.address }}</td>
-                                <td>{{ member.contact }}</td>
-                                <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
-                                <td>{{ member.account_id }}</td>
-                                <td>{{ member.branch_id }}</td>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">DOB</th>
+                                    <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="member, index in memberAccounts">
+                                    <th @click="openMember(member.account_id)" scope="row">{{ index }}</th>
+                                    <td @click="openMember(member.account_id)">{{ member.name }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.email }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.address }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.contact }}</td>
+                                    <td @click="openMember(member.account_id)">{{ unixMillisecondsToDateString(member.dob)
+                                    }}
+                                    </td>
+                                    <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.branch_id }}</td>
 
-                                <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
-                                            class="material-icons">delete</i>Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Pending Members -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 4, active: activeTabIndex == 4 }">
-
-            <div class="table-container">
-                <div class="container">
-                    <h3>Members</h3>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">DOB</th>
-                                <th scope="col">Approve</th>
-                                <th scope="col">Account ID</th>
-                                <th scope="col">Branch ID</th>
-                                <th scope="col">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="member, index in memberAccounts">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ member.name }}</td>
-                                <td>{{ member.email }}</td>
-                                <td>{{ member.address }}</td>
-                                <td>{{ member.contact }}</td>
-                                <td>{{ unixMillisecondsToDateString(member.dob) }}</td>
-                                <td>{{ member.account_id }}</td>
-                                <td>{{ member.branch_id }}</td>
-
-                                <td><button class="btn btn-success" @click="approveMember(member)">Approve</button></td>
-
-                                <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
-                                            class="material-icons">delete</i>Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <td><button class="btn btn-danger"
+                                            @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
+                                                class="material-icons">delete</i>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
+
+            <!-- Pending Members -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 4, active: activeTabIndex == 4 }">
+
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Members</h3>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">DOB</th>
+                                    <th scope="col">Approve</th>
+                                    <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="member, index in memberAccounts">
+                                    <th @click="openMember(member.account_id)" scope="row">{{ index }}</th>
+                                    <td @click="openMember(member.account_id)">{{ member.name }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.email }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.address }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.contact }}</td>
+                                    <td @click="openMember(member.account_id)">{{ unixMillisecondsToDateString(member.dob)
+                                    }}
+                                    </td>
+                                    <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
+                                    <td @click="openMember(member.account_id)">{{ member.branch_id }}</td>
+
+                                    <td><button class="btn btn-success" @click="approveMember(member)">Approve</button></td>
+
+                                    <td><button class="btn btn-danger"
+                                            @click="deleteOperation('Do you really want to delete?', member.account_id)"><i
+                                                class="material-icons">delete</i>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
 
@@ -723,6 +764,19 @@ getCookies()
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
+.bg-img {
+    background-image: url("../assets/gym-3.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+}
+
+.blur-div-parent * {
+    color: white;
+    filter: blur(0) !important;
+}
+
 .nav {
     margin-bottom: 0 !important;
 }
@@ -772,6 +826,7 @@ table td,
 table th {
     white-space: nowrap;
     padding: 16px 12px;
+    cursor: pointer;
 }
 
 table button {

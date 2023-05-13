@@ -19,8 +19,10 @@ let accountId = ref("")
 let accountType = ref("")
 
 getCookies()
+
 function getCookies() {
-    localStorage.removeItem("tempId")
+    removeOldCookies()
+
     let type = localStorage.getItem("accountType")
     let id = localStorage.getItem("accountId")
     if (type == null || id == null) {
@@ -30,6 +32,10 @@ function getCookies() {
         accountType.value = type
         fetchData()
     }
+}
+
+function removeOldCookies() {
+    localStorage.removeItem("tempId")
 }
 
 
@@ -266,201 +272,217 @@ function openManager(id: string) {
 
 </script>
 <template>
-    <nav class="navbar sticky-top navbar-light bg-light">
-        <div class="container-fluid" style="justify-content: left;">
-            <div class="navbar-header">
-                <a class="navbar-brand">GYM Manager</a>
+    <div class="bg-img">
+
+        <nav class="blur-div-parent navbar sticky-top navbar-light">
+            <div class="blur-div"></div>
+            <div class="container-fluid" style="justify-content: left;">
+                <div class="navbar-header">
+                    <a class="navbar-brand">GYM Manager</a>
+                </div>
+                <ul class="nav nav-pills mb-3" id="pills-tab">
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 0 }"
+                            @click="changeTab(0)">Info</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
+                            @click="changeTab(1)">Managers</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" :class="{ active: activeTabIndex == 2 }"
+                            @click="changeTab(2)">Branches</button>
+                    </li>
+                </ul>
+
+                <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
             </div>
-            <ul class="nav nav-pills mb-3" id="pills-tab">
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 0 }" @click="changeTab(0)">Info</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 1 }"
-                        @click="changeTab(1)">Managers</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" :class="{ active: activeTabIndex == 2 }"
-                        @click="changeTab(2)">Branches</button>
-                </li>
-            </ul>
-
-            <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
-        </div>
-    </nav>
+        </nav>
 
 
-    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-content" id="pills-tabContent">
 
-        <!-- account detail -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
-            <div class="container">
-                <div class="row justify-content-start">
+            <!-- account detail -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 0, active: activeTabIndex == 0 }">
 
-                    <!-- Admin detail -->
-                    <div class="col-sm">
-                        <div class="card mb-4 card-parent">
-                            <div class="card-body">
-                                <h5>Admin Detail</h5>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Account ID</p>
+                <div class="container">
+                    <div class="row justify-content-start">
+
+                        <!-- Admin detail -->
+                        <div class="col-sm">
+
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Admin Detail</h5>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Account ID</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ adminDetail.account_id }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ adminDetail.account_id }}</p>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Full Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ adminDetail.name }}</p>
+                                        </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Email</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ adminDetail.email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Contact</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ adminDetail.contact }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Gender</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ adminDetail.gender }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">DOB</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ unixMillisecondsToDateString(adminDetail.dob) }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="mb-0">{{ adminDetail.address }}</p>
+                                        </div>
+                                    </div>
+                                    <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
+
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Full Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ adminDetail.name }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ adminDetail.email }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Contact</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ adminDetail.contact }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Gender</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ adminDetail.gender }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">DOB</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ unixMillisecondsToDateString(adminDetail.dob) }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ adminDetail.address }}</p>
-                                    </div>
-                                </div>
-                                <button @click="profile.show()" class="btn btn-primary">Edit Profile</button>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Managers -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
+            <!-- Managers -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 1, active: activeTabIndex == 1 }">
 
-            <div class="table-container">
-                <div class="container">
-                    <h3>Managers</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="managerDialog.show()">Add
-                        Manager</button>
-                </div>
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Managers</h3>
+                        <button id="add-button" class="btn btn-success btn-block" @click="managerDialog.show()">Add
+                            Manager</button>
+                    </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Account ID</th>
-                                <th scope="col">Branch ID</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">DOB</th>
-                                <th scope="col">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="manager, index in managerAccounts">
-                                <th scope="row">{{ index }}</th>
-                                <td @click="openManager(manager.account_id)">{{ manager.account_id }}</td>
-                                <td @click="openManager(manager.account_id)">{{ manager.branch_id }}</td>
-                                <td @click="openManager(manager.account_id)">{{ manager.name }}</td>
-                                <td @click="openManager(manager.account_id)">{{ manager.email }}</td>
-                                <td @click="openManager(manager.account_id)">{{ manager.address }}</td>
-                                <td @click="openManager(manager.account_id)">{{ manager.contact }}</td>
-                                <td @click="openManager(manager.account_id)">{{ manager.dob }}</td>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Account ID</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">DOB</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="manager, index in managerAccounts">
+                                    <th scope="row">{{ index }}</th>
+                                    <td @click="openManager(manager.account_id)">{{ manager.account_id }}</td>
+                                    <td @click="openManager(manager.account_id)">{{ manager.branch_id }}</td>
+                                    <td @click="openManager(manager.account_id)">{{ manager.name }}</td>
+                                    <td @click="openManager(manager.account_id)">{{ manager.email }}</td>
+                                    <td @click="openManager(manager.account_id)">{{ manager.address }}</td>
+                                    <td @click="openManager(manager.account_id)">{{ manager.contact }}</td>
+                                    <td @click="openManager(manager.account_id)">{{ manager.dob }}</td>
 
-                                <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
-                                            class="material-icons">delete</i>Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Branch -->
-        <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
-
-            <div class="table-container">
-                <div class="container">
-                    <h3>Branch</h3>
-                    <button id="add-button" class="btn btn-success btn-block" @click="branchDialog.show()">Add
-                        Branch</button>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Branch ID</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact</th>
-                                <th scope="col">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="branch, index in branchDetails">
-                                <th scope="row">{{ index }}</th>
-                                <td>{{ branch.branch_id }}</td>
-                                <td>{{ branch.name }}</td>
-                                <td>{{ branch.email }}</td>
-                                <td>{{ branch.address }}</td>
-                                <td>{{ branch.contact }}</td>
-
-                                <td><button class="btn btn-danger"
-                                        @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
-                                            class="material-icons">delete</i>Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <td><button class="btn btn-danger"
+                                            @click="deleteOperation('Do you really wants to delete?', manager.account_id)"><i
+                                                class="material-icons">delete</i>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+
+            <!-- Branch -->
+            <div class="tab-pane fade" :class="{ show: activeTabIndex == 2, active: activeTabIndex == 2 }">
+                <div class="blur-div-parent table-container">
+                    <div class="blur-div"></div>
+                    <div class="container">
+                        <h3>Branch</h3>
+                        <button id="add-button" class="btn btn-success btn-block" @click="branchDialog.show()">Add
+                            Branch</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="branch, index in branchDetails">
+                                    <th scope="row">{{ index }}</th>
+                                    <td>{{ branch.branch_id }}</td>
+                                    <td>{{ branch.name }}</td>
+                                    <td>{{ branch.email }}</td>
+                                    <td>{{ branch.address }}</td>
+                                    <td>{{ branch.contact }}</td>
+
+                                    <td><button class="btn btn-danger"
+                                            @click="deleteOperation('Do you really wants to delete?', branch.branch_id)"><i
+                                                class="material-icons">delete</i>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="blur-div-parent">
+
+            </div> -->
+
         </div>
+
     </div>
 
 
@@ -472,6 +494,19 @@ function openManager(id: string) {
     <ProgressDialog v-if="!isProgressHidden" />
 </template>
 <style scoped>
+.bg-img {
+    background-image: url("../assets/gym-4.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+}
+
+.blur-div-parent * {
+    color: white;
+    filter: blur(0) !important;
+}
+
 .nav {
     margin-bottom: 0 !important;
 }
