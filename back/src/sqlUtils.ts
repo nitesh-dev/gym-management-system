@@ -159,7 +159,7 @@ namespace SqlUtils {
     }
 
     export async function getDetail() {
-        
+
         let exp = await getTotalExp()
         if (exp.isError) return exp
         let rev = await getTotalRevenue()
@@ -537,6 +537,24 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
+
+
+    export async function getAllMemberInfoWithBranchId(branch_id: string) {
+        const sql = `
+        SELECT member.*, IFNULL(end_time > ?, 0) AS is_active, membership.type
+        FROM member
+        LEFT JOIN membership ON member.account_id = membership.member_id    
+        WHERE member.branch_id= ?;`
+        const result = await _query<any[]>(sql, [new Date().getTime(), branch_id,])
+        const arr = result.result
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+
+
     export async function getAllMemberWithBranchId(branch_id: string) {
         const sql = `SELECT * FROM member WHERE branch_id='${branch_id}';`
         const result = await _query<any[]>(sql)
@@ -599,6 +617,17 @@ namespace SqlUtils {
         const result = await _query(sql, values)
         return result
     }
+
+    export async function checkMembershipActive(member_id: string) {
+        let currentTime = new Date().getTime()
+        const sql = `SELECT * FROM membership WHERE member_id=? AND start_time < ? AND end_time > ?`
+        const values = [member_id, currentTime, currentTime]
+        const result = await _query<any[]>(sql, values)
+        console.log(result)
+        if (result.isError) return result
+        return createSqlResult(false, result.result.length > 0)
+    }
+
     export async function getAllMembership() {
         const sql = `SELECT * FROM membership;`
         const result = await _query<Membership[]>(sql)
@@ -609,6 +638,7 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
+
     export async function getAllMembershipWithMemberId(member_id: string) {
         const sql = `SELECT * FROM membership WHERE member_id='${member_id}';`
         const result = await _query<Membership[]>(sql)

@@ -365,7 +365,8 @@ function openBranch(branchId: string) {
                     </li>
                 </ul>
 
-                <button style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log out</button>
+                <p class="profile-name">{{ adminDetail.name }}</p>
+                <button  class="btn btn-danger" @click="logout">Log out</button>
             </div>
         </nav>
 

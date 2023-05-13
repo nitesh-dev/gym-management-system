@@ -211,7 +211,8 @@ getCookies()
 
                 </ul>
 
-                <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log
+                <p class="profile-name">{{ trainerDetail.name }}</p>
+                <button v-if="!isAdmin" class="btn btn-danger" @click="logout">Log
                     out</button>
             </div>
         </nav>

@@ -87,4 +87,9 @@ export interface GYMDetail {
     branch: number
 }
 
+export interface MemberInfo extends Member{
+    is_active: boolean,
+    type: 'bronze' | 'gold' | 'silver' | null
+}
+
 

@@ -45,6 +45,12 @@ export interface Member {
     is_approved:boolean
     // membership: 'bronze' | 'gold' | 'silver' | 'free'
 }
+
+export interface MemberInfo extends Member{
+    is_active: boolean,
+    type: 'bronze' | 'gold' | 'silver' | null
+}
+
 export interface Staff {
     account_id: string,
     branch_id: string,

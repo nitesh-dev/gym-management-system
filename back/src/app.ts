@@ -181,6 +181,16 @@ router.get("/branch/revenue", async (req, res) => {
     }
 })
 
+router.get("/branch/member-info", async (req, res) => {
+    const { branch_id } = req.query as any
+    let result = await SqlUtils.getAllMemberInfoWithBranchId(branch_id)
+    if (result.isError) {
+        return res.status(400).send(result.result)
+    } else {
+        res.send(result.result)
+    }
+})
+
 
 
 
@@ -475,6 +485,8 @@ router.get("/member", async (req, res) => {
         res.send(result.result)
     }
 })
+
+
 router.put("/member", async (req, res) => {
     const info = req.body as Member
     const result = await SqlUtils.updateMember(info)
@@ -505,18 +517,29 @@ router.delete("/member", async (req, res) => {
 
 router.post("/membership", async (req, res) => {
     const { member_id, type, price, start_time, end_time } = req.body
+
     if (isAnyInvalid([member_id, type, price, start_time, end_time])) {
         return res.status(400).send("required all membership info")
     } else {
-        const result = await SqlUtils.createMembership({
-            membership_id: randomUUID(), type: type, price: price,
-            start_time: start_time, end_time: end_time, member_id: member_id
-        })
-        if (result.isError) {
-            return res.status(400).send(result.result)
+        const activeResult = await SqlUtils.checkMembershipActive(member_id)
+        if(activeResult.isError){
+            return res.status(400).send(activeResult.result)
+        }else{
 
-        } else {
-            res.send(result.result)
+            if(!activeResult.result){
+                const result = await SqlUtils.createMembership({
+                    membership_id: randomUUID(), type: type, price: price,
+                    start_time: start_time, end_time: end_time, member_id: member_id
+                })
+                if (result.isError) {
+                    return res.status(400).send(result.result)
+        
+                } else {
+                    res.send({result:result.result})
+                }
+            }else{
+                return res.status(400).send("plan already active, wait for the plan to end.")
+            }
         }
     }
 })

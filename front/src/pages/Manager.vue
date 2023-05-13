@@ -6,10 +6,10 @@ import { ref } from 'vue';
 import Api from '../api';
 import WarningDialogVue, { WarningData } from '../components/WarningDialog.vue';
 import CreateTrainerDialog, { DialogTrainerData } from '../components/CreateTrainerDialog.vue';
-import UpdateSalary ,{DialogUpdateSalary} from '../components/UpdateSalary.vue';
+import UpdateSalary, { DialogUpdateSalary } from '../components/UpdateSalary.vue';
 import CreateStaffDialog, { DialogStaffData } from '../components/CreateStaffDialog.vue';
-import { Trainer, Manager, Staff, Member, Branch } from '../RestApiDataType';
-import { unixMillisecondsToDateString, unixMillisecondsToTimeString } from '../utils';
+import { Trainer, Manager, Staff, Member, MemberInfo, Branch } from '../RestApiDataType';
+import { getAge, unixMillisecondsToTimeString } from '../utils';
 
 
 let activeTabIndex = ref(0)
@@ -94,7 +94,7 @@ const updateSalaryData = new (class extends DialogUpdateSalary {
 
 let updateSalary = ref(updateSalaryData)
 
-function editSalary(accountType: string, accountData: any){
+function editSalary(accountType: string, accountData: any) {
     updateSalary.value.show(accountType, Object.assign({}, accountData))
 }
 
@@ -334,17 +334,17 @@ async function loadBranchDetail(branchId: string) {
 
 
 
-let memberAccounts = ref(Array<Member>())
+let memberAccounts = ref(Array<MemberInfo>())
 async function loadMemberAccounts(branchId: string, isPending: boolean) {
     isProgressHidden.value = false
-    memberAccounts.value = Array<Member>()
-    let res = await Api.getAllMember(branchId)
+    memberAccounts.value = Array<MemberInfo>()
+    let res = await Api.getMemberInfo(branchId)
     isProgressHidden.value = true
 
     if (res.isError) {
         message.value.show(res.error)
     } else {
-        let temp = res.result as Array<Member>
+        let temp = res.result as Array<MemberInfo>
         memberAccounts.value = temp.filter(function (element, index, array) {
             return element.is_approved != isPending
         })
@@ -460,10 +460,8 @@ getCookies()
                     </li>
 
                 </ul>
-
-
-                <button v-if="!isAdmin" style="margin-inline-start:auto" class="btn btn-danger" @click="logout">Log
-                    out</button>
+                <p class="profile-name">{{ managerDetail.name }}</p>
+                <button v-if="!isAdmin" class="btn btn-danger" @click="logout">Log out</button>
             </div>
         </nav>
 
@@ -592,10 +590,10 @@ getCookies()
 
                                     <div class="row">
                                         <div class="col-sm-3">
-                                            <p class="mb-0">DOB</p>
+                                            <p class="mb-0">Age</p>
                                         </div>
                                         <div class="col-sm-9">
-                                            <p class="mb-0">{{ unixMillisecondsToDateString(managerDetail.dob) }}
+                                            <p class="mb-0">{{ getAge(managerDetail.dob) }}
                                             </p>
                                         </div>
                                     </div>
@@ -703,7 +701,7 @@ getCookies()
                                     <th scope="col">Email</th>
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
-                                    <th scope="col">DOB</th>
+                                    <th scope="col">Age</th>
                                     <th scope="col">Salary</th>
                                     <th scope="col">Start Time</th>
                                     <th scope="col">End Time</th>
@@ -722,7 +720,7 @@ getCookies()
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.address }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.contact }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{
-                                        unixMillisecondsToDateString(trainer.dob) }}
+                                        getAge(trainer.dob) }}
                                     </td>
                                     <td @click="openTrainer(trainer.account_id)">₹{{ trainer.salary }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{
@@ -734,8 +732,8 @@ getCookies()
                                     <!-- <td @click="openTrainer(trainer.account_id)">{{ trainer.account_id }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.branch_id }}</td> -->
 
-                                    <td><button class="btn btn-info"
-                                            @click="editSalary('trainer', trainer)"><i class="material-icons">edit</i>Edit</button></td>
+                                    <td><button class="btn btn-info" @click="editSalary('trainer', trainer)"><i
+                                                class="material-icons">edit</i>Edit</button></td>
 
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really want to delete?', trainer.account_id)"><i
@@ -768,7 +766,7 @@ getCookies()
                                     <th scope="col">Email</th>
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
-                                    <th scope="col">DOB</th>
+                                    <th scope="col">Age</th>
                                     <th scope="col">Salary</th>
                                     <th scope="col">Work</th>
                                     <!-- <th scope="col">Account ID</th>
@@ -784,14 +782,14 @@ getCookies()
                                     <td @click="openStaff(staff.account_id)">{{ staff.email }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.address }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.contact }}</td>
-                                    <td @click="openStaff(staff.account_id)">{{ unixMillisecondsToDateString(staff.dob) }}
+                                    <td @click="openStaff(staff.account_id)">{{ getAge(staff.dob) }}
                                     </td>
                                     <td @click="openStaff(staff.account_id)">₹{{ staff.salary }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.work }}</td>
                                     <!-- <td @click="openStaff(staff.account_id)">{{ staff.account_id }}</td>
                                     <td @click="openStaff(staff.account_id)">{{ staff.branch_id }}</td> -->
-                                    <td><button class="btn btn-info"
-                                            @click="editSalary('staff', staff)"><i class="material-icons">edit</i>Edit</button></td>
+                                    <td><button class="btn btn-info" @click="editSalary('staff', staff)"><i
+                                                class="material-icons">edit</i>Edit</button></td>
                                     <td><button class="btn btn-danger"
                                             @click="deleteOperation('Do you really want to delete?', staff.account_id)"><i
                                                 class="material-icons">delete</i>Delete</button></td>
@@ -821,7 +819,8 @@ getCookies()
                                     <th scope="col">Email</th>
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
-                                    <th scope="col">DOB</th>
+                                    <th scope="col">Age</th>
+                                    <th scope="col">Membership</th>
                                     <!-- <th scope="col">Account ID</th>
                                     <th scope="col">Branch ID</th> -->
                                     <th scope="col">Delete</th>
@@ -834,9 +833,11 @@ getCookies()
                                     <td @click="openMember(member.account_id)">{{ member.email }}</td>
                                     <td @click="openMember(member.account_id)">{{ member.address }}</td>
                                     <td @click="openMember(member.account_id)">{{ member.contact }}</td>
-                                    <td @click="openMember(member.account_id)">{{ unixMillisecondsToDateString(member.dob)
-                                    }}
-                                    </td>
+                                    <td @click="openMember(member.account_id)">{{ getAge(member.dob)
+                                    }}</td>
+
+                                    <td v-if="member.type == null"  @click="openMember(member.account_id)">No Membership</td>
+                                    <td v-else  @click="openMember(member.account_id)">{{ member.type }}</td>
                                     <!-- <td @click="openMember(member.account_id)">{{ member.account_id }}</td>
                                     <td @click="openMember(member.account_id)">{{ member.branch_id }}</td> -->
 
@@ -869,7 +870,7 @@ getCookies()
                                     <th scope="col">Email</th>
                                     <th scope="col">Address</th>
                                     <th scope="col">Contact</th>
-                                    <th scope="col">DOB</th>
+                                    <th scope="col">Age</th>
                                     <th scope="col">Approve</th>
                                     <!-- <th scope="col">Account ID</th>
                                     <th scope="col">Branch ID</th> -->
@@ -883,7 +884,7 @@ getCookies()
                                     <td @click="openMember(member.account_id)">{{ member.email }}</td>
                                     <td @click="openMember(member.account_id)">{{ member.address }}</td>
                                     <td @click="openMember(member.account_id)">{{ member.contact }}</td>
-                                    <td @click="openMember(member.account_id)">{{ unixMillisecondsToDateString(member.dob)
+                                    <td @click="openMember(member.account_id)">{{ getAge(member.dob)
                                     }}
                                     </td>
                                     <!-- <td @click="openMember(member.account_id)">{{ member.account_id }}</td>

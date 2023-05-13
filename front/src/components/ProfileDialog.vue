@@ -66,6 +66,7 @@ let prop = defineProps<{
 async function onSubmitForm() {
 
     prop.profile.profile.contact = prop.profile.contact.toString()
+    prop.profile.profile.dob = new Date(prop.profile.dob).getTime()
     prop.profile.onUpdateProfile()
     
     let res = await Api.updateProfile(prop.profile.accountType, prop.profile.profile)

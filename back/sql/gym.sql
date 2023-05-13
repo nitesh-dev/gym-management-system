@@ -80,16 +80,6 @@ CREATE TABLE IF NOT EXISTS member (
   FOREIGN KEY (branch_id) REFERENCES branch (branch_id)
 );
 
-CREATE TABLE IF NOT EXISTS training_session (
-  session_id CHAR(36) NOT NULL,
-  trainer_id CHAR(36) NOT NULL,
-  member_id CHAR(36) NOT NULL,
-  start_time DOUBLE NOT NULL,
-  end_time DOUBLE NOT NULL,
-  PRIMARY KEY (session_id),
-  FOREIGN KEY (trainer_id) REFERENCES trainer (account_id),
-  FOREIGN KEY (member_id) REFERENCES member (account_id)
-);
 
 
 CREATE TABLE IF NOT EXISTS membership (

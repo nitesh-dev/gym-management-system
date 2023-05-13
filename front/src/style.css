@@ -31,3 +31,9 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+
+nav p.profile-name{
+  margin: auto 0;
+  margin-right: 24px;
+  margin-inline-start:auto;
+}

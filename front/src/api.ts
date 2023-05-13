@@ -1,4 +1,4 @@
-import { Admin, Branch, GYMDetail, Manager, Member, Membership, Profile, Staff, Trainer } from "./RestApiDataType"
+import { Admin, Branch, GYMDetail, Manager, Member, MemberInfo, Membership, Profile, Staff, Trainer } from "./RestApiDataType"
 interface Result<T> {
     type(account_id: string, type: any): unknown
     isError: boolean,
@@ -128,6 +128,12 @@ namespace Api {
     export async function updateManager(manager: Manager) {
         return put<Manager>("manager", "", manager)
     }
+
+    export async function getMemberInfo(branchId: string){
+        return get<MemberInfo[]>("branch/member-info", `branch_id=${branchId}`)
+    }
+
+
 
 
 
