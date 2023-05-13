@@ -155,6 +155,21 @@ router.delete("/branch", async (req, res) => {
     }
 })
 
+router.get("/branch/revenue", async (req, res) => {
+    const { branch_id } = req.query as any
+    const result1 = await SqlUtils.getBranchRevenue(branch_id)
+    const result2 = await SqlUtils.getBranchExpenditure(branch_id)
+
+    if (result1.isError || result2.isError) {
+        return res.status(400).send("Unable to calculate revenue")
+
+    } else {
+        res.send({total_rev: result1.result[0].total_revenue, total_exp: result2.result[0].total_salary})
+    }
+})
+
+
+
 
 
 
@@ -469,6 +484,9 @@ router.delete("/member", async (req, res) => {
         res.send({ result: result.result })
     }
 })
+
+
+
 
 /*-------------membership--------------*/
 

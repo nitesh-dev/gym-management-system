@@ -32,7 +32,7 @@ export class DialogTrainerData {
 import { ref } from 'vue'
 import Api from '../api'
 import { Branch, Trainer } from '../RestApiDataType'
-import {timeStringToUnixMilliseconds} from '../utils'
+import { timeStringToUnixMilliseconds } from '../utils'
 
 let prop = defineProps<{
     dialog: DialogTrainerData,
@@ -51,7 +51,7 @@ async function onSubmitForm() {
     trainer.value.start_time = timeStringToUnixMilliseconds(startTime.value)
     trainer.value.end_time = timeStringToUnixMilliseconds(endTime.value)
     prop.dialog.onCreateTrainer()
-    
+
     let res = await Api.createTrainer(trainer.value)
 
     if (res.isError) {
@@ -81,7 +81,7 @@ let endTime = ref("")
 
 // | 'Strength Training' | 'Yoga' | 'Pilates' | 'Crossfit'
 
-let allSpecialization = ref(['Cardio', 'Strength Training' , 'Yoga' , 'Pilates' , 'Crossfit'])
+let allSpecialization = ref(['Cardio', 'Strength Training', 'Yoga', 'Pilates', 'Crossfit'])
 
 </script>
 <template>
@@ -95,25 +95,48 @@ let allSpecialization = ref(['Cardio', 'Strength Training' , 'Yoga' , 'Pilates' 
 
                         <input type="text" v-model="trainer.name" class="form-control" placeholder="Name" required="true">
 
-                        <input type="email" v-model="trainer.email" class="form-control" placeholder="Email" required="true">
+                        <input type="email" v-model="trainer.email" class="form-control" placeholder="Email"
+                            required="true">
 
-                        <input type="password" v-model="trainer.password" class="form-control" placeholder="Password" required="true">
+                        <input type="password" v-model="trainer.password" class="form-control" placeholder="Password"
+                            required="true">
 
-                        <input type="text" v-model="trainer.address" class="form-control" placeholder="Address" required="true">
+                        <input type="text" v-model="trainer.address" class="form-control" placeholder="Address"
+                            required="true">
 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
-                        <input type="number" v-model="trainer.salary" class="form-control" placeholder="Salary" required="true">
+                        <input type="number" v-model="trainer.salary" class="form-control" placeholder="Salary"
+                            required="true">
 
-                        <input type="time" v-model="startTime" class="form-control" placeholder="Start Time" required="true">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Start Time</label>
+                            <div class="col-sm-8">
+                                <input type="time" v-model="startTime" class="form-control" placeholder="Start Time" required="true">
+                            </div>
+                        </div>
 
-                        <input type="time" v-model="endTime" class="form-control" placeholder="End Time" required="true">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">End Time</label>
+                            <div class="col-sm-8">
+                                <input type="time" v-model="endTime" class="form-control" placeholder="End Time" required="true">
+                            </div>
+                        </div>
 
-                        <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">DOB</label>
+                            <div class="col-sm-8">
+                                <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+                            </div>
+                        </div>
+
+
+                        
 
                         <select v-model="trainer.gender" class="form-select" required="true">
-                            <option  value="male">Male</option>
-                            <option  value="female" >Female</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
                         </select>
 
                         <select class="form-select" v-model="trainer.specialization" required="true">
@@ -163,10 +186,19 @@ input[type=checkbox] {
     margin-top: 30px;
 }
 
-form>input,
-form>select {
-    margin-top: 10px;
+form label{
+    align-self: center;
+    text-align: left;
+}
+
+form input,
+form select {
     padding: 12px;
+}
+
+
+form>input, form>select, .form-group{
+    margin-top: 10px;
 }
 
 #dob {
@@ -175,5 +207,4 @@ form>select {
 
 .buttons-container {
     margin-top: 24px;
-}
-</style>
+}</style>

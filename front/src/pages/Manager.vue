@@ -31,12 +31,12 @@ function getCookies() {
         id = localStorage.getItem("tempId")
 
         const mode = localStorage.getItem("isMangerProfile")
-        if(mode == null || mode == "false"){
+        if (mode == null || mode == "false") {
             isProfileMode.value = false
-        }else{
+        } else {
             isProfileMode.value = true
         }
-        
+
         type = "manager"
     } else {
         isAdmin.value = false
@@ -117,7 +117,6 @@ const warningData = new (class extends WarningData {
 })
 
 let warning = ref(warningData)
-
 
 
 
@@ -236,6 +235,21 @@ function changeTab(index: number) {
 }
 
 
+let totalRev = ref(0)
+let totalExp = ref(0)
+async function loadBranchRevenue(branchId: string) {
+    let res = await Api.getBranchRevenue(branchId)
+    if (res.isError) {
+        message.value.show(res.error)
+    } else {
+        if (res.result) {
+            totalRev.value = res.result.total_rev as number
+            totalExp.value = res.result.total_exp as number
+        }
+    }
+}
+
+
 let managerDetail = ref<Manager>({
     account_id: "loading...",
     branch_id: "",
@@ -255,6 +269,9 @@ async function loadManagerDetail() {
         managerDetail.value = res.result as Manager
         loadBranchDetail(managerDetail.value.branch_id)
         loadTrainerAccounts(managerDetail.value.branch_id)
+        loadBranchRevenue(managerDetail.value.branch_id)
+        loadStaffAccounts(managerDetail.value.branch_id)
+        loadMemberAccounts(managerDetail.value.branch_id, false)
     }
 }
 
@@ -565,6 +582,62 @@ getCookies()
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Revenue -->
+                        <div class="col-sm">
+                            <div class="blur-div-parent card mb-4 card-parent">
+                                <div class="blur-div"></div>
+                                <div class="card-body">
+                                    <h5>Others</h5>
+
+                                    <div class="row">
+                                        <div class="col-sm-5">
+                                            <p class="mb-0">Total Revenue</p>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <p class="mb-0">₹{{ totalRev }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-5">
+                                            <p class="mb-0">Total Expenditure</p>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <p class="mb-0">₹{{ totalExp }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-5">
+                                            <p class="mb-0">Total Staff</p>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <p class="mb-0">{{ staffAccounts.length }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-5">
+                                            <p class="mb-0">Total Trainer</p>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <p class="mb-0">{{ trainerAccounts.length }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-5">
+                                            <p class="mb-0">Total Member</p>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <p class="mb-0">{{ memberAccounts.length }}</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -611,8 +684,10 @@ getCookies()
                                         unixMillisecondsToDateString(trainer.dob) }}
                                     </td>
                                     <td @click="openTrainer(trainer.account_id)">₹{{ trainer.salary }}</td>
-                                    <td @click="openTrainer(trainer.account_id)">{{ unixMillisecondsToTimeString(trainer.start_time)}}</td>
-                                    <td @click="openTrainer(trainer.account_id)">{{ unixMillisecondsToTimeString(trainer.end_time) }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{
+                                        unixMillisecondsToTimeString(trainer.start_time) }}</td>
+                                    <td @click="openTrainer(trainer.account_id)">{{
+                                        unixMillisecondsToTimeString(trainer.end_time) }}</td>
 
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.specialization }}</td>
                                     <td @click="openTrainer(trainer.account_id)">{{ trainer.account_id }}</td>

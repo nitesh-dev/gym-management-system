@@ -128,7 +128,12 @@ function setSelectedBranch() {
 
                         <input type="number" v-model="salary" class="form-control" placeholder="Salary" required="true">
 
-                        <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">DOB</label>
+                            <div class="col-sm-8">
+                                <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
+                            </div>
+                        </div>
 
                         <select v-model="gender" class="form-select" required="true">
                             <option value="male">Male</option>
@@ -184,10 +189,19 @@ input[type=checkbox] {
     margin-top: 30px;
 }
 
-form>input,
-form>select {
-    margin-top: 10px;
+form label{
+    align-self: center;
+    text-align: left;
+}
+
+form input,
+form select {
     padding: 12px;
+}
+
+
+form>input, form>select, .form-group{
+    margin-top: 10px;
 }
 
 #dob {

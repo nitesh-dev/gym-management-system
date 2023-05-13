@@ -117,6 +117,11 @@ namespace Api {
         return delete_("member", `id=${accountId}`)
     }
 
+    export async function getBranchRevenue(branchId: string) {
+        return get<{total_rev: number, total_exp: number}>("branch/revenue", `branch_id=${branchId}`)
+    }
+
+
 
 
 
@@ -157,16 +162,16 @@ namespace Api {
 
 
 
-        /*----------------- Membership -----------*/
+    /*----------------- Membership -----------*/
 
-        export async function getMembership(id: string) {
-            return get<Membership[]>("membership", `member_id=${id}`)
-        }
+    export async function getMembership(id: string) {
+        return get<Membership[]>("membership", `member_id=${id}`)
+    }
 
-        export async function registerMembership(membership: Membership) {
-            return post("membership", "", membership)
-        }
-    
+    export async function registerMembership(membership: Membership) {
+        return post("membership", "", membership)
+    }
+
 
 
 

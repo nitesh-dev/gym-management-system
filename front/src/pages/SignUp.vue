@@ -90,11 +90,11 @@ fetchData()
       <input type="text" v-model="memberDetail.address" class="form-control" placeholder="Address" required="true">
       <input type="date" v-model="dob" class="form-control" placeholder="DOB" required="true">
 
-      <!-- <select class="form-select" v-model="gender" aria-label="Default select example" style="margin-bottom: 20px;"
+      <select class="form-select" v-model="memberDetail.gender" style="margin-bottom: 20px;"
         required>
         <option value="Male" selected>Male</option>
         <option value="Female">Female</option>
-      </select> -->
+      </select>
 
       <select class="form-select" v-model="memberDetail.branch_id" style="margin-bottom: 20px;" required>
         <option :value="branch.branch_id" v-for="branch in branchDetails">{{ branch.name }}, {{ branch.address }}</option>

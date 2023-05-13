@@ -439,6 +439,8 @@ namespace SqlUtils {
             return createSqlResult(true, "unable to delete")
         }
     }
+
+
     /**--------------------member-----------------------*/
     export async function createMember(
         info: Member
@@ -560,6 +562,36 @@ namespace SqlUtils {
             return createSqlResult(false, arr)
         }
     }
+
+    export async function getBranchRevenue(branch_id: string) {
+        const sql = `SELECT SUM(membership.price) AS total_revenue FROM membership LEFT JOIN member ON member.account_id = membership.member_id WHERE member.branch_id='${branch_id}';`
+        const result = await _query<any[]>(sql)
+        const arr = result.result
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+
+    export async function getBranchExpenditure(branch_id: string) {
+        const sql = `SELECT SUM(salary) AS total_salary FROM (
+            SELECT salary FROM staff WHERE branch_id = '${branch_id}'
+            UNION ALL
+            SELECT salary FROM manager WHERE branch_id = '${branch_id}'
+            UNION ALL
+            SELECT salary FROM trainer WHERE branch_id = '${branch_id}'
+          ) AS salaries;`
+        const result = await _query<any[]>(sql)
+        const arr = result.result
+        if (result.isError) {
+            return result
+        } else {
+            return createSqlResult(false, arr)
+        }
+    }
+
+
 
 }
 
