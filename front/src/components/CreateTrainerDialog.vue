@@ -47,6 +47,7 @@ async function onSubmitForm() {
     trainer.value.dob = millisecond
     trainer.value.contact = contact.value.toString()
     trainer.value.branch_id = prop.branchId
+    trainer.value.salary = salary.value as number
 
     trainer.value.start_time = timeStringToUnixMilliseconds(startTime.value)
     trainer.value.end_time = timeStringToUnixMilliseconds(endTime.value)
@@ -74,6 +75,7 @@ const trainer = ref<Trainer>({
     end_time: 0
 })
 
+let salary = ref<number>()
 let dob = ref("")
 let contact = ref("")
 let startTime = ref("")
@@ -106,7 +108,7 @@ let allSpecialization = ref(['Cardio', 'Strength Training', 'Yoga', 'Pilates', '
 
                         <input type="number" v-model="contact" class="form-control" placeholder="Contact" required="true">
 
-                        <input type="number" v-model="trainer.salary" class="form-control" placeholder="Salary"
+                        <input type="number" v-model="salary" class="form-control" placeholder="Salary"
                             required="true">
 
                         <div class="form-group row">

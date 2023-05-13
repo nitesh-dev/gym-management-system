@@ -64,10 +64,10 @@ let name = ref("")
 let email = ref("")
 let password = ref("")
 let address = ref("")
-let contact = ref<number>(0)
+let contact = ref<number>()
 let gender = ref('male')
 let dob = ref("")
-let salary = ref<number>(0)
+let salary = ref<number>()
 
 
 
@@ -82,7 +82,7 @@ async function onSubmitForm() {
         branch_id: prop.dialog.selectedBranchId,
         name: name.value, email: email.value,
         password: password.value, address: address.value,
-        contact: contact.value.toString(), dob: dateMill, salary: salary.value
+        contact: (contact.value as number).toString(), dob: dateMill, salary: salary.value as number
     }
 
 
