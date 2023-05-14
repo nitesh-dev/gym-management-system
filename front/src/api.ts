@@ -9,7 +9,7 @@ function createResult<T>(result: T | null, isError: boolean = true, error: strin
     return { isError: isError, result: result, error: error } as Result<T>
 }
 namespace Api {
-    const apiURL = 'http://localhost:3000'
+    const apiURL =import.meta.env.VITE_SERVER_URL ||'http://localhost:3000'
 
     export async function signIn(email: string, password: string) {
         return post<{ account_id: string, type: string }>("signin", "", { email: email, password: password })
